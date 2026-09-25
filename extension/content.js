@@ -382,40 +382,24 @@
       <div class="sjg-modal-dialog animate-pop-in">
         
         <div class="sjg-modal-header">
-          <div class="sjg-header-left">
-            <div class="sjg-logo-badge">
-              <span class="sjg-pulse-circle"></span>
-              <span class="sjg-logo-title">SuperJobGenie 2.3</span>
-              <span class="sjg-version-pill">${job.platform || 'Western Job'} Deep Scan</span>
-            </div>
-            <div class="sjg-sub-status">
-              [${job.platform}] Fully parsed <strong class="text-emerald-400">${job.characterCount.toLocaleString()}</strong> characters
-            </div>
+          <div class="sjg-logo-badge">
+            <span class="sjg-pulse-circle"></span>
+            <span class="sjg-logo-title">SuperJobGenie</span>
           </div>
-
-          <div class="sjg-header-right">
-            <button id="sjg-ext-dash-btn" class="sjg-icon-tool-btn" title="Open Dashboard">
-              🚀 Pro Dashboard
-            </button>
-            <button id="sjg-close-modal-btn" class="sjg-close-cross-btn" title="Close (ESC)">✕</button>
-          </div>
+          <button id="sjg-close-modal-btn" class="sjg-close-cross-btn" title="Close (ESC)">✕</button>
         </div>
 
         <div class="sjg-job-strip">
-          <div class="sjg-job-headline">
-            <h2 class="sjg-job-main-title">${escapeHtml(job.title)}</h2>
-            <div class="sjg-job-meta">
-              <span class="sjg-comp-name">${escapeHtml(job.company)}</span>
-              <span>•</span>
-              <span>${escapeHtml(job.location)}</span>
-              <span>•</span>
-              <span class="sjg-salary-tag">${escapeHtml(job.salary || 'Salary N/A')}</span>
-            </div>
-          </div>
           <div class="sjg-score-hero">
             <div class="sjg-score-circle">
               <span class="sjg-score-num">${evaluation.matchScore}%</span>
               <span class="sjg-score-label">Match</span>
+            </div>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <h2 class="sjg-job-main-title" style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff;">${escapeHtml(job.title)}</h2>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+              <span style="color: #38bdf8; font-weight: 600;">${escapeHtml(job.company)}</span> • <span>${escapeHtml(job.location)}</span>
             </div>
           </div>
         </div>
@@ -551,7 +535,7 @@
 
         <div class="sjg-modal-footer">
           <div class="sjg-footer-info">
-            <span>Shortcut: Click pill or press <kbd>ESC</kbd> to toggle</span>
+            <span style="color: #34d399;">${evaluation.matchTier}</span> • ${job.characterCount.toLocaleString()} chars scanned
           </div>
           <div class="sjg-footer-actions">
             <button id="sjg-rescan-btn" class="sjg-btn-sub">🔄 Rescan</button>
@@ -598,10 +582,6 @@
       const btn = e.currentTarget;
       btn.innerText = '✅ Copied!';
       setTimeout(() => { btn.innerText = '📋 Copy'; }, 2000);
-    });
-
-    document.getElementById('sjg-ext-dash-btn')?.addEventListener('click', () => {
-      window.open('https://ais-dev-dpehhkspkblknqvlwnko6m-423633136396.europe-west2.run.app', '_blank');
     });
 
     document.getElementById('sjg-rescan-btn')?.addEventListener('click', () => {
