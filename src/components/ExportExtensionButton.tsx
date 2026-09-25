@@ -362,7 +362,7 @@ chrome.runtime.onInstalled.addListener(() => {
                       Chrome Extension Exporter & Workstation Patch
                     </h3>
                     <span className="text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">
-                      v2.4.0 (Shadow DOM 自动冒泡版)
+                      v2.5.0 (100% 像素级对齐图片版)
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">
