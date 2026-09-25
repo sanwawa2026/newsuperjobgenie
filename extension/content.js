@@ -322,6 +322,8 @@
       triggerPill.id = 'sjg-floating-trigger';
       triggerPill.className = 'sjg-floating-pill';
       triggerPill.setAttribute('title', 'Click to expand deep analysis');
+      triggerPill.style.zIndex = '2147483647'; // Maximum possible z-index
+      triggerPill.style.pointerEvents = 'auto'; // Ensure it receives clicks
       triggerPill.innerHTML = `
         <div class="sjg-pill-dot"></div>
         <div class="sjg-pill-text">
@@ -331,14 +333,10 @@
         </div>
         <div class="sjg-pill-badge" id="sjg-pill-score">${evaluation.matchScore}%</div>
       `;
+      triggerPill.setAttribute('onclick', 'window.__SJG_TOGGLE_MODAL__()');
       document.body.appendChild(triggerPill);
-
-      triggerPill.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleModal();
-      });
-    } else {
+    }
+ else {
       const countEl = document.getElementById('sjg-pill-count');
       const scoreEl = document.getElementById('sjg-pill-score');
       if (countEl) countEl.innerText = `${job.characterCount.toLocaleString()} chars`;
@@ -349,6 +347,8 @@
       renderModalContent();
     }
   }
+
+  window.__SJG_TOGGLE_MODAL__ = toggleModal;
 
   function toggleModal() {
     isModalOpen = !isModalOpen;
