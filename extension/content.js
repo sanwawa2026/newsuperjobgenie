@@ -333,7 +333,11 @@
       `;
       document.body.appendChild(triggerPill);
 
-      triggerPill.addEventListener('click', toggleModal);
+      triggerPill.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleModal();
+      });
     } else {
       const countEl = document.getElementById('sjg-pill-count');
       const scoreEl = document.getElementById('sjg-pill-score');
