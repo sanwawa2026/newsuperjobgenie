@@ -4,22 +4,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   const jobPreviewBox = document.getElementById('jobPreviewBox');
   const previewTitle = document.getElementById('previewTitle');
   const previewMeta = document.getElementById('previewMeta');
+  const statusBadge = document.getElementById('statusBadge');
 
-  // 1. 探针检测当前活跃 Tab
   let activeTab = null;
+
+  // 1. 获取当前活跃 Tab 并检测状态
   try {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tabs && tabs[0]) {
       activeTab = tabs[0];
-      // 尝试向当前页面发送 ping
+      
       chrome.tabs.sendMessage(activeTab.id, { action: 'ping' }, (response) => {
         if (chrome.runtime.lastError) {
-          // 未注入或非匹配页面
-        } else if (response && response.jobTitle) {
+          // 当前页面可能尚未注入或为系统页面
+          if (statusBadge) {
+            statusBadge.innerText = '等待就绪';
+            statusBadge.style.color = '#fbbf24';
+          }
+        } else if (response && response.success) {
+          if (statusBadge) {
+            statusBadge.innerText = '● 已连接页面';
+            statusBadge.style.color = '#34d399';
+          }
           if (jobPreviewBox && previewTitle && previewMeta) {
             jobPreviewBox.style.display = 'block';
-            previewTitle.innerText = `🎯 ${response.jobTitle}`;
-            previewMeta.innerText = `${response.company || '招聘方'} • ${response.charCount || 0} 字符 (全量无截断)`;
+            previewTitle.innerText = `🎯 ${response.jobTitle || '已捕获职位'}`;
+            previewMeta.innerText = `${response.company || ''} • ${response.charCount ? response.charCount.toLocaleString() : 0} 字符 (${response.platform || '招聘网'})`;
           }
         }
       });
@@ -28,42 +38,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error(e);
   }
 
-  // 2. 唤起招聘网页面内沉浸式大弹窗
+  // 2. 唤起招聘网页内大弹窗
   if (openInPageModalBtn) {
     openInPageModalBtn.addEventListener('click', async () => {
       if (!activeTab || !activeTab.id) return;
 
       chrome.tabs.sendMessage(activeTab.id, { action: 'open_inpage_modal' }, async (response) => {
         if (chrome.runtime.lastError) {
-          // 如果 content script 尚未注入，动态注入后重新打开
+          // 若 content script 尚未就绪，尝试动态注入
           try {
-            await chrome.scripting.insertCSS({
-              target: { tabId: activeTab.id },
-              files: ['styles.css']
-            });
             await chrome.scripting.executeScript({
-              target: { tabId: activeTab.id },
+              target: { tabId: activeTab.id, allFrames: true },
               files: ['content.js']
             });
             setTimeout(() => {
               chrome.tabs.sendMessage(activeTab.id, { action: 'open_inpage_modal' });
               window.close();
             }, 300);
-          } catch (injectErr) {
-            alert('提示: 请在招聘网站（如 Indeed / LinkedIn）页面上点击此按钮唤起页面弹窗！');
+          } catch (err) {
+            alert('请在 Indeed、LinkedIn 等招聘职位页面上点击此按钮！');
           }
         } else {
-          window.close(); // 成功唤起后关闭扩展小弹窗，聚焦页面大弹窗
+          window.close(); // 成功唤起页面 HUD 后关闭此小弹窗
         }
       });
     });
   }
 
-  // 3. 打开本地/远程全景控制台
+  // 3. 打开本地/远程 Web 全景控制台
   if (openLocalDashboardBtn) {
     openLocalDashboardBtn.addEventListener('click', () => {
       chrome.tabs.create({ url: 'https://ais-dev-dpehhkspkblknqvlwnko6m-423633136396.europe-west2.run.app' });
     });
   }
 });
-

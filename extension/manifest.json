@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SuperJobGenie - Western Job Boards AI Career Assistant",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Unabridged 3,000+ character deep extractor & AI career match analyzer across Indeed, LinkedIn, Glassdoor, ZipRecruiter, Greenhouse, Lever & Workday.",
   "permissions": [
     "storage",
@@ -14,6 +14,9 @@
     "https://*.indeed.ca/*",
     "https://*.indeed.de/*",
     "https://*.indeed.fr/*",
+    "https://*.indeed.es/*",
+    "https://*.indeed.it/*",
+    "https://*.indeed.jp/*",
     "https://*.linkedin.com/*",
     "https://*.glassdoor.com/*",
     "https://*.glassdoor.co.uk/*",
@@ -47,6 +50,9 @@
         "https://*.indeed.ca/*",
         "https://*.indeed.de/*",
         "https://*.indeed.fr/*",
+        "https://*.indeed.es/*",
+        "https://*.indeed.it/*",
+        "https://*.indeed.jp/*",
         "https://*.linkedin.com/*",
         "https://*.glassdoor.com/*",
         "https://*.glassdoor.co.uk/*",
@@ -63,9 +69,7 @@
       "js": [
         "content.js"
       ],
-      "css": [
-        "styles.css"
-      ],
+      "all_frames": true,
       "run_at": "document_idle"
     }
   ],
