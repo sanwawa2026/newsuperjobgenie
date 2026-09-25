@@ -643,6 +643,11 @@
     if (jobDescriptionElement) {
         console.log('[SuperJobGenie] JD container found! Auto-mounting HUD...');
         ensureInPageElements();
+        // Automatically open the modal if it's not already open
+        if (!isModalOpen) {
+          console.log('[SuperJobGenie] Auto-opening modal.');
+          toggleModal();
+        }
     }
   });
   
