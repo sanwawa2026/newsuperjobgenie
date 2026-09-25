@@ -333,10 +333,9 @@
         </div>
         <div class="sjg-pill-badge" id="sjg-pill-score">${evaluation.matchScore}%</div>
       `;
-      triggerPill.setAttribute('onclick', 'window.__SJG_TOGGLE_MODAL__()');
       document.body.appendChild(triggerPill);
     }
- else {
+    else {
       const countEl = document.getElementById('sjg-pill-count');
       const scoreEl = document.getElementById('sjg-pill-score');
       if (countEl) countEl.innerText = `${job.characterCount.toLocaleString()} chars`;
@@ -348,7 +347,14 @@
     }
   }
 
-  window.__SJG_TOGGLE_MODAL__ = toggleModal;
+  // Document-level delegation to bypass Indeed's event system
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#sjg-floating-trigger')) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleModal();
+    }
+  }, true); // Capture phase
 
   function toggleModal() {
     isModalOpen = !isModalOpen;
