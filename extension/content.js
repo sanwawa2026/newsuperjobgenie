@@ -1280,9 +1280,13 @@
 
     // Upload Resume Button & File Input handler
     const fileInput = wrapper.querySelector('#sjg-resume-file-input');
-    wrapper.querySelector('#sjg-upload-resume-btn')?.addEventListener('click', () => {
-      if (fileInput) fileInput.value = ''; // Reset so same file can be re-triggered if needed
-      fileInput?.click();
+    const uploadBtn = wrapper.querySelector('#sjg-upload-resume-btn');
+
+    uploadBtn?.addEventListener('click', () => {
+      if (fileInput) {
+        fileInput.value = '';
+        fileInput.click();
+      }
     });
 
     fileInput?.addEventListener('change', (e) => {
@@ -1293,22 +1297,23 @@
       reader.onload = (loadEvent) => {
         const text = loadEvent.target?.result;
         if (typeof text === 'string') {
-          // Completely replace old resume text and extract fresh skills from scratch
-          candidateProfile.rawResumeText = text.slice(0, 2000);
+          // Completely overwrite old candidate profile
+          candidateProfile.name = file.name.replace(/\.[^/.]+$/, '');
           candidateProfile.title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+          candidateProfile.targetRole = candidateProfile.title;
+          candidateProfile.yearsOfExperience = 8;
+          candidateProfile.rawResumeText = text.slice(0, 2000);
           
           const commonKeywords = [
             'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Go', 'Java',
             'AWS', 'GCP', 'Docker', 'Kubernetes', 'GraphQL', 'Next.js', 'SQL',
             'System Design', 'CI/CD', 'Microfrontends', 'Tailwind', 'DevOps',
-            'Finance', 'Accounting', 'FP&A', 'Excel', 'SQL', 'Tableau', 'PowerBI',
-            'SAP', 'Oracle', 'Budgeting', 'Forecasting', 'Auditing', 'GAAP'
+            'Finance', 'Accounting', 'FP&A', 'Excel', 'Tableau', 'PowerBI',
+            'SAP', 'Oracle', 'Budgeting', 'Forecasting', 'Auditing', 'GAAP', 'Financial Analysis'
           ];
           const found = commonKeywords.filter(k => new RegExp(`\\b${k}\\b`, 'i').test(text));
-          // Reset skills to newly detected ones (plus ensure unique)
           candidateProfile.skills = found.length > 0 ? Array.from(new Set(found)) : ['Financial Analysis', 'Excel', 'SQL', 'GAAP'];
 
-          const uploadBtn = wrapper.querySelector('#sjg-upload-resume-btn');
           if (uploadBtn) {
             uploadBtn.innerHTML = '✅ Uploaded!';
             setTimeout(() => {
