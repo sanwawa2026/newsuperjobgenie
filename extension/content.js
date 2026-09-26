@@ -1321,10 +1321,10 @@
     wrapper.querySelector('#sjg-quick-save-btn')?.addEventListener('click', () => {
       const btn = wrapper.querySelector('#sjg-quick-save-btn');
       if (btn) {
-        btn.innerText = '✅ Saved!';
+        btn.innerText = '✅ Saved & Updated!';
         setTimeout(() => {
           btn.innerText = '💾 Save';
-        }, 1500);
+        }, 1800);
       }
       renderShadowUI();
     });
