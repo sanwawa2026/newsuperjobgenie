@@ -1,17 +1,18 @@
 /**
- * SuperJobGenie Chrome Extension - Content Script (v2.6.0)
- * Industrial-grade Shadow DOM Isolation + 100% English UI + Prominent Resume Uploader
+ * SuperJobGenie Chrome Extension - Content Script (v2.7.0)
+ * Industrial-grade Shadow DOM Isolation + Bottom-Right Floating Panel + Zero Center Blocking + Single Instance
  */
 
 (function () {
   'use strict';
 
-  if (window.__SUPER_JOB_GENIE_INITIALIZED__) {
+  // Prevent duplicate script execution or multi-frame stacking
+  if (window.__SUPER_JOB_GENIE_INITIALIZED__ || document.getElementById('sjg-shadow-host-root')) {
     return;
   }
   window.__SUPER_JOB_GENIE_INITIALIZED__ = true;
 
-  console.log('[SuperJobGenie v2.6.0] English Pro HUD initialized on:', window.location.href);
+  console.log('[SuperJobGenie v2.7.0] English Pro HUD initialized on:', window.location.href);
 
   // Candidate Profile State
   let candidateProfile = {
@@ -248,8 +249,6 @@
    * Evaluate Job Match against Candidate Profile
    */
   function evaluateJobMatch(jobData, cand) {
-    const text = (jobData.fullBodyText || '').toLowerCase();
-
     const benchmarkDimensions = [
       { name: 'TypeScript & React Architecture', category: 'Frontend', weight: 15 },
       { name: 'Microfrontends & Modular Systems', category: 'Architecture', weight: 15 },
@@ -338,7 +337,7 @@
   }
 
   /**
-   * CSS Styles injected directly into Shadow DOM (100% English & Crisp Layout)
+   * CSS Styles injected directly into Shadow DOM (Bottom-Right Floating Panel, Zero Center Blocking)
    */
   const SHADOW_CSS = `
     * {
@@ -413,44 +412,34 @@
       border-radius: 999px;
     }
 
-    /* 2. In-Page Auto-Popping Modal Backdrop */
-    .sjg-modal-backdrop {
+    /* 2. Bottom-Right Floating Panel (Zero Center Blocking, No Dark Backdrop) */
+    .sjg-hud-panel {
       position: fixed;
-      inset: 0;
+      bottom: 84px;
+      right: 24px;
       z-index: 2147483647;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      color: #f1f5f9;
-      pointer-events: auto;
-    }
-
-    .sjg-modal-backdrop.open {
-      display: flex !important;
-    }
-
-    /* 3. Modal Dialog Container */
-    .sjg-hud-container {
-      width: 100%;
-      max-width: 440px;
-      max-height: 94vh;
+      width: 420px;
+      max-height: 82vh;
       background: #090d16;
       border: 1px solid #1e293b;
       border-radius: 20px;
       box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 35px rgba(59, 130, 246, 0.25);
-      display: flex;
+      display: none;
       flex-direction: column;
       overflow: hidden;
-      animation: sjgPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #f1f5f9;
+      pointer-events: auto;
+      animation: sjgSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes sjgPopIn {
-      0% { transform: scale(0.94) translateY(15px); opacity: 0; }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
+    .sjg-hud-panel.open {
+      display: flex !important;
+    }
+
+    @keyframes sjgSlideUp {
+      0% { transform: translateY(20px) scale(0.97); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
     }
 
     /* Header */
@@ -773,7 +762,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      shrink: 0;
+      flex-shrink: 0;
     }
 
     .sjg-ring-svg {
@@ -977,11 +966,11 @@
       color: #ffffff;
     }
 
-    /* In-Page Edit Candidate Modal Sub-dialog */
+    /* Edit Candidate Overlay Sub-dialog */
     .sjg-edit-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(9, 13, 22, 0.95);
+      background: rgba(9, 13, 22, 0.96);
       border-radius: 20px;
       padding: 20px;
       display: flex;
@@ -1033,7 +1022,6 @@
     const evaluation = evaluateJobMatch(job, candidateProfile);
     const displayChars = isBuggyMode ? 153 : job.characterCount;
 
-    // Build or update Shadow DOM structure
     let wrapper = sRoot.getElementById('sjg-shadow-wrapper');
     if (!wrapper) {
       wrapper = document.createElement('div');
@@ -1048,7 +1036,7 @@
       <!-- Hidden file input for resume uploading -->
       <input type="file" id="sjg-resume-file-input" accept=".txt,.json,.md,.pdf,.docx" style="display:none;" />
 
-      <!-- Floating Quick Pill Trigger (Always available in bottom-right) -->
+      <!-- Floating Quick Pill Trigger in Bottom-Right -->
       <div id="sjg-pill-trigger" class="sjg-floating-pill" title="Click to open/close SuperJobGenie HUD">
         <div class="sjg-pill-dot"></div>
         <div class="sjg-pill-text">
@@ -1060,204 +1048,202 @@
         <div class="sjg-pill-badge">${evaluation.overallMatchScore}%</div>
       </div>
 
-      <!-- In-Page Auto-Popping Modal Backdrop -->
-      <div id="sjg-backdrop" class="sjg-modal-backdrop ${isModalOpen ? 'open' : ''}">
-        <div class="sjg-hud-container" style="position: relative;">
+      <!-- Bottom-Right Floating Panel (Zero Center Blocking) -->
+      <div id="sjg-hud-panel" class="sjg-hud-panel ${isModalOpen ? 'open' : ''}">
+        
+        <!-- Top Header -->
+        <div class="sjg-header">
+          <div class="sjg-header-left">
+            <span class="sjg-cyan-dot"></span>
+            <span class="sjg-title">SUPERJOBGENIE HUD</span>
+            <span class="sjg-pro-badge">👑 PRO (3/3)</span>
+          </div>
+          <div class="sjg-header-actions">
+            <button id="sjg-rescan-btn" class="sjg-btn-rescan">
+              🔄 Rescan
+            </button>
+            <button id="sjg-close-btn" class="sjg-btn-close" title="Close (ESC)">✕</button>
+          </div>
+        </div>
+
+        <!-- Mode Banner -->
+        <div class="sjg-mode-bar">
+          <span class="sjg-mode-label">Extraction Mode:</span>
+          <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="Click to toggle between 153 chars truncated vs 3,000+ full-body chars">
+            ${isBuggyMode ? '⚠️ Truncated: 153 Chars (Click to Fix)' : '🛡️ Full Body: 3,000+ Chars Verified'}
+          </div>
+        </div>
+
+        <!-- Main Scrollable Body -->
+        <div class="sjg-body">
           
-          <!-- Top Header -->
-          <div class="sjg-header">
-            <div class="sjg-header-left">
-              <span class="sjg-cyan-dot"></span>
-              <span class="sjg-title">SUPERJOBGENIE HUD</span>
-              <span class="sjg-pro-badge">👑 PRO (3/3)</span>
+          <!-- Live Job Target Card -->
+          <div class="sjg-card">
+            <div class="sjg-card-header">
+              <span style="font-size: 11px; font-weight: 600; color: #94a3b8; display: flex; align-items: center;">
+                <span class="sjg-red-dot"></span>
+                Live Job Target (${escapeHtml(job.platform)}):
+              </span>
+              <span class="sjg-chars-badge">
+                ⚡ Captured ${displayChars} chars body
+              </span>
             </div>
-            <div class="sjg-header-actions">
-              <button id="sjg-rescan-btn" class="sjg-btn-rescan">
-                🔄 Rescan
-              </button>
-              <button id="sjg-close-btn" class="sjg-btn-close" title="Close (ESC)">✕</button>
-            </div>
-          </div>
-
-          <!-- Mode Banner (100% English) -->
-          <div class="sjg-mode-bar">
-            <span class="sjg-mode-label">Extraction Mode:</span>
-            <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="Click to toggle between 153 chars truncated vs 3,000+ full-body chars">
-              ${isBuggyMode ? '⚠️ Truncated: 153 Chars (Click to Fix)' : '🛡️ Full Body: 3,000+ Chars Verified'}
+            <div class="sjg-job-title">${escapeHtml(job.title)}</div>
+            <div class="sjg-job-sub">
+              <span class="sjg-job-company">🏢 ${escapeHtml(job.company)}</span> • 
+              <span>${escapeHtml(job.location)}</span>
             </div>
           </div>
 
-          <!-- Main Scrollable Body -->
-          <div class="sjg-body">
+          <!-- Candidate Profile Card (With Upload Resume, Clear, Edit, Expand) -->
+          <div class="sjg-card">
+            <div class="sjg-card-header">
+              <span style="font-size: 11px; font-weight: 700; color: #cbd5e1; display: flex; align-items: center; gap: 5px;">
+                📄 Candidate Profile
+              </span>
+              <div class="sjg-candidate-actions">
+                <button id="sjg-upload-resume-btn" class="sjg-btn-upload" title="Upload Resume (.pdf, .docx, .txt, .json)">
+                  📤 Upload Resume
+                </button>
+                <button id="sjg-clear-btn" class="sjg-btn-link" title="Clear Profile">🗑️ Clear</button>
+                <button id="sjg-edit-btn" class="sjg-btn-link" title="Edit Profile">✏️ Edit</button>
+                <button id="sjg-expand-btn" class="sjg-btn-link expand">
+                  ${isCandidateExpanded ? 'Collapse ∧' : 'Expand ∨'}
+                </button>
+              </div>
+            </div>
+            <div class="sjg-cand-skills-text">
+              <span class="sjg-cand-skills-label">Identified Skills (${candidateProfile.skills.length}): </span>
+              ${escapeHtml(candidateProfile.skills.slice(0, 6).join(', '))}, Next.js, GraphQL, CI/CD...
+            </div>
+
+            ${isCandidateExpanded ? `
+              <div class="sjg-cand-expand-box">
+                <div><strong style="color:#fff;">Role:</strong> ${escapeHtml(candidateProfile.title)}</div>
+                <div><strong style="color:#fff;">Experience:</strong> ${candidateProfile.yearsOfExperience} Years Full-Stack / Backend</div>
+                <div style="font-size:10px; color:#94a3b8; line-height:1.4;">${escapeHtml(candidateProfile.rawResumeText)}</div>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Match Card -->
+          <div class="sjg-match-card">
+            <div class="sjg-match-header">
+              <div class="sjg-match-tier">
+                <span style="color:#38bdf8; font-size:15px;">◎</span>
+                <span>${escapeHtml(evaluation.matchTier)}</span>
+              </div>
+              <span class="sjg-match-tier-badge">Multi-Dimensional Weighted</span>
+            </div>
+            <div class="sjg-match-desc">
+              ${escapeHtml(evaluation.matchHeadline)}
+            </div>
             
-            <!-- Live Job Target Card -->
-            <div class="sjg-card">
-              <div class="sjg-card-header">
-                <span style="font-size: 11px; font-weight: 600; color: #94a3b8; display: flex; align-items: center;">
-                  <span class="sjg-red-dot"></span>
-                  Live Job Target (${escapeHtml(job.platform)}):
-                </span>
-                <span class="sjg-chars-badge">
-                  ⚡ Captured ${displayChars} chars body
-                </span>
-              </div>
-              <div class="sjg-job-title">${escapeHtml(job.title)}</div>
-              <div class="sjg-job-sub">
-                <span class="sjg-job-company">🏢 ${escapeHtml(job.company)}</span> • 
-                <span>${escapeHtml(job.location)}</span>
-              </div>
-            </div>
-
-            <!-- Candidate Profile Card (With Prominent [Upload Resume] Button, Clear, Edit, Expand) -->
-            <div class="sjg-card">
-              <div class="sjg-card-header">
-                <span style="font-size: 11px; font-weight: 700; color: #cbd5e1; display: flex; align-items: center; gap: 5px;">
-                  📄 Candidate Profile
-                </span>
-                <div class="sjg-candidate-actions">
-                  <button id="sjg-upload-resume-btn" class="sjg-btn-upload" title="Upload Resume (.pdf, .docx, .txt, .json)">
-                    📤 Upload Resume
-                  </button>
-                  <button id="sjg-clear-btn" class="sjg-btn-link" title="Clear Profile">🗑️ Clear</button>
-                  <button id="sjg-edit-btn" class="sjg-btn-link" title="Edit Profile">✏️ Edit</button>
-                  <button id="sjg-expand-btn" class="sjg-btn-link expand">
-                    ${isCandidateExpanded ? 'Collapse ∧' : 'Expand ∨'}
-                  </button>
+            <div class="sjg-match-inner">
+              <div class="sjg-ring-box">
+                <svg class="sjg-ring-svg" viewBox="0 0 54 54">
+                  <circle cx="27" cy="27" r="22" stroke="#1e293b" stroke-width="4" fill="none" />
+                  <circle cx="27" cy="27" r="22" stroke="#06b6d4" stroke-width="4" fill="none"
+                          stroke-dasharray="138" stroke-dashoffset="${strokeDashoffset}" stroke-linecap="round" />
+                </svg>
+                <div class="sjg-ring-text">
+                  <span class="sjg-ring-num">${evaluation.overallMatchScore}%</span>
+                  <span class="sjg-ring-sub">MATCH</span>
                 </div>
               </div>
-              <div class="sjg-cand-skills-text">
-                <span class="sjg-cand-skills-label">Identified Skills (${candidateProfile.skills.length}): </span>
-                ${escapeHtml(candidateProfile.skills.slice(0, 6).join(', '))}, Next.js, GraphQL, CI/CD...
-              </div>
-
-              ${isCandidateExpanded ? `
-                <div class="sjg-cand-expand-box">
-                  <div><strong style="color:#fff;">Role:</strong> ${escapeHtml(candidateProfile.title)}</div>
-                  <div><strong style="color:#fff;">Experience:</strong> ${candidateProfile.yearsOfExperience} Years Full-Stack / Backend</div>
-                  <div style="font-size:10px; color:#94a3b8; line-height:1.4;">${escapeHtml(candidateProfile.rawResumeText)}</div>
-                </div>
-              ` : ''}
-            </div>
-
-            <!-- Match Card: 92% Top 1% Exceptional (100% English) -->
-            <div class="sjg-match-card">
-              <div class="sjg-match-header">
-                <div class="sjg-match-tier">
-                  <span style="color:#38bdf8; font-size:15px;">◎</span>
-                  <span>${escapeHtml(evaluation.matchTier)}</span>
-                </div>
-                <span class="sjg-match-tier-badge">Multi-Dimensional Weighted</span>
-              </div>
-              <div class="sjg-match-desc">
-                ${escapeHtml(evaluation.matchHeadline)}
-              </div>
-              
-              <div class="sjg-match-inner">
-                <div class="sjg-ring-box">
-                  <svg class="sjg-ring-svg" viewBox="0 0 54 54">
-                    <circle cx="27" cy="27" r="22" stroke="#1e293b" stroke-width="4" fill="none" />
-                    <circle cx="27" cy="27" r="22" stroke="#06b6d4" stroke-width="4" fill="none"
-                            stroke-dasharray="138" stroke-dashoffset="${strokeDashoffset}" stroke-linecap="round" />
-                  </svg>
-                  <div class="sjg-ring-text">
-                    <span class="sjg-ring-num">${evaluation.overallMatchScore}%</span>
-                    <span class="sjg-ring-sub">MATCH</span>
-                  </div>
-                </div>
-                <div class="sjg-match-inner-text">
-                  <div class="sjg-match-inner-title">High-Potential Pivot & Transferability Score</div>
-                  <div class="sjg-match-inner-stats">
-                    JD Skills: <strong style="color:#fff;">${evaluation.detectedJdSkillsCount}</strong> detected | 
-                    Have: <strong style="color:#34d399;">${evaluation.verifiedSkills.length}</strong> | 
-                    Missing: <strong style="color:#f59e0b;">${evaluation.missingSkillGaps.length}</strong>
-                  </div>
+              <div class="sjg-match-inner-text">
+                <div class="sjg-match-inner-title">High-Potential Pivot & Transferability Score</div>
+                <div class="sjg-match-inner-stats">
+                  JD Skills: <strong style="color:#fff;">${evaluation.detectedJdSkillsCount}</strong> detected | 
+                  Have: <strong style="color:#34d399;">${evaluation.verifiedSkills.length}</strong> | 
+                  Missing: <strong style="color:#f59e0b;">${evaluation.missingSkillGaps.length}</strong>
                 </div>
               </div>
             </div>
-
-            <!-- Verified Skills (Have it) -->
-            <div class="sjg-section-header">
-              <span class="sjg-verified-label">
-                ✓ Verified Skills (Have it)
-              </span>
-              <span class="sjg-total-count">Total ${evaluation.verifiedSkills.length}</span>
-            </div>
-            <div class="sjg-chips-list">
-              ${evaluation.verifiedSkills.map(skill => `
-                <div class="sjg-chip verified">
-                  <span>•</span>
-                  <span>${escapeHtml(skill.name)}</span>
-                </div>
-              `).join('')}
-            </div>
-
-            <!-- Skill Gaps (Missing) -->
-            <div class="sjg-section-header">
-              <span class="sjg-gaps-label">
-                ⚠️ Skill Gaps (Missing)
-              </span>
-              <span class="sjg-total-count">Total ${evaluation.missingSkillGaps.length}</span>
-            </div>
-            <div class="sjg-chips-list">
-              ${evaluation.missingSkillGaps.map(gap => `
-                <div class="sjg-chip gap">
-                  <span>•</span>
-                  <span>${escapeHtml(gap.name)}</span>
-                </div>
-              `).join('')}
-            </div>
-
-            <!-- Bottom Action Buttons (100% English) -->
-            <button id="sjg-open-dashboard-btn" class="sjg-btn-executive">
-              👑 Open in Executive Dashboard (PRO)
-            </button>
-
-            <button id="sjg-smart-pivot-btn" class="sjg-btn-pivot">
-              ✨ 🌟 Smart Career Pivot Discovery (Cross-Domain Analysis)
-            </button>
-
-            <div class="sjg-buttons-row">
-              <button id="sjg-cl-free-btn" class="sjg-btn-letter">
-                ✉️ 3-Tier Cover Letter (Free)
-              </button>
-              <button id="sjg-cl-pro-btn" class="sjg-btn-faang">
-                👑 👑 4-Tier FAANG Strategy (Pro)
-              </button>
-            </div>
-
           </div>
 
-          <!-- Edit Candidate Overlay Sub-dialog (when clicked 'Edit') -->
-          ${isEditCandidateOpen ? `
-            <div class="sjg-edit-overlay">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h4 style="color:#fff; font-size:13px; font-weight:800;">✏️ Edit Candidate Profile</h4>
-                <button id="sjg-cancel-edit-btn" style="background:none; border:none; color:#64748b; font-size:16px; cursor:pointer;">✕</button>
+          <!-- Verified Skills -->
+          <div class="sjg-section-header">
+            <span class="sjg-verified-label">
+              ✓ Verified Skills (Have it)
+            </span>
+            <span class="sjg-total-count">Total ${evaluation.verifiedSkills.length}</span>
+          </div>
+          <div class="sjg-chips-list">
+            ${evaluation.verifiedSkills.map(skill => `
+              <div class="sjg-chip verified">
+                <span>•</span>
+                <span>${escapeHtml(skill.name)}</span>
               </div>
-              <div class="sjg-input-group">
-                <label>Job Title / Target Role:</label>
-                <input id="sjg-edit-title" value="${escapeHtml(candidateProfile.title)}" />
+            `).join('')}
+          </div>
+
+          <!-- Skill Gaps -->
+          <div class="sjg-section-header">
+            <span class="sjg-gaps-label">
+              ⚠️ Skill Gaps (Missing)
+            </span>
+            <span class="sjg-total-count">Total ${evaluation.missingSkillGaps.length}</span>
+          </div>
+          <div class="sjg-chips-list">
+            ${evaluation.missingSkillGaps.map(gap => `
+              <div class="sjg-chip gap">
+                <span>•</span>
+                <span>${escapeHtml(gap.name)}</span>
               </div>
-              <div class="sjg-input-group">
-                <label>Years of Experience:</label>
-                <input id="sjg-edit-exp" type="number" value="${candidateProfile.yearsOfExperience}" />
-              </div>
-              <div class="sjg-input-group">
-                <label>Skills (Comma-separated):</label>
-                <input id="sjg-edit-skills" value="${escapeHtml(candidateProfile.skills.join(', '))}" />
-              </div>
-              <div class="sjg-input-group">
-                <label>Raw Resume / Highlights:</label>
-                <textarea id="sjg-edit-resume" rows="4">${escapeHtml(candidateProfile.rawResumeText)}</textarea>
-              </div>
-              <div class="sjg-edit-actions">
-                <button id="sjg-discard-edit-btn" class="sjg-btn-rescan">Cancel</button>
-                <button id="sjg-save-edit-btn" class="sjg-btn-rescan" style="background:#059669; color:#fff; border-color:#10b981;">Save Profile</button>
-              </div>
-            </div>
-          ` : ''}
+            `).join('')}
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <button id="sjg-open-dashboard-btn" class="sjg-btn-executive">
+            👑 Open in Executive Dashboard (PRO)
+          </button>
+
+          <button id="sjg-smart-pivot-btn" class="sjg-btn-pivot">
+            ✨ 🌟 Smart Career Pivot Discovery (Cross-Domain Analysis)
+          </button>
+
+          <div class="sjg-buttons-row">
+            <button id="sjg-cl-free-btn" class="sjg-btn-letter">
+              ✉️ 3-Tier Cover Letter (Free)
+            </button>
+            <button id="sjg-cl-pro-btn" class="sjg-btn-faang">
+              👑 👑 4-Tier FAANG Strategy (Pro)
+            </button>
+          </div>
 
         </div>
+
+        <!-- Edit Candidate Overlay Sub-dialog -->
+        ${isEditCandidateOpen ? `
+          <div class="sjg-edit-overlay">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h4 style="color:#fff; font-size:13px; font-weight:800;">✏️ Edit Candidate Profile</h4>
+              <button id="sjg-cancel-edit-btn" style="background:none; border:none; color:#64748b; font-size:16px; cursor:pointer;">✕</button>
+            </div>
+            <div class="sjg-input-group">
+              <label>Job Title / Target Role:</label>
+              <input id="sjg-edit-title" value="${escapeHtml(candidateProfile.title)}" />
+            </div>
+            <div class="sjg-input-group">
+              <label>Years of Experience:</label>
+              <input id="sjg-edit-exp" type="number" value="${candidateProfile.yearsOfExperience}" />
+            </div>
+            <div class="sjg-input-group">
+              <label>Skills (Comma-separated):</label>
+              <input id="sjg-edit-skills" value="${escapeHtml(candidateProfile.skills.join(', '))}" />
+            </div>
+            <div class="sjg-input-group">
+              <label>Raw Resume / Highlights:</label>
+              <textarea id="sjg-edit-resume" rows="4">${escapeHtml(candidateProfile.rawResumeText)}</textarea>
+            </div>
+            <div class="sjg-edit-actions">
+              <button id="sjg-discard-edit-btn" class="sjg-btn-rescan">Cancel</button>
+              <button id="sjg-save-edit-btn" class="sjg-btn-rescan" style="background:#059669; color:#fff; border-color:#10b981;">Save Profile</button>
+            </div>
+          </div>
+        ` : ''}
+
       </div>
     `;
 
@@ -1272,13 +1258,6 @@
       e.stopPropagation();
       isModalOpen = false;
       renderShadowUI();
-    });
-
-    wrapper.querySelector('#sjg-backdrop')?.addEventListener('click', (e) => {
-      if (e.target && e.target.id === 'sjg-backdrop') {
-        isModalOpen = false;
-        renderShadowUI();
-      }
     });
 
     wrapper.querySelector('#sjg-rescan-btn')?.addEventListener('click', () => {
@@ -1310,10 +1289,8 @@
       reader.onload = (loadEvent) => {
         const text = loadEvent.target?.result;
         if (typeof text === 'string') {
-          // Simple parsing: extract first line or prominent skills
           candidateProfile.rawResumeText = text.slice(0, 1500);
           
-          // Auto-extract common tech keywords
           const commonKeywords = [
             'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Go', 'Java',
             'AWS', 'GCP', 'Docker', 'Kubernetes', 'GraphQL', 'Next.js', 'SQL',
@@ -1405,7 +1382,7 @@
   }
 
   /**
-   * Main Check & Auto-Pop Trigger
+   * Main Check & Auto-Pop Trigger (Single Instance Guard)
    */
   function checkAndAutoPop() {
     const job = extractFullIndeedJob();
@@ -1416,7 +1393,7 @@
     const currentJobKey = `${job.title}::${job.company}::${job.characterCount}`;
     if (job.characterCount > 150 && hasAutoPoppedForJobKey !== currentJobKey) {
       hasAutoPoppedForJobKey = currentJobKey;
-      console.log('[SuperJobGenie] Auto-popping English HUD for job:', job.title, 'Chars:', job.characterCount);
+      console.log('[SuperJobGenie] Auto-popping bottom-right HUD panel for job:', job.title, 'Chars:', job.characterCount);
       isModalOpen = true;
       renderShadowUI();
     }
@@ -1458,20 +1435,18 @@
     });
   }
 
-  // Execute immediately
+  // Execute once on load
   checkAndAutoPop();
+  setTimeout(checkAndAutoPop, 800);
 
-  // Run subsequent checks after DOM stabilization
-  setTimeout(checkAndAutoPop, 500);
-  setTimeout(checkAndAutoPop, 1500);
-
-  // Monitor DOM mutations for dynamic SPA job clicks
+  // Throttled DOM mutation observer to prevent rapid re-triggering
   let debounceTimer = null;
   const observer = new MutationObserver(() => {
-    if (debounceTimer) clearTimeout(debounceTimer);
+    if (debounceTimer) return;
     debounceTimer = setTimeout(() => {
+      debounceTimer = null;
       checkAndAutoPop();
-    }, 400);
+    }, 1200);
   });
 
   if (document.body) {
@@ -1483,7 +1458,7 @@
   }
 
   // Also listen for SPA URL changes
-  window.addEventListener('popstate', () => setTimeout(checkAndAutoPop, 500));
-  window.addEventListener('hashchange', () => setTimeout(checkAndAutoPop, 500));
+  window.addEventListener('popstate', () => setTimeout(checkAndAutoPop, 800));
+  window.addEventListener('hashchange', () => setTimeout(checkAndAutoPop, 800));
 
 })();

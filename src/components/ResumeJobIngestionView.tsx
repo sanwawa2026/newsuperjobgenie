@@ -77,13 +77,13 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-white text-sm">Indeed 3,000+ 字全量解析引擎已激活</span>
+              <span className="font-bold text-white text-sm">Indeed 3,000+ Chars Full Extraction Engine Active</span>
               <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
-                153字截断缺陷彻底根除
+                153-Char Truncation Defect Eradicated
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              支持在招聘网站内嵌弹窗与右下角 <strong className="text-indigo-300">SuperJobGenie 🚀</strong> 一键唤起，融合真实简历技能多维比对与跨赛道分析。
+              Supports in-page popups and bottom-right <strong className="text-indigo-300">SuperJobGenie 🚀</strong> HUD invocation, integrating real resume skill multi-dimensional matching & cross-domain analysis.
             </p>
           </div>
         </div>
@@ -98,7 +98,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
             }`}
           >
             {isBuggyMode ? <AlertTriangle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-            <span>{isBuggyMode ? '当前: 153字残缺模式' : '当前: 3000+字全量解析'}</span>
+            <span>{isBuggyMode ? 'Current: 153-Char Truncated' : 'Current: 3,000+ Chars Full Extraction'}</span>
           </button>
 
           <button
@@ -106,7 +106,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
             className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5"
           >
             <Sparkles className="w-4 h-4" />
-            <span>唤起 SuperJobGenie 弹窗</span>
+            <span>Open SuperJobGenie HUD</span>
           </button>
         </div>
       </div>
@@ -123,7 +123,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
                 STEP 1: Candidate Resume Ingestion & Privacy Shield
               </h2>
               <p className="text-[11px] text-slate-400">
-                候选人简历解析与隐私脱敏防护盾 (PII Scrubbed)
+                Candidate Resume Parsing & PII Scrubbing Protection Shield
               </p>
             </div>
           </div>
@@ -134,7 +134,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
               className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5"
             >
               <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
-              <span>编辑简历与参数</span>
+              <span>Edit Resume & Params</span>
             </button>
             <button
               onClick={onReanalyze}
@@ -142,7 +142,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
               className="text-xs bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5"
             >
               <RotateCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-              <span>重新分析简历</span>
+              <span>Re-analyze Resume</span>
             </button>
           </div>
         </div>
@@ -187,7 +187,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
                   : 'bg-slate-800 text-slate-400 border-slate-700'
               }`}
             >
-              {isAnonymousActive ? '✓ 隐私盾开启' : '关闭隐私盾'}
+              {isAnonymousActive ? '✓ Privacy Shield On' : 'Disable Shield'}
             </button>
           </div>
         </div>
@@ -208,7 +208,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400">
-                  {candidate.yearsOfExperience}+ 年技术经验 • CS 本科学历 • 持有 AWS / K8s 权威架构认证
+                  {candidate.yearsOfExperience}+ Years Tech Exp • CS Bachelor • Holder of AWS / K8s Authoritative Architect Certifications
                 </p>
               </div>
             </div>
@@ -226,7 +226,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
           {/* Extracted Core Skills */}
           <div className="space-y-1.5">
             <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-              提取的核心技能 ({candidate.skills.length} 项):
+              Extracted Core Skills ({candidate.skills.length} items):
             </div>
             <div className="flex flex-wrap gap-1.5">
               {candidate.skills.map((skill, idx) => (
@@ -254,7 +254,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
                 STEP 2: Target Job Requirements (JD Deep Scraper)
               </h2>
               <p className="text-[11px] text-slate-400">
-                实时抓取目标职位 • 突破 153 字截断 • 捕获 3,000+ 字完整职责与资格要求
+                Real-time Job Ingestion • Bypass 153-Char Truncation • Capture 3,000+ Chars Unabridged Duties & Requirements
               </p>
             </div>
           </div>
@@ -336,7 +336,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
 
         {/* Preset Selector Bar */}
         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
-          <span className="text-slate-400 font-semibold">欧美主流平台职位范例:</span>
+          <span className="text-slate-400 font-semibold">Western Platform Job Presets:</span>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => onSelectJobPreset(STRIPE_FRONTEND_ARCHITECT_JD)}
@@ -442,17 +442,17 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
           <div className="flex items-center justify-between p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-slate-300 font-semibold">抓取深度:</span>
+              <span className="text-slate-300 font-semibold">Extraction Depth:</span>
               <span className="text-emerald-400 font-bold font-mono">
-                {displayChars.toLocaleString()} 字符全量捕获
+                {displayChars.toLocaleString()} Chars Unabridged Captured
               </span>
               <span className="text-slate-500">|</span>
               <span className="text-slate-400">
-                来源: {jobData.extractionSource}
+                Source: {jobData.extractionSource}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-slate-400">综合匹配得分:</span>
+              <span className="text-slate-400">Overall Match Score:</span>
               <span className={`font-black font-mono text-sm ${isBuggyMode ? 'text-amber-400' : 'text-emerald-400'}`}>
                 {displayScore}%
               </span>
@@ -462,7 +462,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
           {/* Job Content Body */}
           <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-4 space-y-3 font-sans text-xs leading-relaxed text-slate-300 max-h-[380px] overflow-y-auto">
             <div className="font-bold text-white text-xs border-b border-slate-800 pb-2">
-              职位描述详情与核心要求 (Unabridged Job Requirements)
+              Unabridged Job Requirements & Description
             </div>
             <div className="whitespace-pre-wrap font-sans text-xs text-slate-200 space-y-2">
               {isBuggyMode ? jobData.rawTruncatedSnippet153 : jobData.fullBodyText}
