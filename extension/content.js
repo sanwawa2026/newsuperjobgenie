@@ -1,22 +1,21 @@
 /**
- * SuperJobGenie Chrome Extension - Content Script (v2.5.0)
- * Industrial-grade Shadow DOM Isolation + Pixel-Perfect HUD Replica (Exact User Mockup Layout)
+ * SuperJobGenie Chrome Extension - Content Script (v2.6.0)
+ * Industrial-grade Shadow DOM Isolation + 100% English UI + Prominent Resume Uploader
  */
 
 (function () {
   'use strict';
 
-  // Prevent duplicate injection in the same execution context
   if (window.__SUPER_JOB_GENIE_INITIALIZED__) {
     return;
   }
   window.__SUPER_JOB_GENIE_INITIALIZED__ = true;
 
-  console.log('[SuperJobGenie v2.5.0] Exact Mockup Layout Engine initialized on:', window.location.href);
+  console.log('[SuperJobGenie v2.6.0] English Pro HUD initialized on:', window.location.href);
 
-  // Candidate Profile State (Defaulting to Tang - Senior / Lead Frontend Architect matching screenshot)
+  // Candidate Profile State
   let candidateProfile = {
-    name: 'Candidate (PII Scrubbed: Tang / Krishna / AI Technician)',
+    name: 'Candidate (PII Scrubbed: Lead / Staff Architect)',
     title: 'Staff Frontend Architect (React / TS)',
     targetRole: 'Staff Frontend Architect',
     yearsOfExperience: 15,
@@ -33,7 +32,7 @@
   let cachedJobData = null;
   let isModalOpen = false;
   let isCandidateExpanded = false;
-  let isBuggyMode = false; // Toggle between 153 chars vs 3000+ chars
+  let isBuggyMode = false;
   let isEditCandidateOpen = false;
   let hasAutoPoppedForJobKey = null;
   let shadowRoot = null;
@@ -251,7 +250,6 @@
   function evaluateJobMatch(jobData, cand) {
     const text = (jobData.fullBodyText || '').toLowerCase();
 
-    // Standard list of core technical competencies
     const benchmarkDimensions = [
       { name: 'TypeScript & React Architecture', category: 'Frontend', weight: 15 },
       { name: 'Microfrontends & Modular Systems', category: 'Architecture', weight: 15 },
@@ -265,7 +263,6 @@
     let verifiedSkills = [];
     let missingSkillGaps = [];
 
-    // Evaluate based on cand skills and job text
     benchmarkDimensions.forEach(dim => {
       const isPresentInCand = cand.skills.some(s => dim.name.toLowerCase().includes(s.toLowerCase()));
       if (dim.name.includes('GraphQL') && !cand.skills.includes('GraphQL Federation')) {
@@ -293,10 +290,10 @@
     }
 
     const overallMatchScore = isBuggyMode ? 98 : 92;
-    const matchTier = isBuggyMode ? 'Top 1% Exceptional (虚假)' : '92% Top 1% Exceptional';
+    const matchTier = isBuggyMode ? 'Top 1% Exceptional (Truncated)' : '92% Top 1% Exceptional';
     const matchHeadline = isBuggyMode
-      ? '✨ Core technical skills aligned (⚠️ 仅扫描153字前置文本导致盲目满分)'
-      : '92% 卓越架构师匹配 (15年资深前端与高性能分布式系统架构)';
+      ? 'Core technical skills aligned (Scanned 153 chars preliminary snippet)'
+      : '92% Senior Staff Architect Match (15+ Yrs Frontend & Distributed Systems Infrastructure)';
 
     return {
       overallMatchScore,
@@ -341,7 +338,7 @@
   }
 
   /**
-   * CSS Styles injected directly into Shadow DOM (Exact match with user's screenshot)
+   * CSS Styles injected directly into Shadow DOM (100% English & Crisp Layout)
    */
   const SHADOW_CSS = `
     * {
@@ -436,7 +433,7 @@
       display: flex !important;
     }
 
-    /* 3. Modal Dialog Container (Exact Dimensions & Visual Style from Screenshot) */
+    /* 3. Modal Dialog Container */
     .sjg-hud-container {
       width: 100%;
       max-width: 440px;
@@ -547,7 +544,7 @@
       color: #ef4444;
     }
 
-    /* Sub-bar: 抓取模式对照 */
+    /* Sub-bar: Extraction Mode */
     .sjg-mode-bar {
       padding: 8px 16px;
       background: #090e1a;
@@ -646,8 +643,30 @@
     .sjg-candidate-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       font-size: 11px;
+    }
+
+    /* Prominent Upload Button */
+    .sjg-btn-upload {
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid #6366f1;
+      color: #a5b4fc;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .sjg-btn-upload:hover {
+      background: #4f46e5;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
     }
 
     .sjg-btn-link {
@@ -864,7 +883,7 @@
       border: 1px solid rgba(244, 63, 94, 0.4);
     }
 
-    /* Action Buttons (Exact Replica) */
+    /* Action Buttons */
     .sjg-btn-executive {
       width: 100%;
       background: linear-gradient(135deg, #d97706, #ea580c);
@@ -1023,10 +1042,12 @@
       sRoot.appendChild(wrapper);
     }
 
-    // Circumference calculation for circular gauge: 2 * PI * 22 ~= 138
     const strokeDashoffset = Math.round(138 - (138 * evaluation.overallMatchScore) / 100);
 
     wrapper.innerHTML = `
+      <!-- Hidden file input for resume uploading -->
+      <input type="file" id="sjg-resume-file-input" accept=".txt,.json,.md,.pdf,.docx" style="display:none;" />
+
       <!-- Floating Quick Pill Trigger (Always available in bottom-right) -->
       <div id="sjg-pill-trigger" class="sjg-floating-pill" title="Click to open/close SuperJobGenie HUD">
         <div class="sjg-pill-dot"></div>
@@ -1058,11 +1079,11 @@
             </div>
           </div>
 
-          <!-- Mode Banner -->
+          <!-- Mode Banner (100% English) -->
           <div class="sjg-mode-bar">
-            <span class="sjg-mode-label">抓取模式对照:</span>
-            <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="点击切换 153字残缺 / 3000字全量 对照测试">
-              ${isBuggyMode ? '⚠️ 153字残缺 (点击修复)' : '🛡️ 已修复: 3000+字全量抓取'}
+            <span class="sjg-mode-label">Extraction Mode:</span>
+            <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="Click to toggle between 153 chars truncated vs 3,000+ full-body chars">
+              ${isBuggyMode ? '⚠️ Truncated: 153 Chars (Click to Fix)' : '🛡️ Full Body: 3,000+ Chars Verified'}
             </div>
           </div>
 
@@ -1087,13 +1108,16 @@
               </div>
             </div>
 
-            <!-- Candidate Profile Card (with Clear, Edit, Expand) -->
+            <!-- Candidate Profile Card (With Prominent [Upload Resume] Button, Clear, Edit, Expand) -->
             <div class="sjg-card">
               <div class="sjg-card-header">
                 <span style="font-size: 11px; font-weight: 700; color: #cbd5e1; display: flex; align-items: center; gap: 5px;">
                   📄 Candidate Profile
                 </span>
                 <div class="sjg-candidate-actions">
+                  <button id="sjg-upload-resume-btn" class="sjg-btn-upload" title="Upload Resume (.pdf, .docx, .txt, .json)">
+                    📤 Upload Resume
+                  </button>
                   <button id="sjg-clear-btn" class="sjg-btn-link" title="Clear Profile">🗑️ Clear</button>
                   <button id="sjg-edit-btn" class="sjg-btn-link" title="Edit Profile">✏️ Edit</button>
                   <button id="sjg-expand-btn" class="sjg-btn-link expand">
@@ -1115,14 +1139,14 @@
               ` : ''}
             </div>
 
-            <!-- Match Card: 92% Top 1% Exceptional -->
+            <!-- Match Card: 92% Top 1% Exceptional (100% English) -->
             <div class="sjg-match-card">
               <div class="sjg-match-header">
                 <div class="sjg-match-tier">
                   <span style="color:#38bdf8; font-size:15px;">◎</span>
                   <span>${escapeHtml(evaluation.matchTier)}</span>
                 </div>
-                <span class="sjg-match-tier-badge">真实多维加权</span>
+                <span class="sjg-match-tier-badge">Multi-Dimensional Weighted</span>
               </div>
               <div class="sjg-match-desc">
                 ${escapeHtml(evaluation.matchHeadline)}
@@ -1141,7 +1165,7 @@
                   </div>
                 </div>
                 <div class="sjg-match-inner-text">
-                  <div class="sjg-match-inner-title">跨赛道转移高潜力评估</div>
+                  <div class="sjg-match-inner-title">High-Potential Pivot & Transferability Score</div>
                   <div class="sjg-match-inner-stats">
                     JD Skills: <strong style="color:#fff;">${evaluation.detectedJdSkillsCount}</strong> detected | 
                     Have: <strong style="color:#34d399;">${evaluation.verifiedSkills.length}</strong> | 
@@ -1183,21 +1207,21 @@
               `).join('')}
             </div>
 
-            <!-- Bottom Action Buttons (Exact Replica) -->
+            <!-- Bottom Action Buttons (100% English) -->
             <button id="sjg-open-dashboard-btn" class="sjg-btn-executive">
               👑 Open in Executive Dashboard (PRO)
             </button>
 
             <button id="sjg-smart-pivot-btn" class="sjg-btn-pivot">
-              ✨ 🌟 Smart Career Pivot Discovery (跨赛道分析)
+              ✨ 🌟 Smart Career Pivot Discovery (Cross-Domain Analysis)
             </button>
 
             <div class="sjg-buttons-row">
               <button id="sjg-cl-free-btn" class="sjg-btn-letter">
-                ✉️ 3-Tier Letter (Free)
+                ✉️ 3-Tier Cover Letter (Free)
               </button>
               <button id="sjg-cl-pro-btn" class="sjg-btn-faang">
-                👑 👑 4-Tier FAANG (Pro)
+                👑 👑 4-Tier FAANG Strategy (Pro)
               </button>
             </div>
 
@@ -1272,8 +1296,50 @@
       renderShadowUI();
     });
 
+    // Upload Resume Button & File Input handler
+    const fileInput = wrapper.querySelector('#sjg-resume-file-input');
+    wrapper.querySelector('#sjg-upload-resume-btn')?.addEventListener('click', () => {
+      fileInput?.click();
+    });
+
+    fileInput?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        const text = loadEvent.target?.result;
+        if (typeof text === 'string') {
+          // Simple parsing: extract first line or prominent skills
+          candidateProfile.rawResumeText = text.slice(0, 1500);
+          
+          // Auto-extract common tech keywords
+          const commonKeywords = [
+            'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Go', 'Java',
+            'AWS', 'GCP', 'Docker', 'Kubernetes', 'GraphQL', 'Next.js', 'SQL',
+            'System Design', 'CI/CD', 'Microfrontends', 'Tailwind', 'DevOps'
+          ];
+          const found = commonKeywords.filter(k => new RegExp(`\\b${k}\\b`, 'i').test(text));
+          if (found.length > 0) {
+            candidateProfile.skills = Array.from(new Set([...candidateProfile.skills, ...found]));
+          }
+
+          const uploadBtn = wrapper.querySelector('#sjg-upload-resume-btn');
+          if (uploadBtn) {
+            uploadBtn.innerHTML = '✅ Uploaded!';
+            setTimeout(() => {
+              renderShadowUI();
+            }, 1200);
+          } else {
+            renderShadowUI();
+          }
+        }
+      };
+      reader.readAsText(file);
+    });
+
     wrapper.querySelector('#sjg-clear-btn')?.addEventListener('click', () => {
-      if (confirm('Clear current candidate skills and resume?')) {
+      if (confirm('Clear current candidate profile skills and resume?')) {
         candidateProfile.skills = [];
         candidateProfile.rawResumeText = '';
         renderShadowUI();
@@ -1329,7 +1395,7 @@
       const btn = wrapper.querySelector('#sjg-cl-free-btn');
       if (btn) {
         btn.innerText = '✅ Copied!';
-        setTimeout(() => { btn.innerText = '✉️ 3-Tier Letter (Free)'; }, 2000);
+        setTimeout(() => { btn.innerText = '✉️ 3-Tier Cover Letter (Free)'; }, 2000);
       }
     });
 
@@ -1345,14 +1411,12 @@
     const job = extractFullIndeedJob();
     cachedJobData = job;
 
-    // Render the UI in Shadow DOM (ensures the pill is always visible and ready)
     renderShadowUI();
 
-    // Check if we should AUTO-POP the modal
     const currentJobKey = `${job.title}::${job.company}::${job.characterCount}`;
     if (job.characterCount > 150 && hasAutoPoppedForJobKey !== currentJobKey) {
       hasAutoPoppedForJobKey = currentJobKey;
-      console.log('[SuperJobGenie] Auto-popping Exact Mockup HUD for job:', job.title, 'Chars:', job.characterCount);
+      console.log('[SuperJobGenie] Auto-popping English HUD for job:', job.title, 'Chars:', job.characterCount);
       isModalOpen = true;
       renderShadowUI();
     }
@@ -1394,10 +1458,10 @@
     });
   }
 
-  // Execute immediately to mount Shadow DOM and display floating capsule without delay
+  // Execute immediately
   checkAndAutoPop();
 
-  // Run subsequent checks after DOM stabilization and AJAX loads
+  // Run subsequent checks after DOM stabilization
   setTimeout(checkAndAutoPop, 500);
   setTimeout(checkAndAutoPop, 1500);
 

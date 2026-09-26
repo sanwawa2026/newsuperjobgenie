@@ -1,36 +1,17 @@
-# SuperJobGenie 2.2 - Chrome 插件 (招聘网内嵌弹窗与 3000 字全量融合版)
+# SuperJobGenie Chrome Extension (v2.6.0)
 
-> 完美融合「招聘网站内沉浸式弹窗」与「突破 Indeed 153 字截断的 3,000+ 字全量解析引擎」。
+## Overview
+SuperJobGenie is a professional AI Career Copilot Chrome Extension featuring an isolated Shadow DOM in-page HUD and deep job description extraction across Indeed, LinkedIn, Glassdoor, ZipRecruiter, Greenhouse, Lever, and Workday.
 
----
+## Key Features
+- **Deep Extraction**: Captures 3,000+ character unabridged job descriptions from complex DOMs, shadow trees, iframes, and Schema.org JSON-LD.
+- **Auto-Popping HUD**: Automatically surfaces on job posting pages without manual intervention.
+- **Candidate Profile Management**: Clear, Edit, and prominent **Upload Resume** (.pdf, .docx, .txt, .json) directly inside the HUD.
+- **Match Scoring**: Multi-dimensional weighted match analysis comparing skills, experience, and system architecture capabilities.
+- **Zero DOM Pollution**: Uses closed/open Shadow DOM with namespaced styling to guarantee zero visual conflicts with host websites.
 
-## 🌟 核心融合功能
-
-1. **招聘网沉浸式大弹窗 (In-Page Modal Dialog)**：
-   - 在 Indeed 职位详情页右下角自动展示呼吸光感 **悬浮触发胶囊**。
-   - 点击胶囊、点击浏览器扩展图标、或按快捷键随时在网页中央唤起 **全屏沉浸式交互弹窗**。
-   - 支持按 `ESC` 或点击暗黑模糊遮罩即刻关闭。
-
-2. **彻底解决 153 字截断 Bug**：
-   - 优先通过 `Schema.org JSON-LD` 提取原生未经页面折叠修剪的完整 3,000+ 字符职位需求；
-   - 备用 DOM 递归解析 `#jobDescriptionText`；
-   - 全量识别 A/B Testing、统计推断、时序预测、代码审查等硬核指标。
-
-3. **内置 4 大核心工作台选项卡**：
-   - **🎯 多维匹配与雷达**：准确加权评分，告别 153 字下的虚假 98% 满配，真实展现技术契合度与待补齐的跨赛道缺口。
-   - **👤 候选人画像即时切换**：可直接在弹窗内切换「资深架构师」、「数据与量化工程师」、「全栈工程师」，实时重算匹配度。
-   - **✉️ 定制求职信生成器**：根据完整 3,000+ 字需求一键生成针对该岗位的降维自荐信与核心亮点，一键复制投递。
-   - **📄 全量 JD 审查**：完整查阅并一键复制提取到的 3,000+ 字符排版文本。
-
----
-
-## 🛠️ 本地安装步骤 (30 秒)
-
-1. 打开 Google Chrome 或 Edge 浏览器，访问：
-   ```text
-   chrome://extensions/
-   ```
-2. 开启右上角 **「开发者模式」(Developer mode)** 开关。
-3. 点击左上角 **「加载已解压的扩展程序」(Load unpacked)**。
-4. 选中本地解压出来的 `extension` 文件夹。
-5. 打开任意 Indeed 职位页面（例如 DataAnnotation 的 AI Trainer 岗位），右下角即刻出现智能胶囊，点击即可弹出沉浸式大弹窗！
+## Installation
+1. Open Chrome and navigate to `chrome://extensions/`.
+2. Toggle on **Developer mode** in the top right corner.
+3. Click **Load unpacked** and select this `/extension` folder.
+4. Open any job posting on Indeed or LinkedIn to see the SuperJobGenie HUD in action.

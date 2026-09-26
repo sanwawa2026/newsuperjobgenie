@@ -1,6 +1,6 @@
 /* SuperJobGenie Chrome Extension - In-Page Modal & Floating Pill Styles (v2.2.0) */
 
-/* 1. 招聘网右侧/右下角常驻悬浮胶囊 (Quick Trigger Pill) */
+/* 1. / (Quick Trigger Pill) */
 .sjg-floating-pill {
   position: fixed;
   bottom: 30px;
@@ -62,7 +62,7 @@
   box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
 }
 
-/* 2. 沉浸式页面大弹窗背景遮罩 (In-Page Modal Backdrop) */
+/* 2.  (In-Page Modal Backdrop) */
 .sjg-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -77,7 +77,7 @@
   color: #f1f5f9;
 }
 
-/* 3. 弹窗主体窗口 */
+/* 3.  */
 .sjg-modal-dialog {
   width: 100%;
   max-width: 860px;
