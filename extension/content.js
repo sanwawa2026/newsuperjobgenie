@@ -14,20 +14,41 @@
 
   console.log('[SuperJobGenie v2.7.0] English Pro HUD initialized on:', window.location.href);
 
-  // Candidate Profile State
+  // Candidate Profile State (Default starts neutral/fresh, hydrated from storage)
   let candidateProfile = {
-    name: 'Candidate (PII Scrubbed: Lead / Staff Architect)',
-    title: 'Staff Frontend Architect (React / TS)',
-    targetRole: 'Staff Frontend Architect',
-    yearsOfExperience: 15,
-    skills: [
-      'TypeScript', 'React', 'Node.js', 'System Design', 'Next.js',
-      'GraphQL', 'CI/CD', 'AWS', 'Distributed Systems', 'Microfrontends',
-      'Tailwind CSS', 'Python', 'SQL', 'Performance Optimization', 'Web Vitals',
-      'Jest / Playwright', 'Docker'
-    ],
-    rawResumeText: '15+ years experience architecting high-performance web systems and frontend infrastructures. Built scalable microfrontends, performance-critical React/TypeScript applications with 99.99% availability, and mentored 15+ engineers. Successfully drove bundle size reduction by 42% and Core Web Vitals LCP to <1.2s across global e-commerce and financial platforms. Solid backend foundations in Node.js, Python, SQL, and AWS cloud architectures.'
+    name: 'Candidate Profile',
+    title: 'Financial & Quantitative Analyst',
+    targetRole: 'Finance Transformation Analyst',
+    yearsOfExperience: 3,
+    skills: ['Python', 'SQL', 'Finance', 'Accounting', 'Excel', 'Financial Analysis'],
+    rawResumeText: 'Results-driven Master of Science in Finance with solid quantitative modeling, financial analysis, and capital market research capabilities. Proficient in Python, SQL, Excel, and corporate finance.'
   };
+
+  // Hydrate candidate profile from chrome.storage.local or localStorage immediately
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      chrome.storage.local.get(['sjg_candidate_profile'], (res) => {
+        if (res && res.sjg_candidate_profile) {
+          candidateProfile = { ...candidateProfile, ...res.sjg_candidate_profile };
+          renderShadowUI();
+        }
+      });
+    } else {
+      const saved = localStorage.getItem('sjg_candidate_profile');
+      if (saved) {
+        candidateProfile = { ...candidateProfile, ...JSON.parse(saved) };
+      }
+    }
+  } catch (e) {}
+
+  function saveProfileToStorage() {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        chrome.storage.local.set({ sjg_candidate_profile: candidateProfile });
+      }
+      localStorage.setItem('sjg_candidate_profile', JSON.stringify(candidateProfile));
+    } catch (e) {}
+  }
 
   // UI State
   let cachedJobData = null;
@@ -1339,6 +1360,7 @@
           ];
           const found = commonKeywords.filter(k => new RegExp(`\\b${k}\\b`, 'i').test(text));
           candidateProfile.skills = found.length > 0 ? Array.from(new Set(found)) : ['Financial Analysis', 'Excel', 'SQL', 'GAAP'];
+          saveProfileToStorage();
 
           if (uploadBtn) {
             uploadBtn.innerHTML = '✅ Uploaded!';
@@ -1354,6 +1376,7 @@
     });
 
     wrapper.querySelector('#sjg-quick-save-btn')?.addEventListener('click', () => {
+      saveProfileToStorage();
       const btn = wrapper.querySelector('#sjg-quick-save-btn');
       if (btn) {
         btn.innerText = '✅ Saved & Updated!';
@@ -1372,6 +1395,7 @@
         candidateProfile.yearsOfExperience = 0;
         candidateProfile.skills = [];
         candidateProfile.rawResumeText = '';
+        saveProfileToStorage();
         renderShadowUI();
       }
     });
@@ -1393,7 +1417,7 @@
 
     wrapper.querySelector('#sjg-save-edit-btn')?.addEventListener('click', () => {
       const newTitle = wrapper.querySelector('#sjg-edit-title')?.value || candidateProfile.title;
-      const newExp = parseInt(wrapper.querySelector('#sjg-edit-exp')?.value || '15', 10);
+      const newExp = parseInt(wrapper.querySelector('#sjg-edit-exp')?.value || '0', 10);
       const newSkills = (wrapper.querySelector('#sjg-edit-skills')?.value || '')
         .split(',')
         .map(s => s.trim())
@@ -1404,6 +1428,7 @@
       candidateProfile.yearsOfExperience = newExp;
       candidateProfile.skills = newSkills;
       candidateProfile.rawResumeText = newResume;
+      saveProfileToStorage();
       isEditCandidateOpen = false;
       renderShadowUI();
     });
@@ -1492,30 +1517,6 @@
   const initialJob = extractFullIndeedJob();
   cachedJobData = initialJob;
   renderShadowUI();
-
-  // Handle messages from Extension Popup (popup.js)
-  if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.action === 'ping') {
-        const job = cachedJobData || extractFullIndeedJob();
-        sendResponse({
-          success: true,
-          jobTitle: job.title,
-          company: job.company,
-          charCount: job.characterCount,
-          platform: job.platform
-        });
-        return true;
-      }
-
-      if (request.action === 'open_inpage_modal' || request.action === 'toggle_modal') {
-        isModalOpen = true;
-        renderShadowUI();
-        sendResponse({ success: true, charCount: cachedJobData?.characterCount || 0 });
-        return true;
-      }
-    });
-  }
 
   // Also listen for SPA URL changes (silent update, no forced pop)
   window.addEventListener('popstate', () => {
