@@ -56,12 +56,12 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
   };
 
   const navItems = [
-    { id: 'diagnostics', label: '抓取底层诊断 (153 vs 3000)', icon: Terminal },
-    { id: 'matrix', label: '真实验证矩阵 (Skill Gap)', icon: CheckCircle2 },
-    { id: 'pivot', label: '跨赛道深度分析 (Career Pivot)', icon: Compass },
-    { id: 'bullets', label: '简历重构与优化 (Rewrites)', icon: Sparkles },
-    { id: 'letters', label: '高定求职信 (3-Tier & 4-Tier)', icon: FileText },
-    { id: 'profile', label: '候选人画像 (15年架构师)', icon: Briefcase },
+    { id: 'diagnostics', label: 'Extraction Diagnostics (153 vs 3000)', icon: Terminal },
+    { id: 'matrix', label: 'Verification Matrix (Skill Gap)', icon: CheckCircle2 },
+    { id: 'pivot', label: 'Career Pivot Analysis', icon: Compass },
+    { id: 'bullets', label: 'Resume Rewrites & Optimization', icon: Sparkles },
+    { id: 'letters', label: 'Cover Letters (3-Tier & 4-Tier)', icon: FileText },
+    { id: 'profile', label: 'Candidate Profile (15y Arch)', icon: Briefcase },
   ];
 
   return (

@@ -1095,7 +1095,7 @@
             </div>
           </div>
 
-          <!-- Candidate Profile Card (With Upload Resume, Clear, Edit, Expand) -->
+          <!-- Candidate Profile Card (With Upload Resume, Save, Clear, Edit, Expand) -->
           <div class="sjg-card">
             <div class="sjg-card-header">
               <span style="font-size: 11px; font-weight: 700; color: #cbd5e1; display: flex; align-items: center; gap: 5px;">
@@ -1104,6 +1104,9 @@
               <div class="sjg-candidate-actions">
                 <button id="sjg-upload-resume-btn" class="sjg-btn-upload" title="Upload Resume (.pdf, .docx, .txt, .json)">
                   📤 Upload Resume
+                </button>
+                <button id="sjg-quick-save-btn" class="sjg-btn-upload" style="background:#059669; border-color:#10b981;" title="Save current candidate profile and re-evaluate">
+                  💾 Save
                 </button>
                 <button id="sjg-clear-btn" class="sjg-btn-link" title="Clear Profile">🗑️ Clear</button>
                 <button id="sjg-edit-btn" class="sjg-btn-link" title="Edit Profile">✏️ Edit</button>
@@ -1313,6 +1316,17 @@
         }
       };
       reader.readAsText(file);
+    });
+
+    wrapper.querySelector('#sjg-quick-save-btn')?.addEventListener('click', () => {
+      const btn = wrapper.querySelector('#sjg-quick-save-btn');
+      if (btn) {
+        btn.innerText = '✅ Saved!';
+        setTimeout(() => {
+          btn.innerText = '💾 Save';
+        }, 1500);
+      }
+      renderShadowUI();
     });
 
     wrapper.querySelector('#sjg-clear-btn')?.addEventListener('click', () => {
