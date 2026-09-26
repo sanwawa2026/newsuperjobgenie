@@ -1435,30 +1435,43 @@
     });
   }
 
-  // Execute once on load
-  checkAndAutoPop();
-  setTimeout(checkAndAutoPop, 800);
+  // Execute once on load (Silent, does not auto-pop panel)
+  const initialJob = extractFullIndeedJob();
+  cachedJobData = initialJob;
+  renderShadowUI();
 
-  // Throttled DOM mutation observer to prevent rapid re-triggering
-  let debounceTimer = null;
-  const observer = new MutationObserver(() => {
-    if (debounceTimer) return;
-    debounceTimer = setTimeout(() => {
-      debounceTimer = null;
-      checkAndAutoPop();
-    }, 1200);
-  });
+  // Handle messages from Extension Popup (popup.js)
+  if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.action === 'ping') {
+        const job = cachedJobData || extractFullIndeedJob();
+        sendResponse({
+          success: true,
+          jobTitle: job.title,
+          company: job.company,
+          charCount: job.characterCount,
+          platform: job.platform
+        });
+        return true;
+      }
 
-  if (document.body) {
-    observer.observe(document.body, { childList: true, subtree: true });
-  } else {
-    document.addEventListener('DOMContentLoaded', () => {
-      observer.observe(document.body, { childList: true, subtree: true });
+      if (request.action === 'open_inpage_modal' || request.action === 'toggle_modal') {
+        isModalOpen = true;
+        renderShadowUI();
+        sendResponse({ success: true, charCount: cachedJobData?.characterCount || 0 });
+        return true;
+      }
     });
   }
 
-  // Also listen for SPA URL changes
-  window.addEventListener('popstate', () => setTimeout(checkAndAutoPop, 800));
-  window.addEventListener('hashchange', () => setTimeout(checkAndAutoPop, 800));
+  // Also listen for SPA URL changes (silent update, no forced pop)
+  window.addEventListener('popstate', () => {
+    cachedJobData = extractFullIndeedJob();
+    renderShadowUI();
+  });
+  window.addEventListener('hashchange', () => {
+    cachedJobData = extractFullIndeedJob();
+    renderShadowUI();
+  });
 
 })();
