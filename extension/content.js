@@ -59,6 +59,9 @@
   let hasAutoPoppedForJobKey = null;
   let shadowRoot = null;
   let hostContainer = null;
+  let fireworkParticles = [];
+  let fireworkAnimId = null;
+  let lastFireworksJobKey = null;
 
   /**
    * HTML Sanitizer & Formatter
@@ -113,74 +116,112 @@
     const platform = detectPlatform();
     let title = '';
     let company = '';
-    let location = 'San Francisco, CA • Remote';
-    let salary = 'Not specified';
+    let location = 'Los Angeles, CA • On-site / Hybrid';
+    let salary = '';
     let fullBodyText = '';
     let extractionSource = `${platform} Dynamic Engine`;
     let isSchemaOrg = false;
 
-    // 1. Layer 1: Schema.org JSON-LD
-    const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
-    for (const script of jsonLdScripts) {
-      try {
-        const parsed = JSON.parse(script.textContent || '{}');
-        const items = Array.isArray(parsed) ? parsed : [parsed];
-        for (const item of items) {
-          if (item && item['@type'] === 'JobPosting') {
-            if (item.description && item.description.length > 180) {
-              isSchemaOrg = true;
-              title = item.title || title;
-              if (item.hiringOrganization && item.hiringOrganization.name) {
-                company = item.hiringOrganization.name;
-              }
-              if (item.jobLocation?.address?.addressLocality) {
-                location = `${item.jobLocation.address.addressLocality} • Remote`;
-              }
-              if (item.baseSalary?.value?.value) {
-                salary = `$${item.baseSalary.value.value}`;
-              }
-              fullBodyText = cleanHtmlToFormattedText(item.description);
-              extractionSource = `${platform} Schema.org JSON-LD (3000+ chars)`;
-              break;
-            }
-          }
-        }
-      } catch (e) {}
-      if (fullBodyText && fullBodyText.length > 200) break;
+    // 1. Layer 1: Active Detail Pane DOM (Top priority for SPA clicking list items!)
+    const activePane = document.querySelector('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob') || document;
+
+    const titleSelectors = [
+      '[data-testid="jobsearch-JobInfoHeader-title"]',
+      'h1.jobsearch-JobInfoHeader-title',
+      'h2.jobsearch-JobInfoHeader-title',
+      'h1[data-cy="jobTitle"]',
+      '[data-testid="simpler-job-title"]',
+      'h1.job_title',
+      '.job-details-jobs-unified-top-card__job-title',
+      'h1.t-24',
+      '[data-test="job-title"]',
+      '.posting-headline h2',
+      'h1'
+    ];
+    for (const sel of titleSelectors) {
+      const el = activePane.querySelector(sel) || document.querySelector(sel);
+      if (el && el.innerText.trim()) {
+        title = el.innerText.trim();
+        break;
+      }
     }
 
-    // 2. Layer 2: Main DOM Container Selectors
-    if (!fullBodyText || fullBodyText.length < 200) {
-      const jdSelectors = [
-        '#jobDescriptionText',
-        '[data-testid="jobDescriptionText"]',
-        '.jobsearch-JobComponent-description',
-        '#vjs-job-description',
-        '#vjs-content',
-        'div.fastviewjob',
-        'div.jobsearch-ViewJobLayout',
-        'div.jobsearch-RightPane',
-        'div[aria-label="Job details"]',
-        '[data-automation-id="jobPostingDescription"]',
-        '.jobs-description__content',
-        'div.show-more-less-html__markup',
-        'article.jobs-description__container',
-        '.jobs-box__html-content',
-        '[data-test="jobDescriptionText"]',
-        'div.JobDetails_jobDescription__uWvhK',
-        '.job_description',
-        '#jobDescription',
-        '[data-cy="jobDescriptionText"]',
-        '.GWContent'
-      ];
+    const compSelectors = [
+      '[data-testid="inlineHeader-companyName"]',
+      '.jobsearch-InlineCompanyRating-companyHeader',
+      '[data-company-name="true"]',
+      '.hiring_company_text',
+      'a[data-cy="companyName"]',
+      '.company-name',
+      '.job-details-jobs-unified-top-card__company-name',
+      'a.ember-view.t-black',
+      '[data-test="employer-name"]',
+      '.hiring-org'
+    ];
+    for (const sel of compSelectors) {
+      const el = activePane.querySelector(sel) || document.querySelector(sel);
+      if (el && el.innerText.trim()) {
+        company = el.innerText.trim();
+        break;
+      }
+    }
 
-      for (const sel of jdSelectors) {
-        const el = document.querySelector(sel);
-        if (el && el.innerText && el.innerText.trim().length > 150) {
-          fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
-          extractionSource = `${platform} DOM (${sel})`;
-          break;
-        }
+    // Extract Description from active pane
+    const jdSelectors = [
+      '#jobDescriptionText',
+      '[data-testid="jobDescriptionText"]',
+      '.jobsearch-JobComponent-description',
+      '#vjs-job-description',
+      '#vjs-content',
+      'div.fastviewjob',
+      'div.jobsearch-ViewJobLayout',
+      'div.jobsearch-RightPane',
+      'div[aria-label="Job details"]',
+      '[data-automation-id="jobPostingDescription"]',
+      '.jobs-description__content',
+      'div.show-more-less-html__markup',
+      'article.jobs-description__container',
+      '.jobs-box__html-content',
+      '[data-test="jobDescriptionText"]',
+      'div.JobDetails_jobDescription__uWvhK',
+      '.job_description',
+      '#jobDescription',
+      '[data-cy="jobDescriptionText"]',
+      '.GWContent'
+    ];
+
+    for (const sel of jdSelectors) {
+      const el = activePane.querySelector(sel) || document.querySelector(sel);
+      if (el && el.innerText && el.innerText.trim().length > 150) {
+        fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
+        extractionSource = `${platform} DOM (${sel})`;
+        break;
+      }
+    }
+
+    // 2. Layer 2: Schema.org JSON-LD (If DOM was empty or matching active title)
+    if (!fullBodyText || fullBodyText.length < 200) {
+      const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
+      for (const script of jsonLdScripts) {
+        try {
+          const parsed = JSON.parse(script.textContent || '{}');
+          const items = Array.isArray(parsed) ? parsed : [parsed];
+          for (const item of items) {
+            if (item && item['@type'] === 'JobPosting' && item.description && item.description.length > 180) {
+              if (!title || !item.title || item.title.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(item.title.toLowerCase())) {
+                isSchemaOrg = true;
+                title = title || item.title || '';
+                if (!company && item.hiringOrganization?.name) company = item.hiringOrganization.name;
+                if (item.jobLocation?.address?.addressLocality) location = `${item.jobLocation.address.addressLocality} • Active`;
+                if (item.baseSalary?.value?.value) salary = `$${item.baseSalary.value.value}`;
+                fullBodyText = cleanHtmlToFormattedText(item.description);
+                extractionSource = `${platform} Schema.org JSON-LD`;
+                break;
+              }
+            }
+          }
+        } catch (e) {}
+        if (fullBodyText && fullBodyText.length > 200) break;
       }
     }
 
@@ -202,55 +243,9 @@
       }
     }
 
-    // 4. Title Extraction
-    if (!title) {
-      const titleSelectors = [
-        '[data-testid="jobsearch-JobInfoHeader-title"]',
-        'h1.jobsearch-JobInfoHeader-title',
-        'h1.job_title',
-        '[data-testid="simpler-job-title"]',
-        'h1[data-cy="jobTitle"]',
-        '.job-details-jobs-unified-top-card__job-title',
-        'h1.t-24',
-        '[data-test="job-title"]',
-        '.posting-headline h2',
-        'h1'
-      ];
-      for (const sel of titleSelectors) {
-        const el = document.querySelector(sel);
-        if (el && el.innerText.trim()) {
-          title = el.innerText.trim();
-          break;
-        }
-      }
-    }
-
-    // 5. Company Extraction
-    if (!company) {
-      const compSelectors = [
-        '[data-testid="inlineHeader-companyName"]',
-        '.jobsearch-InlineCompanyRating-companyHeader',
-        '[data-company-name="true"]',
-        '.hiring_company_text',
-        'a[data-cy="companyName"]',
-        '.company-name',
-        '.job-details-jobs-unified-top-card__company-name',
-        'a.ember-view.t-black',
-        '[data-test="employer-name"]',
-        '.hiring-org'
-      ];
-      for (const sel of compSelectors) {
-        const el = document.querySelector(sel);
-        if (el && el.innerText.trim()) {
-          company = el.innerText.trim();
-          break;
-        }
-      }
-    }
-
     // Fallbacks
-    if (!title) title = 'Staff Frontend Architect (React / TS)';
-    if (!company) company = 'Stripe';
+    if (!title) title = 'Financial & Business Analyst';
+    if (!company) company = 'Target Employer';
 
     return {
       title,
@@ -478,6 +473,17 @@
       color: #f1f5f9;
       pointer-events: auto;
       animation: sjgSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Fireworks Canvas Overlay */
+    .sjg-fireworks-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
     }
 
     .sjg-hud-panel.open {
@@ -1099,6 +1105,8 @@
 
       <!-- Bottom-Right Floating Panel (Zero Center Blocking) -->
       <div id="sjg-hud-panel" class="sjg-hud-panel ${isModalOpen ? 'open' : ''}">
+        <!-- Celebratory Fireworks Canvas for >=90% Matches -->
+        <canvas id="sjg-fireworks-canvas" class="sjg-fireworks-canvas" width="420" height="600"></canvas>
         
         <!-- Top Header -->
         <div class="sjg-header">
@@ -1459,22 +1467,110 @@
     wrapper.querySelector('#sjg-cl-pro-btn')?.addEventListener('click', () => {
       window.open(`${remoteDashboardUrl}?tab=coverletter`, '_blank');
     });
+
+    // Launch Fireworks Celebration if Score >= 90% (like FAANG top tier celebration)
+    if (evaluation.overallMatchScore >= 90 && isModalOpen) {
+      const currentJobId = `${job.title}::${job.company}::${evaluation.overallMatchScore}`;
+      if (lastFireworksJobKey !== currentJobId) {
+        lastFireworksJobKey = currentJobId;
+        setTimeout(() => {
+          launchCelebrationFireworks(wrapper.querySelector('#sjg-fireworks-canvas'));
+        }, 150);
+      }
+    }
   }
 
   /**
-   * Main Check & Auto-Pop Trigger (Single Instance Guard)
+   * Fireworks Particle Engine for >=90% Exceptional Match
    */
-  function checkAndAutoPop() {
+  function launchCelebrationFireworks(canvas) {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    if (fireworkAnimId) {
+      cancelAnimationFrame(fireworkAnimId);
+      fireworkAnimId = null;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width || 420;
+    canvas.height = rect.height || 600;
+
+    const colors = ['#38bdf8', '#34d399', '#f59e0b', '#ec4899', '#a855f7', '#60a5fa', '#fbbf24', '#ffffff'];
+    const particles = [];
+
+    // Create 3 burst origins
+    const burstCenters = [
+      { x: canvas.width * 0.5, y: 140 },
+      { x: canvas.width * 0.25, y: 190 },
+      { x: canvas.width * 0.75, y: 170 }
+    ];
+
+    burstCenters.forEach(burst => {
+      for (let i = 0; i < 40; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 5 + 2;
+        particles.push({
+          x: burst.x,
+          y: burst.y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1,
+          size: Math.random() * 3 + 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          decay: Math.random() * 0.02 + 0.015,
+          gravity: 0.12
+        });
+      }
+    });
+
+    function frame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let aliveCount = 0;
+
+      for (let p of particles) {
+        if (p.alpha > 0) {
+          aliveCount++;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.alpha -= p.decay;
+
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      if (aliveCount > 0) {
+        fireworkAnimId = requestAnimationFrame(frame);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        fireworkAnimId = null;
+      }
+    }
+
+    frame();
+  }
+
+  /**
+   * Main Check & Auto-Rescan Trigger (Auto-scans whenever user clicks or navigates to a new job)
+   */
+  function checkAndAutoRescan(forceRescan = false) {
     const job = extractFullIndeedJob();
-    cachedJobData = job;
-
-    renderShadowUI();
-
     const currentJobKey = `${job.title}::${job.company}::${job.characterCount}`;
-    if (job.characterCount > 150 && hasAutoPoppedForJobKey !== currentJobKey) {
+
+    if (forceRescan || hasAutoPoppedForJobKey !== currentJobKey) {
       hasAutoPoppedForJobKey = currentJobKey;
-      console.log('[SuperJobGenie] Auto-popping bottom-right HUD panel for job:', job.title, 'Chars:', job.characterCount);
-      isModalOpen = true;
+      cachedJobData = job;
+      console.log('[SuperJobGenie] Auto-rescanned job:', job.title, 'at', job.company, 'Chars:', job.characterCount);
       renderShadowUI();
     }
   }
@@ -1515,19 +1611,46 @@
     });
   }
 
-  // Execute once on load (Silent, does not auto-pop panel)
+  // Execute once on load
   const initialJob = extractFullIndeedJob();
   cachedJobData = initialJob;
+  hasAutoPoppedForJobKey = `${initialJob.title}::${initialJob.company}::${initialJob.characterCount}`;
   renderShadowUI();
 
-  // Also listen for SPA URL changes (silent update, no forced pop)
+  // 1. Auto-rescan on SPA URL changes
   window.addEventListener('popstate', () => {
-    cachedJobData = extractFullIndeedJob();
-    renderShadowUI();
+    setTimeout(() => checkAndAutoRescan(true), 300);
   });
   window.addEventListener('hashchange', () => {
-    cachedJobData = extractFullIndeedJob();
-    renderShadowUI();
+    setTimeout(() => checkAndAutoRescan(true), 300);
   });
+
+  // 2. Auto-rescan on Click Delegation (When clicking job cards in the left list on Indeed)
+  document.addEventListener('click', (e) => {
+    // If the click is inside our own extension UI, don't trigger
+    if (e.target && (e.target.closest('#sjg-shadow-host-root') || e.target.id === 'sjg-shadow-host-root')) {
+      return;
+    }
+    // Check if user clicked a job card or link in Indeed/LinkedIn/Glassdoor
+    const jobItem = e.target.closest('li, a, div[data-jk], div.job_seen_beacon, .tapItem, .jobsearch-ResultsList');
+    if (jobItem) {
+      setTimeout(() => checkAndAutoRescan(), 250);
+      setTimeout(() => checkAndAutoRescan(), 650);
+    }
+  }, true);
+
+  // 3. MutationObserver on the active Job Pane for dynamic changes
+  let paneObserverTimeout = null;
+  const paneObserver = new MutationObserver(() => {
+    if (paneObserverTimeout) clearTimeout(paneObserverTimeout);
+    paneObserverTimeout = setTimeout(() => {
+      checkAndAutoRescan();
+    }, 400);
+  });
+
+  // Observe body for changes in job detail pane
+  if (document.body) {
+    paneObserver.observe(document.body, { childList: true, subtree: true });
+  }
 
 })();
