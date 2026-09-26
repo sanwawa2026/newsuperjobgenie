@@ -246,53 +246,79 @@
   }
 
   /**
-   * Evaluate Job Match against Candidate Profile
+   * Evaluate Job Match against Candidate Profile (Fully Dynamic & Multi-Domain)
    */
   function evaluateJobMatch(jobData, cand) {
-    const benchmarkDimensions = [
-      { name: 'TypeScript & React Architecture', category: 'Frontend', weight: 15 },
-      { name: 'Microfrontends & Modular Systems', category: 'Architecture', weight: 15 },
-      { name: 'Web Vitals & Performance Optimization', category: 'Performance', weight: 15 },
-      { name: 'System Design & Distributed Scalability', category: 'System', weight: 15 },
-      { name: 'CI/CD & Automated Quality Gates', category: 'DevOps', weight: 15 },
-      { name: 'GraphQL & gRPC Federation Tuning', category: 'API / Protocol', weight: 15 },
-      { name: 'Python & Statistical Inference', category: 'Data', weight: 10 }
+    const jobText = (jobData?.fullBodyText || jobData?.title || '').toLowerCase();
+    const candSkills = cand.skills || [];
+
+    // All possible domain skill candidates to check in the JD
+    const catalogSkills = [
+      // Tech / Software
+      { name: 'TypeScript & JavaScript', key: 'typescript' },
+      { name: 'React & Frontend Frameworks', key: 'react' },
+      { name: 'Node.js & Backend Services', key: 'node' },
+      { name: 'System Design & Scalability', key: 'system design' },
+      { name: 'SQL & Database Modeling', key: 'sql' },
+      { name: 'Python & Data Analysis', key: 'python' },
+      { name: 'AWS & Cloud Infrastructure', key: 'aws' },
+      { name: 'CI/CD & DevOps Automation', key: 'ci/cd' },
+      // Finance / Accounting / Business
+      { name: 'Financial Modeling & Forecasting', key: 'financ' },
+      { name: 'Accounting & GAAP Standards', key: 'account' },
+      { name: 'Advanced Excel & Data Analytics', key: 'excel' },
+      { name: 'FP&A & Budget Management', key: 'budget' },
+      { name: 'Tableau / PowerBI Visualization', key: 'tableau' },
+      { name: 'SAP / ERP Transformation', key: 'sap' },
+      { name: 'Audit & Internal Controls', key: 'audit' },
+      { name: 'Stakeholder & Cross-Functional PMO', key: 'stakeholder' }
     ];
+
+    // Detect which skills the JD actually requires
+    let detectedJdSkills = catalogSkills.filter(item => jobText.includes(item.key));
+    if (detectedJdSkills.length === 0) {
+      // Fallback detected from common JD tokens
+      detectedJdSkills = [
+        { name: 'Core Domain Execution', key: 'domain' },
+        { name: 'Data & Quantitative Analysis', key: 'analysis' },
+        { name: 'Cross-Functional Collaboration', key: 'communication' }
+      ];
+    }
 
     let verifiedSkills = [];
     let missingSkillGaps = [];
 
-    benchmarkDimensions.forEach(dim => {
-      const isPresentInCand = cand.skills.some(s => dim.name.toLowerCase().includes(s.toLowerCase()));
-      if (dim.name.includes('GraphQL') && !cand.skills.includes('GraphQL Federation')) {
-        missingSkillGaps.push(dim);
-      } else if (isPresentInCand) {
+    detectedJdSkills.forEach(dim => {
+      const match = candSkills.some(s => 
+        s.toLowerCase().includes(dim.key) || dim.name.toLowerCase().includes(s.toLowerCase())
+      );
+      if (match) {
         verifiedSkills.push(dim);
       } else {
         missingSkillGaps.push(dim);
       }
     });
 
-    if (verifiedSkills.length === 0) {
-      verifiedSkills = [
-        { name: 'TypeScript & React Architecture', category: 'Frontend' },
-        { name: 'Microfrontends & Modular Systems', category: 'Architecture' },
-        { name: 'Web Vitals & Performance Optimization', category: 'Performance' },
-        { name: 'System Design & Distributed Scalability', category: 'System' },
-        { name: 'CI/CD & Automated Quality Gates', category: 'DevOps' }
-      ];
-    }
-    if (missingSkillGaps.length === 0) {
-      missingSkillGaps = [
-        { name: 'GraphQL & gRPC Federation Tuning', category: 'API' }
-      ];
+    const totalDetected = detectedJdSkills.length;
+    let ratio = totalDetected > 0 ? (verifiedSkills.length / totalDetected) : 0.5;
+    
+    // Calculate realistic dynamic score
+    let overallMatchScore = Math.min(99, Math.max(25, Math.round(ratio * 70 + (cand.yearsOfExperience > 0 ? 25 : 10))));
+    if (isBuggyMode) {
+      overallMatchScore = 98; // simulated naive match
     }
 
-    const overallMatchScore = isBuggyMode ? 98 : 92;
-    const matchTier = isBuggyMode ? 'Top 1% Exceptional (Truncated)' : '92% Top 1% Exceptional';
+    let matchTier = `${overallMatchScore}% Strong Alignment`;
+    if (overallMatchScore >= 90) matchTier = `${overallMatchScore}% Top 1% Exceptional`;
+    else if (overallMatchScore >= 75) matchTier = `${overallMatchScore}% Competitive Match`;
+    else matchTier = `${overallMatchScore}% Pivot / Growth Opportunity`;
+
+    const candRole = cand.title || 'Applicant';
+    const candExp = cand.yearsOfExperience > 0 ? `${cand.yearsOfExperience} Yrs` : 'Target Domain';
+    
     const matchHeadline = isBuggyMode
       ? 'Core technical skills aligned (Scanned 153 chars preliminary snippet)'
-      : '92% Senior Staff Architect Match (15+ Yrs Frontend & Distributed Systems Infrastructure)';
+      : `${overallMatchScore}% ${candRole} Match (${candExp} Experience Profile)`;
 
     return {
       overallMatchScore,
@@ -300,7 +326,7 @@
       matchHeadline,
       verifiedSkills,
       missingSkillGaps,
-      detectedJdSkillsCount: verifiedSkills.length + missingSkillGaps.length
+      detectedJdSkillsCount: totalDetected
     };
   }
 
@@ -1117,13 +1143,13 @@
             </div>
             <div class="sjg-cand-skills-text">
               <span class="sjg-cand-skills-label">Identified Skills (${candidateProfile.skills.length}): </span>
-              ${escapeHtml(candidateProfile.skills.slice(0, 6).join(', '))}, Next.js, GraphQL, CI/CD...
+              ${candidateProfile.skills.length > 0 ? escapeHtml(candidateProfile.skills.join(', ')) : '<span style="color:#64748b;">No skills specified yet (Upload or Edit)</span>'}
             </div>
 
             ${isCandidateExpanded ? `
               <div class="sjg-cand-expand-box">
                 <div><strong style="color:#fff;">Role:</strong> ${escapeHtml(candidateProfile.title)}</div>
-                <div><strong style="color:#fff;">Experience:</strong> ${candidateProfile.yearsOfExperience} Years Full-Stack / Backend</div>
+                <div><strong style="color:#fff;">Experience:</strong> ${candidateProfile.yearsOfExperience} Years Relevant Domain</div>
                 <div style="font-size:10px; color:#94a3b8; line-height:1.4;">${escapeHtml(candidateProfile.rawResumeText)}</div>
               </div>
             ` : ''}
