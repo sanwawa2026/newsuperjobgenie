@@ -1281,6 +1281,7 @@
     // Upload Resume Button & File Input handler
     const fileInput = wrapper.querySelector('#sjg-resume-file-input');
     wrapper.querySelector('#sjg-upload-resume-btn')?.addEventListener('click', () => {
+      if (fileInput) fileInput.value = ''; // Reset so same file can be re-triggered if needed
       fileInput?.click();
     });
 
@@ -1292,24 +1293,27 @@
       reader.onload = (loadEvent) => {
         const text = loadEvent.target?.result;
         if (typeof text === 'string') {
-          candidateProfile.rawResumeText = text.slice(0, 1500);
+          // Completely replace old resume text and extract fresh skills from scratch
+          candidateProfile.rawResumeText = text.slice(0, 2000);
+          candidateProfile.title = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
           
           const commonKeywords = [
             'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Go', 'Java',
             'AWS', 'GCP', 'Docker', 'Kubernetes', 'GraphQL', 'Next.js', 'SQL',
-            'System Design', 'CI/CD', 'Microfrontends', 'Tailwind', 'DevOps'
+            'System Design', 'CI/CD', 'Microfrontends', 'Tailwind', 'DevOps',
+            'Finance', 'Accounting', 'FP&A', 'Excel', 'SQL', 'Tableau', 'PowerBI',
+            'SAP', 'Oracle', 'Budgeting', 'Forecasting', 'Auditing', 'GAAP'
           ];
           const found = commonKeywords.filter(k => new RegExp(`\\b${k}\\b`, 'i').test(text));
-          if (found.length > 0) {
-            candidateProfile.skills = Array.from(new Set([...candidateProfile.skills, ...found]));
-          }
+          // Reset skills to newly detected ones (plus ensure unique)
+          candidateProfile.skills = found.length > 0 ? Array.from(new Set(found)) : ['Financial Analysis', 'Excel', 'SQL', 'GAAP'];
 
           const uploadBtn = wrapper.querySelector('#sjg-upload-resume-btn');
           if (uploadBtn) {
             uploadBtn.innerHTML = '✅ Uploaded!';
             setTimeout(() => {
               renderShadowUI();
-            }, 1200);
+            }, 1000);
           } else {
             renderShadowUI();
           }
