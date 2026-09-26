@@ -679,7 +679,9 @@
     .sjg-candidate-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 5px;
       font-size: 11px;
     }
 
