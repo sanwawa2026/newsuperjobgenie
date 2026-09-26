@@ -1334,7 +1334,11 @@
     });
 
     wrapper.querySelector('#sjg-clear-btn')?.addEventListener('click', () => {
-      if (confirm('Clear current candidate profile skills and resume?')) {
+      if (confirm('Clear current candidate profile completely?')) {
+        candidateProfile.name = 'Candidate (Cleared)';
+        candidateProfile.title = 'General Applicant';
+        candidateProfile.targetRole = 'Target Role';
+        candidateProfile.yearsOfExperience = 0;
         candidateProfile.skills = [];
         candidateProfile.rawResumeText = '';
         renderShadowUI();
