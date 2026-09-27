@@ -18,6 +18,7 @@ import {
   Sliders
 } from 'lucide-react';
 import { MatchAnalysisResult, ExtractedJobData, CandidateProfile } from '../types';
+import { TelemetryManager } from '../services/telemetry';
 
 interface InPageModalDialogProps {
   isOpen: boolean;
@@ -55,6 +56,13 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
+
+    if (key.includes('cl')) {
+      TelemetryManager.track('cover_letter_copied', {
+        source: 'in_page_modal',
+        charLength: text.length
+      });
+    }
   };
 
   const displayChars = isBuggyMode ? 153 : matchResult.charCountCaptured;
@@ -74,14 +82,14 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
               <div className="flex items-center gap-2">
                 <span className="font-black text-sm tracking-wide text-white">SuperJobGenie 2.2</span>
                 <span className="bg-indigo-500/20 text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-500/30">
-                  招聘网内嵌弹窗版
+                  In-Page Job Modal
                 </span>
                 <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-500/30">
-                  3,000+ 字全量解析无截断
+                  3,000+ Chars Full Extraction
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">
-                已捕获 <strong className="text-emerald-400">{displayChars.toLocaleString()}</strong> 字符 • 来源: {jobData.extractionSource}
+                Captured <strong className="text-emerald-400">{displayChars.toLocaleString()}</strong> characters • Source: {jobData.extractionSource}
               </p>
             </div>
           </div>
@@ -95,12 +103,12 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
               className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>全屏专家控制台</span>
+              <span>Full PRO Console</span>
             </button>
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-white p-1 hover:bg-slate-800 rounded-lg transition"
-              title="关闭弹窗 (ESC)"
+              title="Close modal (ESC)"
             >
               <X className="w-4 h-4" />
             </button>
@@ -126,7 +134,7 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
               <div className="text-right">
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">综合匹配度</div>
+                <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Match Score</div>
                 <div className={`text-lg font-black leading-none ${isBuggyMode ? 'text-amber-400' : 'text-emerald-400'}`}>
                   {displayScore}%
                 </div>
@@ -145,7 +153,7 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
               }`}
             >
               {isBuggyMode ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
-              <span>{isBuggyMode ? '153字残缺模式' : '3000字全量模式'}</span>
+              <span>{isBuggyMode ? '153-Char Truncated' : '3,000+ Chars Full'}</span>
             </button>
           </div>
         </div>
@@ -161,7 +169,7 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>🎯 多维匹配与雷达</span>
+            <span>🎯 Match & Breakdown</span>
           </button>
           <button
             onClick={() => setActiveTab('profile')}
@@ -172,7 +180,7 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span>👤 候选人画像与隐私盾</span>
+            <span>👤 Candidate & Privacy Shield</span>
           </button>
           <button
             onClick={() => setActiveTab('coverletter')}
@@ -183,7 +191,7 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>✉️ 定制求职信 (针对3000字JD)</span>
+            <span>✉️ Tailored Cover Letter</span>
           </button>
           <button
             onClick={() => setActiveTab('fulljd')}
@@ -194,7 +202,7 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
             }`}
           >
             <Terminal className="w-3.5 h-3.5" />
-            <span>📄 全量JD审查 ({displayChars}字)</span>
+            <span>📄 Full JD Inspector ({displayChars} chars)</span>
           </button>
         </div>
 
@@ -204,20 +212,27 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
           {/* TAB 1: MATCH */}
           {activeTab === 'match' && (
             <div className="space-y-4">
-              {/* Alert Status */}
-              <div className="p-3 bg-indigo-950/40 border border-indigo-500/30 rounded-xl flex items-start gap-3">
-                <div className="p-1.5 bg-indigo-900/60 rounded-lg text-indigo-300 shrink-0 mt-0.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div className="space-y-0.5">
-                  <div className="font-bold text-white flex items-center gap-2">
-                    <span>{matchResult.matchHeadline}</span>
-                    <span className="text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
-                      {matchResult.matchTier}
+              {/* Strategic Decision & Action Guidance */}
+              <div className="p-3 bg-gradient-to-r from-indigo-950/70 via-slate-900 to-indigo-950/70 border border-indigo-500/40 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 bg-indigo-900/60 rounded-lg text-indigo-300">
+                      <Sparkles className="w-4 h-4 text-cyan-400" />
+                    </span>
+                    <span className="font-bold text-white text-xs">
+                      {matchResult.matchHeadline}
                     </span>
                   </div>
-                  <p className="text-slate-300 text-[11px] leading-relaxed">
-                    突破了 Indeed 顶部 153 字问候语限制，全量扫描到包括 <strong>A/B Testing</strong>、<strong>统计推断</strong> 与 <strong>代码严审</strong> 等刚性诉求，结合候选人 15 年架构与代码审查背景给出真实定级。
+                  <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                    Recommended to Apply 🚀
+                  </span>
+                </div>
+                <div className="p-2.5 bg-slate-950/80 rounded-lg border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                  <p className="leading-relaxed">
+                    💡 <strong className="text-white">Strategic Verdict:</strong> A high match rate signals a strong opportunity—<strong>definitely worth applying immediately</strong>!
+                  </p>
+                  <p className="text-slate-400 leading-relaxed">
+                    Don’t let missing keywords cause hesitation. By tailoring your cover letter and highlighting transferable superpowers, you can reframe experience gaps into a distinctive advantage.
                   </p>
                 </div>
               </div>
@@ -227,9 +242,9 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold text-emerald-400 flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>简历已核实验证的核心技能 ({matchResult.verifiedSkills.length} 项)</span>
+                    <span>Verified Core Qualifications ({matchResult.verifiedSkills.length} items)</span>
                   </h4>
-                  <span className="text-[11px] text-slate-400">真实命中刚性标准</span>
+                  <span className="text-[11px] text-slate-400">Direct Alignment with Hard Criteria</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {matchResult.verifiedSkills.map((sk, idx) => (
@@ -242,7 +257,7 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
                       </div>
                       {sk.resumeEvidence && (
                         <p className="text-[11px] text-slate-400 line-clamp-2">
-                          <span className="text-slate-500">证据: </span>{sk.resumeEvidence}
+                          <span className="text-slate-500">Evidence: </span>{sk.resumeEvidence}
                         </p>
                       )}
                     </div>
@@ -250,32 +265,40 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
                 </div>
               </div>
 
-              {/* Missing Gaps */}
+              {/* Missing Gaps & Pivot Bridging */}
               {matchResult.missingSkillGaps.length > 0 && (
                 <div className="space-y-2 pt-2">
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-amber-400 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      <span>需在求职信/面试中转译的技能缺口 ({matchResult.missingSkillGaps.length} 项)</span>
+                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                       <span>Bridgeable Skill Gaps ({matchResult.missingSkillGaps.length} items) · Cover Letter Strategy</span>
                     </h4>
-                    <span className="text-[11px] text-slate-400">可借由工程严谨性完成降维转译</span>
+                    <span className="text-[11px] text-cyan-300 font-medium">Reframe in cover letter to stand out</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {matchResult.missingSkillGaps.map((sk, idx) => (
                       <div key={idx} className="p-2.5 bg-slate-900/80 border border-slate-800 rounded-lg space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-amber-200 text-xs">{sk.name}</span>
-                          <span className="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
-                            {sk.importance || '缺口项'}
+                          <span className="text-[10px] text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
+                            Cover Letter Focus
                           </span>
                         </div>
                         {sk.howToBridge && (
                           <p className="text-[11px] text-slate-300 leading-relaxed">
-                            <span className="text-cyan-400 font-semibold">破局建议: </span>{sk.howToBridge}
+                            <span className="text-cyan-400 font-semibold">Narrative Strategy: </span>{sk.howToBridge}
                           </p>
                         )}
                       </div>
                     ))}
+                  </div>
+                  <div className="pt-1 flex items-center justify-end">
+                    <button
+                      onClick={() => setActiveTab('coverletter')}
+                      className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 py-1 px-2 rounded-lg hover:bg-slate-900 transition"
+                    >
+                      <span>View Tailored Cover Letter (Gaps Addressed) →</span>
+                    </button>
                   </div>
                 </div>
               )}
@@ -289,19 +312,19 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
                 <div>
                   <div className="font-bold text-white flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <span>隐私盾保护 (Privacy Shield & ATS Scrubbing)</span>
+                    <span>Privacy Shield & ATS Scrubbing Active</span>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    当前状态: <strong className="text-emerald-300">{candidate.anonymizedLabel || '匿名保护中'}</strong>
+                    Current Status: <strong className="text-emerald-300">{candidate.anonymizedLabel || 'Anonymized Protection'}</strong>
                   </p>
                 </div>
                 <span className="bg-emerald-500/20 text-emerald-300 font-mono text-[11px] px-2.5 py-1 rounded-full border border-emerald-500/40">
-                  PII 零泄露
+                  Zero PII Leakage
                 </span>
               </div>
 
               <div>
-                <h4 className="font-bold text-slate-300 mb-2">选择预设候选人画像 (即时重新比对):</h4>
+                <h4 className="font-bold text-slate-300 mb-2">Select Preset Candidate Profile (Instant Re-match):</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {candidatePresets.map((preset) => (
                     <div
@@ -316,7 +339,7 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
                       <div className="space-y-1">
                         <div className="font-bold text-white text-xs">{preset.title}</div>
                         <div className="text-[11px] text-indigo-300 font-medium">
-                          {preset.yearsOfExperience} 年经验 • {preset.location || 'Remote'}
+                          {preset.yearsOfExperience} YOE • {preset.location || 'Remote'}
                         </div>
                         <p className="text-[10px] text-slate-400 line-clamp-3 mt-1 leading-relaxed">
                           {preset.rawResumeText.slice(0, 140)}...
@@ -336,8 +359,8 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
 
               <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-white text-xs">当前候选人提取技能 ({candidate.skills.length} 项)</span>
-                  <span className="text-[11px] text-slate-400">{candidate.yearsOfExperience} 年资历</span>
+                  <span className="font-bold text-white text-xs">Extracted Candidate Skills ({candidate.skills.length} items)</span>
+                  <span className="text-[11px] text-slate-400">{candidate.yearsOfExperience} YOE Depth</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {candidate.skills.map((sk, idx) => (
@@ -355,15 +378,15 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-white text-xs">针对本岗位 3,000+ 字严苛需求生成的定制自荐信</h4>
-                  <p className="text-[11px] text-slate-400">突出 15 年系统架构与代码审校严谨度，降维覆盖 AI 评估诉求。</p>
+                  <h4 className="font-bold text-white text-xs">Tailored Cover Letter for Full 3,000+ Character JD</h4>
+                  <p className="text-[11px] text-slate-400">Highlights 15 years of architecture rigor to bridge quantitative and evaluation requirements.</p>
                 </div>
                 <button
                   onClick={() => handleCopy(matchResult.coverLetters.tier4Pro || matchResult.coverLetters.tier3Free, 'cl-modal')}
                   className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold text-xs flex items-center gap-1.5 transition shadow"
                 >
                   {copiedKey === 'cl-modal' ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedKey === 'cl-modal' ? '已复制到剪贴板' : '复制求职信'}</span>
+                  <span>{copiedKey === 'cl-modal' ? 'Copied to Clipboard' : 'Copy Cover Letter'}</span>
                 </button>
               </div>
 
@@ -378,15 +401,15 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-white text-xs">Indeed / Web 职位全量捕获文本 ({displayChars.toLocaleString()} 字符)</h4>
-                  <p className="text-[11px] text-slate-400">解析通道: {jobData.extractionSource}</p>
+                  <h4 className="font-bold text-white text-xs">Full Captured Job Description Text ({displayChars.toLocaleString()} characters)</h4>
+                  <p className="text-[11px] text-slate-400">Extraction Channel: {jobData.extractionSource}</p>
                 </div>
                 <button
                   onClick={() => handleCopy(jobData.fullBodyText, 'jd-modal')}
                   className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-semibold text-xs flex items-center gap-1.5 transition border border-slate-700"
                 >
                   {copiedKey === 'jd-modal' ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedKey === 'jd-modal' ? '已复制全量JD' : '复制全量 JD'}</span>
+                  <span>{copiedKey === 'jd-modal' ? 'Copied Full JD' : 'Copy Full JD'}</span>
                 </button>
               </div>
 
@@ -401,9 +424,9 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
         {/* Modal Footer */}
         <div className="px-5 py-3 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between text-xs">
           <div className="text-slate-400 flex items-center gap-2">
-            <span>快捷键: 按 <kbd className="bg-slate-800 text-slate-300 px-1 py-0.5 rounded text-[10px] border border-slate-700">ESC</kbd> 关闭弹窗</span>
+            <span>Shortcut: Press <kbd className="bg-slate-800 text-slate-300 px-1 py-0.5 rounded text-[10px] border border-slate-700">ESC</kbd> to close</span>
             <span>•</span>
-            <span className="text-cyan-400">已融合 3000 字全量解析引擎</span>
+            <span className="text-cyan-400">Integrated 3,000+ Chars Full Engine</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -411,13 +434,13 @@ export const InPageModalDialog: React.FC<InPageModalDialogProps> = ({
               className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-semibold transition flex items-center gap-1.5"
             >
               <RotateCw className="w-3 h-3 text-cyan-400" />
-              <span>重新抓取分析</span>
+              <span>Re-analyze</span>
             </button>
             <button
               onClick={onClose}
               className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition shadow-md shadow-indigo-600/30"
             >
-              完成审查
+              Done
             </button>
           </div>
         </div>

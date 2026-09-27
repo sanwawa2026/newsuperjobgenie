@@ -22,6 +22,7 @@ import {
   Code
 } from 'lucide-react';
 import { ExtractedJobData, CandidateProfile, MatchAnalysisResult } from '../types';
+import { TelemetryManager } from '../services/telemetry';
 import { 
   STRIPE_FRONTEND_ARCHITECT_JD, 
   FULL_INDEED_AI_TRAINER_JD, 
@@ -77,13 +78,13 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-white text-sm">Indeed 3,000+ Chars Full Extraction Engine Active</span>
+              <span className="font-bold text-white text-sm">8,000+ Chars Full Deep Extraction & Career Pivot Engine</span>
               <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
-                153-Char Truncation Defect Eradicated
+                153-Char Truncation Eradicated · Schema.org Deep DOM
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              Supports in-page popups and bottom-right <strong className="text-indigo-300">SuperJobGenie 🚀</strong> HUD invocation, integrating real resume skill multi-dimensional matching & cross-domain analysis.
+              Supports in-page popups and bottom-right <strong className="text-indigo-300">SuperJobGenie 🚀</strong> HUD invocation, integrating real resume skill multi-dimensional matching & cross-domain pivot intelligence.
             </p>
           </div>
         </div>
@@ -98,7 +99,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
             }`}
           >
             {isBuggyMode ? <AlertTriangle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-            <span>{isBuggyMode ? 'Current: 153-Char Truncated' : 'Current: 3,000+ Chars Full Extraction'}</span>
+            <span>{isBuggyMode ? 'Current: 153-Char Truncated (Fake 98%)' : 'Current: 8,000+ Chars Full Extraction'}</span>
           </button>
 
           <button
@@ -467,6 +468,90 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
             <div className="whitespace-pre-wrap font-sans text-xs text-slate-200 space-y-2">
               {isBuggyMode ? jobData.rawTruncatedSnippet153 : jobData.fullBodyText}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* STEP 3: Strategic Decision & Actionable Pivot Card */}
+      <section className="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/40 rounded-2xl p-5 shadow-xl space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-lg bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 flex items-center justify-center font-black text-xs">
+              3
+            </span>
+            <div>
+              <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                <span>Strategic Decision & Immediate Action</span>
+                <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  Recommended to Apply 🚀
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400">
+                A high match score signals an excellent opportunity to apply; bridge any missing skill gaps through a customized cover letter and cross-track superpowers!
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onOpenModal}
+              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Open Intelligence Modal</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+          {/* Card 1: Verified Assets */}
+          <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4" />
+                Verified Core Assets
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">{matchResult.verifiedSkills.length} items</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Core technical capabilities and distributed architecture rigor fully aligned—your rock-solid foundation for interviews.
+            </p>
+          </div>
+
+          {/* Card 2: Gap Bridging Strategy */}
+          <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4" />
+                Gap Bridging Strategy
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">{matchResult.missingSkillGaps.length} bridgeable</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              No need to panic over missing keywords! Reframe your engineering depth into high adaptability and problem-solving rigor.
+            </p>
+          </div>
+
+          {/* Card 3: Instant Application Arsenal */}
+          <div className="p-4 bg-indigo-950/40 border border-indigo-500/30 rounded-xl space-y-2 flex flex-col justify-between">
+            <div>
+              <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                <Crown className="w-4 h-4 text-amber-400" />
+                Application Arsenal
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed mt-1">
+                Customized cover letters and targeted resume bullet rewrites generated—ready to copy & apply in 10 seconds!
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                TelemetryManager.track('decision_action_clicked', { source: 'ingestion_step_3' });
+                onOpenModal();
+              }}
+              className="mt-2 w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1"
+            >
+              <span>View Tailored Cover Letters & Bullets →</span>
+            </button>
           </div>
         </div>
       </section>

@@ -171,7 +171,7 @@ function parseJobHtmlOrText(input: string): {
       selectorFound,
       schemaOrgDetected,
       whyBugOccurred:
-        'Indeed页面通常采用微前端与懒加载架构。截断为153字的根本原因：旧提取逻辑错误地获取了搜索列表的概览快照(.job-snippet)或仅读取了首个<p>段落节点(刚好约153字)，未递归提取 #jobDescriptionText 或未解析完整 Schema.org JSON-LD。'
+        'Indeed pages use micro-frontends and lazy-loading architecture. Truncation to 153 characters root cause: Legacy extractors mistakenly read the search snippet (.job-snippet) or only the first <p> paragraph (exactly ~153 chars), failing to recursively extract #jobDescriptionText or parse full Schema.org JSON-LD.'
     }
   };
 }
@@ -226,7 +226,7 @@ app.post('/api/analyze-match', async (req: Request, res: Response) => {
     const isUnderExtracted = jobCharLength < 300;
 
     // Build the prompt for Gemini 3.8 Flash
-    const prompt = `You are the chief career architect and quantitative talent matcher for "SuperJobGenie (AI求职匹配与跨赛道分析)".
+    const prompt = `You are the chief career architect and quantitative talent matcher for "SuperJobGenie (AI Career Match & Strategic Pivot Intelligence)".
 A critical bug previously occurred in Indeed scraping:
 The system only scraped 153 characters of the job description (a tiny snippet), extracting only 1 keyword ("AI"), and falsely calculated a "98% Exceptional Match (Top 1%)" for a Senior Software Engineer applying to an AI Trainer / Product Analyst position.
 
@@ -251,7 +251,7 @@ TASK REQUIREMENTS:
    - Notice: The candidate is an Enterprise Backend / Distributed Systems Engineer (Java, Spring Boot, K8s, Microservices).
    - This job is "Product Analyst - AI Trainer" requiring statistical inference, predictive modeling, A/B testing, quantitative benchmark problem creation.
    - The match is a CROSS-TRACK PIVOT (~45% - 60% realistic technical alignment), because while the candidate has strong Python, SQL, AWS, and engineering logic, they lack explicit statistics, hypothesis testing, and quantitative research training.
-4. Provide an in-depth CROSS-TRACK CAREER PIVOT ANALYSIS (跨赛道分析):
+4. Provide an in-depth CROSS-TRACK CAREER PIVOT ANALYSIS:
    - Explain how a 15-year Senior SWE can successfully pivot into AI Trainer / Quantitative Evaluator.
    - List transferable superpowers (e.g., benchmark analytical code verification, backend performance logic, Python/SQL scripting, deep architecture mindset).
    - Gap-bridging action roadmap and interview talking points.
@@ -461,80 +461,80 @@ function generateSemanticAnalysisFallback(jobDesc: string, resume: string) {
       extractionMethod: 'Schema.org JSON-LD + Deep DOM #jobDescriptionText (Fixed Full 3000+ Chars)',
       overallMatchScore: 54,
       matchTier: 'Cross-Track Pivot',
-      matchHeadline: '54% 跨赛道高潜力匹配 (资深架构师转战AI数据训练与量化代码评估)',
+      matchHeadline: '54% High-Potential Pivot (Senior Architect to AI Data Training & Quantitative Code Review)',
       diagnosticComparison: {
         buggy153CharResult: {
           charsCaptured: 153,
           skillsFoundInJd: 1,
           apparentScore: 98,
           falsityReason:
-            '旧抓取器仅捕获Indeed页面顶部153字问候语，JD技能槽仅识别到"AI"单个词汇。由于候选人有AI标签，系统得出1/1=100%(加权98%)的虚假满配，完全遗漏了统计学、A/B测试与预测建模等核心刚性条件。'
+            'Legacy scraper only captured 153 introductory characters, discovering only the keyword "AI". Because the candidate had AI skills, system computed 1/1=100% (weighted 98%) false match, missing statistics, A/B testing, and predictive modeling.'
         },
         fixed3000CharResult: {
           charsCaptured: charCount,
           skillsFoundInJd: 14,
           realScore: 54,
           truthSummary:
-            '完整抓取3000+字后，系统识别出A/B Testing、统计推断、时间序列、Kaggle等14项技能。候选人具备扎实的代码审校(Python/SQL/AWS/算法)，但缺乏学术统计学与预测建模背景，属于典型的跨赛道转移(Pivot)匹配。'
+            'With full 3,000+ char extraction, system detected A/B Testing, statistical inference, time series, and Kaggle across 14 requirements. Candidate possesses solid code review, Python, SQL, and AWS architecture, but lacks formal inferential statistics, representing a strategic career pivot.'
         }
       },
       scoreBreakdown: {
         coreTechnicalSkills: {
           score: 22,
           max: 40,
-          details: '精通Python、SQL及代码架构评审，但JD强要求的回归分析、时间序列预测与统计推断在简历中缺少直接项目落地。'
+          details: 'Proficient in Python, SQL and code review, but regression modeling and time series inference lack direct resume evidence.'
         },
         domainAndMethodology: {
           score: 11,
           max: 25,
-          details: '缺乏A/B测试设计与假设检验的专业数据科研经历，但具备完备的企业级数据处理与复杂业务系统设计能力。'
+          details: 'Lacks formal A/B hypothesis test design, but possesses comprehensive enterprise data processing and distributed reliability skills.'
         },
         seniorityAndArchitecture: {
           score: 16,
           max: 20,
-          details: '15+年深厚技术底蕴，擅长严谨的技术规范、代码质量把控与问题排查，能高质量评估AI生成代码的工程合理性。'
+          details: '15+ years engineering leadership, exceptional at code quality standards, edge-case evaluation, and verifying AI code logic.'
         },
         educationAndCredentials: {
           score: 5,
           max: 15,
-          details: '计算机科学学士符合硬性标准，但缺少统计学硕士/博士及Kaggle竞赛排名的加分项。'
+          details: 'B.S. in Computer Science meets core degree requirements, but lacks M.S./Ph.D. in Statistics or Kaggle credentials.'
         }
       },
       verifiedSkills: [
         {
           name: 'Python Analytical Coding',
           category: 'Technical',
-          resumeEvidence: '精通Python，拥有多年后端与数据处理系统开发经验',
+          resumeEvidence: 'Fluent in Python, years of backend systems and data processing engineering',
           jdContext: 'Some coding experience required, with comfort writing and reviewing analytical code'
         },
         {
           name: 'SQL & Database Optimization',
           category: 'Technical',
-          resumeEvidence: '深入优化SQL查询逻辑与索引，提升数据查询效率70%',
+          resumeEvidence: 'Optimized complex query execution plans and indexing, boosted efficiency 70%',
           jdContext: 'Benchmark code generation and analytical data retrieval'
         },
         {
           name: 'Code Review & Technical Explanation',
           category: 'Methodology',
-          resumeEvidence: '负责8-12人团队技术评审、代码规范制定与工程文档沉淀',
+          resumeEvidence: 'Led technical reviews for 8-12 engineers, defined architecture standards',
           jdContext: 'Write clear technical explanations and well-documented analytical code'
         },
         {
           name: 'AWS Cloud & Infrastructure',
           category: 'Certification',
-          resumeEvidence: '持有 AWS Certified Solutions Architect 认证',
+          resumeEvidence: 'AWS Certified Solutions Architect',
           jdContext: 'AWS/GCP ML certifications or equivalent demonstrated expertise is a plus'
         },
         {
           name: 'Algorithm Benchmarking & Quality Assurance',
           category: 'Methodology',
-          resumeEvidence: '主导核心微服务重构与性能压测，线上缺陷率降低45%',
+          resumeEvidence: 'Led core microservice refactoring and load testing, lowered production defects 45%',
           jdContext: 'Evaluate AI-generated quantitative work for technical accuracy and validity'
         },
         {
           name: 'Data Analysis System Experience',
           category: 'Domain',
-          resumeEvidence: '具有数据分析系统(Data Analysis System)与SaaS平台的领域经验',
+          resumeEvidence: 'Demonstrated experience in data analytics pipelines and enterprise SaaS platforms',
           jdContext: 'Data-driven insights and quantitative problem evaluation'
         }
       ],
@@ -543,62 +543,62 @@ function generateSemanticAnalysisFallback(jobDesc: string, resume: string) {
           name: 'Statistical Inference & Hypothesis Testing',
           category: 'Methodology',
           importance: 'Crucial',
-          howToBridge: '需在申请文书中强调在业务系统压测与日志监控中运用的统计学分布分析与置信度检验思维。'
+          howToBridge: 'Highlight statistical distribution analysis and confidence intervals used in load testing and log observability in application letters.'
         },
         {
           name: 'Predictive Modeling & Regression Analysis',
           category: 'Technical',
           importance: 'Crucial',
-          howToBridge: '补充使用Python (Pandas, Scikit-learn, Statsmodels) 进行时序数据预测与特征工程的自驱项目经历。'
+          howToBridge: 'Showcase self-directed predictive time-series and feature engineering projects with Python (Pandas, Scikit-learn, Statsmodels).'
         },
         {
           name: 'A/B Testing & Experiment Design',
           category: 'Methodology',
           importance: 'Important',
-          howToBridge: '将微服务金丝雀发布(Canary Deployments)与灰度测试经验转化为实验对比设计叙事。'
+          howToBridge: 'Translate microservice canary deployments and blue-green phased rollout experience into controlled experiment narratives.'
         },
         {
           name: 'Kaggle Competition Ranking',
           category: 'Certification',
           importance: 'Nice-to-have',
-          howToBridge: '突出15年高并发实战代码能力，工程严谨性可弥补纯算法竞赛排名的短板。'
+          howToBridge: 'Emphasize 15 years of robust production code reliability; software engineering rigor offsets purely theoretical algorithmic competition rankings.'
         }
       ],
       careerPivot: {
         isCrossTrack: true,
-        fromTrack: '资深后端分布式系统架构师 (15+年 Java/Go/Cloud)',
-        toTrack: 'Product Analyst - AI Trainer (量化评估与AI模型代码训练师)',
+        fromTrack: 'Senior Backend Distributed Systems Architect (15+ YOE Java/Go/Cloud)',
+        toTrack: 'Product Analyst - AI Trainer (Quantitative Reasoning & AI Code Evaluator)',
         pivotFeasibility: 'High',
         pivotFeasibilityScore: 78,
         transferableSuperpowers: [
-          '具备15年实战代码质量敏感度，对AI生成的Python/SQL/算法代码漏洞有极强的嗅觉',
-          '能够撰写工业级的技术解析与重构规范文档，符合AI Trainer对清晰解释的高标准要求',
-          '持有AWS云架构认证与高并发调优经验，可评估复杂计算和数据管道的瓶颈'
+          '15+ years of battle-tested code quality instincts, immediately spotting vulnerabilities in AI-generated Python/SQL/logic',
+          'Proven ability to author industrial-grade technical specifications and architectural documentation matching AI Trainer clarity standards',
+          'AWS Solutions Architect certification and distributed latency tuning to assess complex computational pipeline constraints'
         ],
         gapBridgingRoadmap: [
-          { phase: '第一阶段 (即刻)', action: '梳理简历中SQL性能优化与数据分析系统经历，将其重写为"量化数据评估"叙事', timeframe: '1天' },
-          { phase: '第二阶段 (考核前)', action: '快速复习常见统计学假设检验公式(p-value, t-test, ANOVA)与回归评估指标(RMSE, R²)', timeframe: '3天' },
-          { phase: '第三阶段 (实战)', action: '在初始评估中展示严密的推理步骤与边界条件分析，不仅指出代码对错，更给出最优时间复杂度建议', timeframe: '考试中' }
+          { phase: 'Phase 1 (Immediate)', action: 'Restructure SQL performance tuning & data analytics system experience into "Quantitative Data Evaluation" narrative', timeframe: '1 Day' },
+          { phase: 'Phase 2 (Pre-Assessment)', action: 'Review hypothesis testing formulas (p-value, t-test, ANOVA) and regression metrics (RMSE, R²)', timeframe: '3 Days' },
+          { phase: 'Phase 3 (Hands-on)', action: 'Showcase rigorous step-by-step reasoning and boundary condition checks in candidate assessment, offering optimal asymptotic complexity advice', timeframe: 'Assessment' }
         ],
         interviewTalkingPoints: [
-          '作为拥有15年经验的技术Leader，我每天都在做比纯算法更严格的代码评审——这正是保证AI模型量化输出在工业界具备真实可用性的核心能力。',
-          '我曾优化复杂SQL提升70%性能，这种对数据结构与查询计划的深层理解，能精准识别AI在数据提取逻辑中的隐蔽错误。'
+          'As a 15-year technical leader, I conduct code reviews stricter than theoretical algorithms daily—ensuring AI quantitative reasoning operates reliably in production.',
+          'My optimization of complex SQL plans improved throughput by 70%, equipping me to catch edge-case data pipeline errors in AI outputs.'
         ],
         keyPivotNarrative:
-          '传统数据分析师懂统计但往往欠缺深厚软件工程底蕴；而我作为15年资深架构师，能为AI量化训练提供顶级的代码工程可靠性、边界防御与架构级可落地性。'
+          'Traditional analysts understand statistics but lack deep systems engineering rigor; as a 15-year architect, I provide elite code reliability, defensive boundary verification, and production-grade execution to AI quantitative training.'
       },
       resumeRewrites: [
         {
-          originalExperience: '优化老业务系统SQL查询逻辑与程序执行逻辑，解决大数据量下卡顿，查询效率提升70%',
+          originalExperience: 'Optimized legacy business SQL queries and logic, resolved data bottlenecks and improved query speed by 70%',
           optimizedBullet:
-            '主导量化数据查询逻辑深度调优，运用统计抽样与执行计划分析重构复杂SQL，解决大规模数据分析瓶颈，查询效率提升70%，沉淀多维度数据校验规范。',
-          pivotImpact: '突出数据量化分析与规范制定，契合AI Trainer所需的严密数据审校能力。'
+            'Architected quantitative query performance tuning, leveraging statistical sampling and execution plan decomposition to eliminate analytics bottlenecks, boosting query throughput 70% and standardizing multi-dimensional validation metrics.',
+          pivotImpact: 'Highlights quantitative evaluation and documentation rigor, directly aligning with AI Trainer needs.'
         },
         {
-          originalExperience: '带领8-12人研发团队，负责代码审查、技术规范制定与人员培训，线上Bug率降低45%',
+          originalExperience: 'Led 8-12 engineer team for code reviews, architectural standards, and team mentoring; decreased defect rate by 45%',
           optimizedBullet:
-            '统筹全链路代码审校与算法评测标准制定，对Python/Java核心逻辑进行边界条件与容错性严审，线上逻辑缺陷率下降45%，具备高阶技术评估与清晰文档阐述专长。',
-          pivotImpact: '强调高标准的Code Review与文档表达能力，完全匹配JD中的"Write clear technical explanations"。'
+            'Directed full-lifecycle code audit and algorithmic evaluation benchmarks for Python/Java microservices; reduced production failure rates by 45% with clear technical documentation and rigorous boundary test criteria.',
+          pivotImpact: 'Emphasizes high-standard code evaluation and technical clarity, matching "Write clear technical explanations".'
         }
       ],
       coverLetters: {
@@ -640,26 +640,26 @@ I am eager to apply this battle-tested engineering precision to train, benchmark
     extractionMethod: 'DOM Deep Extractor',
     overallMatchScore: 95,
     matchTier: 'Top 1% Exceptional',
-    matchHeadline: '95% 卓越直接匹配 (核心架构技术栈 100% 覆盖)',
+    matchHeadline: '95% Exceptional Direct Match (Core Architecture Tech Stack 100% Covered)',
     diagnosticComparison: {
       buggy153CharResult: {
         charsCaptured: 153,
         skillsFoundInJd: 2,
         apparentScore: 92,
-        falsityReason: '仅抓取前导段落，未能全面评估架构层级要求。'
+        falsityReason: 'Scraped only the lead paragraph, failing to assess architecture-level qualifications.'
       },
       fixed3000CharResult: {
         charsCaptured: charCount,
         skillsFoundInJd: 15,
         realScore: 95,
-        truthSummary: '全量提取后证实候选人微服务、高并发、Kubernetes与AWS经历与职位要求高度契合。'
+        truthSummary: 'Full-text extraction verifies candidate microservices, concurrency, Kubernetes, and AWS match job requirements.'
       }
     },
     scoreBreakdown: {
-      coreTechnicalSkills: { score: 39, max: 40, details: 'Java/Go/Spring Boot/Redis/PostgreSQL完美匹配。' },
-      domainAndMethodology: { score: 24, max: 25, details: '高并发高可用架构设计经验丰富。' },
-      seniorityAndArchitecture: { score: 20, max: 20, details: '15+年经验完全满足Staff/Senior定位。' },
-      educationAndCredentials: { score: 12, max: 15, details: '拥有AWS架构师认证及CS学士学位。' }
+      coreTechnicalSkills: { score: 39, max: 40, details: 'Java/Go/Spring Boot/Redis/PostgreSQL perfect match.' },
+      domainAndMethodology: { score: 24, max: 25, details: 'Extensive high-concurrency, high-availability architecture experience.' },
+      seniorityAndArchitecture: { score: 20, max: 20, details: '15+ years experience fully satisfies Staff/Senior requirements.' },
+      educationAndCredentials: { score: 12, max: 15, details: 'Holds AWS Solutions Architect cert and B.S. in Computer Science.' }
     },
     verifiedSkills: [
       { name: 'Microservices & High Concurrency', category: 'Technical', resumeEvidence: '20+ independent microservices, 10W+ DAU, 5000+ RPS' },
@@ -669,7 +669,7 @@ I am eager to apply this battle-tested engineering precision to train, benchmark
       { name: 'AWS Cloud Architecture', category: 'Certification', resumeEvidence: 'AWS Certified Solutions Architect' }
     ],
     missingSkillGaps: [
-      { name: 'Kafka Event Streaming', category: 'Tool', importance: 'Nice-to-have', howToBridge: '可类比既有的RabbitMQ与异步消息队列架构经验。' }
+      { name: 'Kafka Event Streaming', category: 'Tool', importance: 'Nice-to-have', howToBridge: 'Comparable to candidate existing RabbitMQ and asynchronous message queue expertise.' }
     ],
     careerPivot: {
       isCrossTrack: false,
@@ -677,10 +677,10 @@ I am eager to apply this battle-tested engineering precision to train, benchmark
       toTrack: 'Staff Backend Distributed Systems Engineer',
       pivotFeasibility: 'High',
       pivotFeasibilityScore: 98,
-      transferableSuperpowers: ['微服务架构演进', '高并发压测与调优', '分布式缓存设计'],
-      gapBridgingRoadmap: [{ phase: '准备阶段', action: '准备分布式事务CAP与Saga模式的系统设计案例', timeframe: '2天' }],
-      interviewTalkingPoints: ['重点阐述如何将单体拆解为20+独立微服务并保障99.99%稳定性。'],
-      keyPivotNarrative: '技术栈直接重叠，无需赛道转换，直接主打架构统治力。'
+      transferableSuperpowers: ['Microservice Architecture Evolution', 'High-Concurrency Load Testing', 'Distributed Cache Design'],
+      gapBridgingRoadmap: [{ phase: 'Prep Phase', action: 'Prepare distributed transaction CAP theorem and Saga pattern system design cases', timeframe: '2 Days' }],
+      interviewTalkingPoints: ['Articulate decomposing a monolith into 20+ isolated microservices maintaining 99.99% availability.'],
+      keyPivotNarrative: 'Direct skill stack overlap, no career pivot needed, lead with architecture authority.'
     },
     resumeRewrites: [],
     coverLetters: {

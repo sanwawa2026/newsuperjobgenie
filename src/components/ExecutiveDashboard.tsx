@@ -21,6 +21,7 @@ import {
   Cpu
 } from 'lucide-react';
 import { MatchAnalysisResult, ExtractedJobData, CandidateProfile } from '../types';
+import { TelemetryManager } from '../services/telemetry';
 
 interface ExecutiveDashboardProps {
   isOpen: boolean;
@@ -53,6 +54,18 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
+
+    if (key.includes('tier') || key.includes('letter')) {
+      TelemetryManager.track('cover_letter_copied', {
+        source: 'executive_dashboard',
+        key
+      });
+    } else if (key.includes('rewrite') || key.includes('bullet')) {
+      TelemetryManager.track('bullet_rewrite_copied', {
+        source: 'executive_dashboard',
+        key
+      });
+    }
   };
 
   const navItems = [
@@ -78,12 +91,12 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                 <h2 className="text-lg font-black tracking-tight text-white">
                   SUPERJOBGENIE EXECUTIVE DASHBOARD
                 </h2>
-                <span className="bg-amber-500/20 text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
-                  PRO SUITE
+                <span className="bg-gradient-to-r from-amber-500/20 to-indigo-500/20 text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
+                  Career Pivot Intelligence Suite
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Indeed 全量无损抓取引擎 • 真实技能多维比对 • 跨赛道转型导航
+                8,000+ Full Chars Deep Extraction • Cross-Track Skill Mapping Matrix • Executive Strategic Pivot
               </p>
             </div>
           </div>
@@ -98,7 +111,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
               }`}
             >
-              <span>模式: {isBuggyMode ? '⚠️ 153字残缺 (模拟Bug)' : '✅ 3000+字全量抓取 (已修复)'}</span>
+              <span>Mode: {isBuggyMode ? '⚠️ 153 Chars (Bug Simulation)' : '✅ 3000+ Chars Full (Fixed)'}</span>
             </button>
 
             <button
@@ -118,7 +131,14 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
             return (
               <button
                 key={item.id}
-                onClick={() => onTabChange(item.id)}
+                onClick={() => {
+                  onTabChange(item.id);
+                  if (item.id === 'pivot') {
+                    TelemetryManager.track('pivot_analysis_viewed', { source: 'dashboard' });
+                  } else if (item.id === 'matrix') {
+                    TelemetryManager.track('gap_matrix_inspected', { source: 'dashboard' });
+                  }
+                }}
                 className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
                   isActive
                     ? 'border-cyan-400 text-cyan-300 bg-cyan-950/30'
@@ -140,12 +160,12 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
               <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-5">
                 <div className="flex items-center gap-2 text-amber-400 font-bold text-base mb-2">
                   <Terminal className="w-5 h-5" />
-                  <h3>Indeed 抓取底层机理透视：为什么此前会截断成 153 个字？</h3>
+                  <h3>Indeed Scraping Root-Cause Diagnostic: Why Was It Truncated to 153 Characters?</h3>
                 </div>
                 <p className="text-slate-300 text-xs leading-relaxed">
-                  在现代 Indeed 页面中，岗位正文不仅由客户端微前端动态渲染，而且在 DOM 树中包含多层嵌套结构：
-                  首段问候语刚好是 <code className="bg-slate-950 text-amber-300 px-1.5 py-0.5 rounded font-mono">153 个字符</code>。
-                  旧脚本使用 <code className="bg-slate-950 text-cyan-300 px-1.5 py-0.5 rounded font-mono">.jobsearch-JobComponent-description p</code> 或列表概览选择器 <code className="bg-slate-950 text-cyan-300 px-1.5 py-0.5 rounded font-mono">.job-snippet</code>，直接在第一个子节点返回了文本，导致后续的 <strong>Benefits</strong>、<strong>Responsibilities</strong> 以及最核心的 <strong>Qualifications（A/B测试、时间序列、预测建模、Kaggle）</strong> 全部被截断丢弃！
+                  In modern Indeed postings, job content is rendered dynamically via client-side micro-frontends with deep DOM nesting:
+                  The opening greeting happened to measure exactly <code className="bg-slate-950 text-amber-300 px-1.5 py-0.5 rounded font-mono">153 characters</code>.
+                  Legacy scripts used <code className="bg-slate-950 text-cyan-300 px-1.5 py-0.5 rounded font-mono">.jobsearch-JobComponent-description p</code> or summary selector <code className="bg-slate-950 text-cyan-300 px-1.5 py-0.5 rounded font-mono">.job-snippet</code>, halting on the first child paragraph. Consequently, <strong>Benefits</strong>, <strong>Responsibilities</strong>, and the crucial <strong>Qualifications (A/B testing, time series, predictive modeling, Kaggle)</strong> were completely discarded!
                 </p>
               </div>
 
@@ -156,10 +176,10 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1.5 font-bold text-rose-400 text-sm">
                       <AlertTriangle className="w-4 h-4" />
-                      修复前: 153 字截断残缺 (Bug 状态)
+                      Before Fix: 153 Chars Truncated (Buggy State)
                     </span>
                     <span className="bg-rose-500/20 text-rose-300 text-xs font-mono px-2 py-0.5 rounded-full border border-rose-500/30">
-                      153 字符 / 1 项技能
+                      153 Chars / 1 Skill
                     </span>
                   </div>
 
@@ -168,18 +188,18 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   </div>
 
                   <div className="space-y-1.5 text-xs">
-                    <div className="text-slate-400">捕获的残缺片段:</div>
+                    <div className="text-slate-400">Captured Fragment:</div>
                     <blockquote className="p-2.5 bg-rose-950/30 border-l-2 border-rose-500 text-slate-300 italic text-[11px]">
                       "{jobData.rawTruncatedSnippet153}"
                     </blockquote>
                   </div>
 
                   <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-lg text-xs space-y-1">
-                    <div className="font-bold text-amber-300">造成后果:</div>
+                    <div className="font-bold text-amber-300">Consequences:</div>
                     <p className="text-slate-300">
-                      • JD 里仅扫描到单词 "AI"（1 项技能）。<br />
-                      • 候选人标签恰好含 "AI"，系统算出 1/1 = 100% (虚假 98% 满配)。<br />
-                      • 真实的统计学、量化科学、A/B测试要求彻底隐形！
+                      • JD only scanned the word "AI" (1 skill item).<br />
+                      • Candidate profile contained "AI", resulting in 1/1 = 100% (fake 98% match).<br />
+                      • Critical statistics, quantitative reasoning, and A/B testing were completely hidden!
                     </p>
                   </div>
                 </div>
@@ -189,10 +209,10 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1.5 font-bold text-emerald-400 text-sm">
                       <CheckCircle2 className="w-4 h-4" />
-                      修复后: 3000+ 字全量深层抓取 (SuperJobGenie 2.0)
+                      After Fix: 3000+ Chars Full Deep Extraction (SuperJobGenie 2.2)
                     </span>
                     <span className="bg-emerald-500/20 text-emerald-300 text-xs font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
-                      {jobData.characterCount} 字符 / 14+ 项技能
+                      {jobData.characterCount} Chars / 14+ Skills
                     </span>
                   </div>
 
@@ -201,20 +221,20 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   </div>
 
                   <div className="space-y-1.5 text-xs">
-                    <div className="text-slate-400">完整提取源与选择器:</div>
+                    <div className="text-slate-400">Full Extraction Source & Selectors:</div>
                     <div className="p-2.5 bg-emerald-950/30 border-l-2 border-emerald-500 text-slate-300 text-[11px] space-y-1">
-                      <div>• <strong>主通道:</strong> <code className="text-cyan-300">div#jobDescriptionText</code> 递归子节点遍历 (ul, li, p, h3)</div>
-                      <div>• <strong>备用通道:</strong> <code className="text-amber-300">&lt;script type="application/ld+json"&gt;</code> Schema.org 原生 JobPosting 解析</div>
-                      <div>• <strong>真实评分:</strong> 54% 跨赛道高潜力转移 (客观真实，杜绝虚假98%)</div>
+                      <div>• <strong>Primary Channel:</strong> <code className="text-cyan-300">div#jobDescriptionText</code> recursive node traversal (ul, li, p, h3)</div>
+                      <div>• <strong>Fallback Channel:</strong> <code className="text-amber-300">&lt;script type="application/ld+json"&gt;</code> Schema.org native JobPosting parser</div>
+                      <div>• <strong>Authentic Score:</strong> 54% High-Potential Career Pivot (Honest & realistic, zero fake 98%)</div>
                     </div>
                   </div>
 
                   <div className="p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-lg text-xs space-y-1">
-                    <div className="font-bold text-emerald-300">赋能价值:</div>
+                    <div className="font-bold text-emerald-300">Empowerment Value:</div>
                     <p className="text-slate-300">
-                      • 准确捕获候选人具备的代码评审(Python/SQL/AWS)优势。<br />
-                      • 诚实指出缺失的 A/B Testing 与统计假设检验短板。<br />
-                      • 自动激活「跨赛道分析」与「高定求职信」，指导如何以15年架构师的工程严谨度说服面试官！
+                      • Accurately identifies candidate code review (Python/SQL/AWS) superpowers.<br />
+                      • Transparently points out A/B testing and inferential statistics gaps.<br />
+                      • Automatically activates Strategic Career Pivot & Customized Cover Letters, framing 15 years of engineering rigor!
                     </p>
                   </div>
                 </div>
@@ -225,12 +245,12 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs text-cyan-400 font-bold flex items-center gap-1.5">
                     <Code className="w-4 h-4" />
-                    核心解析修复方案 (DOM递归 + Schema.org 双重冗余):
+                    Core Parser Solution (DOM Recursion + Schema.org Dual Redundancy):
                   </span>
                   <button
-                    onClick={() => handleCopy(`// SuperJobGenie Indeed 深度提取修复代码
+                    onClick={() => handleCopy(`// SuperJobGenie Deep Extraction Fix Code
 function extractIndeedFullDescription(doc) {
-  // 1. 优先读取 Schema.org JSON-LD (包含 100% 原始完整未截断描述)
+  // 1. Primary: Schema.org JSON-LD (contains 100% untruncated original description)
   const ldJsonScripts = doc.querySelectorAll('script[type="application/ld+json"]');
   for (const s of ldJsonScripts) {
     try {
@@ -239,7 +259,7 @@ function extractIndeedFullDescription(doc) {
       if (posting && posting.description) return cleanHtml(posting.description);
     } catch (e) {}
   }
-  // 2. 深度提取 #jobDescriptionText 所有子节点，保留段落与列表，告别 153 字
+  // 2. Deep extract #jobDescriptionText child nodes, retaining paragraphs & lists
   const container = doc.querySelector('#jobDescriptionText') || doc.querySelector('[data-testid="jobDescriptionText"]');
   if (container) {
     return Array.from(container.children).map(el => el.innerText.trim()).filter(Boolean).join('\\n\\n');
@@ -249,19 +269,19 @@ function extractIndeedFullDescription(doc) {
                     className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-white bg-slate-800 px-2 py-1 rounded transition"
                   >
                     {copiedKey === 'fix-code' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    <span>复制代码</span>
+                    <span>Copy Code</span>
                   </button>
                 </div>
                 <pre className="p-3 bg-slate-900 rounded-lg text-slate-300 font-mono text-[11px] overflow-x-auto leading-relaxed">
-{`// 1. 解决 153 字被截断的关键：Indeed 的微前端正文在 #jobDescriptionText
+{`// 1. Fix 153 chars truncation: Target #jobDescriptionText directly
 const container = document.querySelector('#jobDescriptionText') 
                || document.querySelector('[data-testid="jobDescriptionText"]');
 
-// 2. 递归遍历所有段落与列表项，而非仅仅抓取 firstElementChild 或 .job-snippet
+// 2. Recursively traverse all paragraphs and list items rather than firstElementChild
 const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div'))
   .map(el => el.innerText.trim())
   .filter(Boolean)
-  .join('\\n'); // 恢复完整 3000+ 字正文！`}
+  .join('\\n'); // Restores complete 3000+ chars body!`}
                 </pre>
               </div>
             </div>
@@ -275,7 +295,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-white text-sm flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-cyan-400" />
-                    多维评分模型拆解 (真实综合得分: {matchResult.overallMatchScore}分)
+                    Multi-Dimensional Scoring Model Breakdown (Authentic Score: {matchResult.overallMatchScore}%)
                   </h3>
                   <span className="text-xs font-mono text-cyan-300 bg-cyan-950 px-2.5 py-1 rounded border border-cyan-500/30">
                     {matchResult.matchTier}
@@ -286,7 +306,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                   {/* Item 1 */}
                   <div className="bg-slate-900/80 p-3.5 rounded-lg border border-slate-800 space-y-2">
                     <div className="flex justify-between font-semibold">
-                      <span className="text-slate-300">核心硬技术能力 (Python/SQL/算法)</span>
+                      <span className="text-slate-300">Core Technical Capabilities (Python/SQL/Algorithms)</span>
                       <span className="text-cyan-400 font-mono">
                         {matchResult.scoreBreakdown.coreTechnicalSkills.score} / {matchResult.scoreBreakdown.coreTechnicalSkills.max}
                       </span>
@@ -303,7 +323,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                   {/* Item 2 */}
                   <div className="bg-slate-900/80 p-3.5 rounded-lg border border-slate-800 space-y-2">
                     <div className="flex justify-between font-semibold">
-                      <span className="text-slate-300">领域研究与量化方法 (统计/A-B测试/预测)</span>
+                      <span className="text-slate-300">Domain & Quantitative Methodology (Stats/A-B Testing/Prediction)</span>
                       <span className="text-amber-400 font-mono">
                         {matchResult.scoreBreakdown.domainAndMethodology.score} / {matchResult.scoreBreakdown.domainAndMethodology.max}
                       </span>
@@ -320,7 +340,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                   {/* Item 3 */}
                   <div className="bg-slate-900/80 p-3.5 rounded-lg border border-slate-800 space-y-2">
                     <div className="flex justify-between font-semibold">
-                      <span className="text-slate-300">资历年限与架构把控 (15年工程严谨度)</span>
+                      <span className="text-slate-300">Seniority & Architectural Leadership (15+ YOE Engineering Rigor)</span>
                       <span className="text-emerald-400 font-mono">
                         {matchResult.scoreBreakdown.seniorityAndArchitecture.score} / {matchResult.scoreBreakdown.seniorityAndArchitecture.max}
                       </span>
@@ -337,7 +357,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                   {/* Item 4 */}
                   <div className="bg-slate-900/80 p-3.5 rounded-lg border border-slate-800 space-y-2">
                     <div className="flex justify-between font-semibold">
-                      <span className="text-slate-300">学历背景与资质加分 (CS学位/AWS/Kaggle)</span>
+                      <span className="text-slate-300">Education & Certifications (CS Degree/AWS Solutions/Kaggle)</span>
                       <span className="text-purple-400 font-mono">
                         {matchResult.scoreBreakdown.educationAndCredentials.score} / {matchResult.scoreBreakdown.educationAndCredentials.max}
                       </span>
@@ -360,7 +380,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-emerald-400 text-xs flex items-center gap-1.5 uppercase">
                       <CheckCircle2 className="w-4 h-4" />
-                      已验证能力 (Verified Skills - 共 {matchResult.verifiedSkills.length} 项)
+                      Verified Capabilities (Total {matchResult.verifiedSkills.length})
                     </h4>
                   </div>
                   <div className="space-y-2.5">
@@ -376,10 +396,10 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                           </span>
                         </div>
                         <p className="text-slate-300 text-[11px]">
-                          <strong className="text-slate-400">简历实证:</strong> {skill.resumeEvidence}
+                          <strong className="text-slate-400">Resume Evidence:</strong> {skill.resumeEvidence}
                         </p>
                         <p className="text-slate-400 text-[11px] italic">
-                          <strong className="text-slate-400 not-italic">JD 需求:</strong> {skill.jdContext}
+                          <strong className="text-slate-400 not-italic">JD Requirement:</strong> {skill.jdContext}
                         </p>
                       </div>
                     ))}
@@ -391,7 +411,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-amber-400 text-xs flex items-center gap-1.5 uppercase">
                       <AlertTriangle className="w-4 h-4" />
-                      技能缺口与弥补建议 (Skill Gaps - 共 {matchResult.missingSkillGaps.length} 项)
+                      Skill Gaps & Bridging Actions (Total {matchResult.missingSkillGaps.length})
                     </h4>
                   </div>
                   <div className="space-y-2.5">
@@ -405,11 +425,11 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                           <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
                             gap.importance === 'Crucial' ? 'bg-rose-950 text-rose-300 border border-rose-500/30' : 'bg-amber-950 text-amber-300 border border-amber-500/30'
                           }`}>
-                            {gap.importance === 'Crucial' ? '核心必备' : '推荐加分'}
+                            {gap.importance === 'Crucial' ? 'Crucial' : 'Bonus'}
                           </span>
                         </div>
                         <p className="text-cyan-300 text-[11px]">
-                          <strong className="text-slate-400">弥补策略:</strong> {gap.howToBridge}
+                          <strong className="text-slate-400">Bridging Strategy:</strong> {gap.howToBridge}
                         </p>
                       </div>
                     ))}
@@ -427,14 +447,14 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                   <div>
                     <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
-                      跨赛道转型可行性深度诊断 (Career Pivot Blueprint)
+                      Cross-Track Feasibility Deep Diagnostic (Career Pivot Blueprint)
                     </span>
                     <h3 className="text-base font-bold text-white mt-1">
                       {matchResult.careerPivot.fromTrack} <ArrowRight className="inline w-4 h-4 mx-1 text-cyan-400" /> {matchResult.careerPivot.toTrack}
                     </h3>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-slate-400">转型可行性指数:</div>
+                    <div className="text-xs text-slate-400">Pivot Feasibility Index:</div>
                     <div className="text-xl font-black text-emerald-400">
                       {matchResult.careerPivot.pivotFeasibilityScore}/100 ({matchResult.careerPivot.pivotFeasibility})
                     </div>
@@ -442,7 +462,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                 </div>
 
                 <div className="p-3.5 bg-slate-950/70 border border-indigo-500/20 rounded-lg text-xs text-slate-200 leading-relaxed">
-                  <strong className="text-cyan-300">核心转型叙事 (The Pivot Narrative): </strong>
+                  <strong className="text-cyan-300">Core Pivot Narrative: </strong>
                   {matchResult.careerPivot.keyPivotNarrative}
                 </div>
               </div>
@@ -451,7 +471,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-cyan-400" />
-                  你作为 15 年软件架构师的「不可替代降维优势」 (Transferable Superpowers)
+                  Your 15-Year Architect Transferable Superpowers
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {matchResult.careerPivot.transferableSuperpowers.map((power, idx) => (
@@ -469,7 +489,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
                   <Compass className="w-4 h-4 text-amber-400" />
-                  三阶段应聘与通关路线图 (Phase-by-Phase Roadmap)
+                  Three-Phase Application Roadmap
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {matchResult.careerPivot.gapBridgingRoadmap.map((step, idx) => (
@@ -490,7 +510,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-indigo-400" />
-                  面试问答高分金句 (Interview Talking Points)
+                  High-Impact Interview Talking Points
                 </h4>
                 <div className="space-y-2.5">
                   {matchResult.careerPivot.interviewTalkingPoints.map((point, idx) => (
@@ -500,7 +520,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                       <button
                         onClick={() => handleCopy(point, `talking-${idx}`)}
                         className="ml-auto text-slate-400 hover:text-white shrink-0 p-1"
-                        title="复制金句"
+                        title="Copy Talking Point"
                       >
                         {copiedKey === `talking-${idx}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
@@ -517,10 +537,10 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
               <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-5 space-y-2">
                 <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
                   <Sparkles className="w-4 h-4" />
-                  <h3>简历针对性重构 (Resume Bullets Optimizer)</h3>
+                  <h3>Resume Bullets Optimizer</h3>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  将原本纯粹的“后端开发与微服务运维”经历，针对该 JD 进行<strong>量化分析、代码审校与算法评测</strong>视角的精修重构。直接复制替换到简历中，可显著提升通过率！
+                  Refactor traditional backend engineering experience into <strong>quantitative reasoning, code evaluation, and algorithmic review</strong> perspectives tailored to the JD.
                 </p>
               </div>
 
@@ -528,33 +548,33 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                 {matchResult.resumeRewrites.map((rewrite, idx) => (
                   <div key={idx} className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-400">重构案例 #{idx + 1}</span>
+                      <span className="font-bold text-slate-400">Rewrite Case #{idx + 1}</span>
                       <button
                         onClick={() => handleCopy(rewrite.optimizedBullet, `bullet-${idx}`)}
                         className="flex items-center gap-1 px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-medium text-[11px] transition shadow"
                       >
-                        {copiedKey === `bullet-${idx}` ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                        <span>复制精修经历</span>
+                        {copiedKey === `bullet-${idx}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        <span>Copy Refined Bullet</span>
                       </button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                       <div className="p-3 bg-rose-950/20 border border-rose-500/20 rounded-lg space-y-1">
-                        <div className="text-rose-400 font-bold text-[11px]">原简历表述 (侧重传统后端):</div>
+                        <div className="text-rose-400 font-bold text-[11px]">Original Resume (Backend focus):</div>
                         <p className="text-slate-300 leading-relaxed">{rewrite.originalExperience}</p>
                       </div>
 
                       <div className="p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-lg space-y-1">
                         <div className="text-emerald-400 font-bold text-[11px] flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" />
-                          精修重构 (针对 AI Trainer / 量化分析):
+                          Refined for AI Trainer & Quantitative Benchmark:
                         </div>
                         <p className="text-emerald-200 font-medium leading-relaxed">{rewrite.optimizedBullet}</p>
                       </div>
                     </div>
 
                     <div className="text-[11px] text-cyan-300 bg-slate-900 px-3 py-1.5 rounded border border-slate-800">
-                      <strong>💡 赋能效果:</strong> {rewrite.pivotImpact}
+                      <strong>💡 Impact:</strong> {rewrite.pivotImpact}
                     </div>
                   </div>
                 ))}
@@ -572,14 +592,14 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-white text-xs flex items-center gap-1.5">
                         <FileText className="w-4 h-4 text-indigo-400" />
-                        3-Tier Standard Letter (标准求职信)
+                        3-Tier Standard Letter (Professional Baseline)
                       </span>
                       <button
                         onClick={() => handleCopy(matchResult.coverLetters.tier3Free, 'letter-free')}
                         className="flex items-center gap-1 text-[11px] text-slate-300 hover:text-white bg-slate-800 px-2 py-1 rounded transition"
                       >
                         {copiedKey === 'letter-free' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                        <span>复制</span>
+                        <span>Copy</span>
                       </button>
                     </div>
                     <textarea
@@ -589,7 +609,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                       className="w-full p-3 bg-slate-900 border border-slate-800 rounded-lg text-slate-300 font-sans text-xs leading-relaxed resize-none focus:outline-none"
                     />
                   </div>
-                  <div className="text-[11px] text-slate-400">适合直接邮件发送或作为基础申请文书。</div>
+                  <div className="text-[11px] text-slate-400">Suitable for direct email sending or general application submissions.</div>
                 </div>
 
                 {/* 4-Tier FAANG Pro */}
@@ -598,14 +618,14 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5">
                         <Crown className="w-4 h-4 text-amber-400" />
-                        4-Tier FAANG Pro Letter (高阶架构师视角)
+                        4-Tier FAANG Pro Letter (Executive Architect Narrative)
                       </span>
                       <button
                         onClick={() => handleCopy(matchResult.coverLetters.tier4Pro, 'letter-pro')}
                         className="flex items-center gap-1 text-[11px] text-amber-200 hover:text-white bg-purple-900/60 border border-purple-500/40 px-2 py-1 rounded transition"
                       >
                         {copiedKey === 'letter-pro' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                        <span>复制</span>
+                        <span>Copy</span>
                       </button>
                     </div>
                     <textarea
@@ -615,7 +635,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                       className="w-full p-3 bg-slate-900 border border-purple-500/20 rounded-lg text-purple-100 font-sans text-xs leading-relaxed resize-none focus:outline-none"
                     />
                   </div>
-                  <div className="text-[11px] text-purple-300/80">强调工程防御、复杂并发边界与代码严谨度，专为高薪量化AI评估岗打造。</div>
+                  <div className="text-[11px] text-purple-300/80">Highlights defensive engineering, edge concurrency, and rigorous code verification.</div>
                 </div>
               </div>
             </div>
@@ -628,7 +648,7 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm">
                     <Briefcase className="w-4 h-4" />
-                    <h3>当前载入的候选人档案 (用户真实 15年 资深架构师简历)</h3>
+                    <h3>Currently Loaded Candidate Profile</h3>
                   </div>
                   <span className="text-xs bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
                     15+ YOE Senior Software Engineer
@@ -645,13 +665,13 @@ const fullText = Array.from(container.querySelectorAll('p, li, h1, h2, h3, div')
 
               <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 space-y-3">
                 <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span>完整履历原文预览 ({candidate.rawResumeText.length} 字符):</span>
+                  <span>Full Resume Preview ({candidate.rawResumeText.length} characters):</span>
                   <button
                     onClick={() => handleCopy(candidate.rawResumeText, 'resume-raw')}
                     className="flex items-center gap-1 text-slate-300 hover:text-white bg-slate-800 px-2 py-1 rounded transition"
                   >
                     {copiedKey === 'resume-raw' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    <span>复制简历原文</span>
+                    <span>Copy Raw Resume</span>
                   </button>
                 </div>
                 <pre className="p-4 bg-slate-900 rounded-lg text-slate-300 font-mono text-xs max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">

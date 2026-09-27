@@ -61,7 +61,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
 
         {/* Preset Selector */}
         <div className="flex items-center gap-1.5">
-          <span className="text-slate-500 font-medium">快速切换职位:</span>
+          <span className="text-slate-500 font-medium">Switch Target Job:</span>
           <button
             onClick={() => onSelectPreset(FULL_INDEED_AI_TRAINER_JD)}
             className={`px-2.5 py-1 rounded-md text-xs font-semibold transition ${
@@ -70,7 +70,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
                 : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
             }`}
           >
-            AI Trainer (截图原题)
+            AI Trainer (Benchmark Job)
           </button>
           <button
             onClick={() => onSelectPreset(FULL_INDEED_SENIOR_BACKEND_JD)}
@@ -80,7 +80,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
                 : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
             }`}
           >
-            Senior Backend (直通对照)
+            Senior Backend (Direct Match)
           </button>
           <button
             onClick={() => setActiveTab(activeTab === 'custom' ? 'job' : 'custom')}
@@ -91,7 +91,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
             }`}
           >
             <Code className="w-3 h-3" />
-            <span>自定义抓取</span>
+            <span>Custom Extract</span>
           </button>
         </div>
       </div>
@@ -101,14 +101,14 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
         <div className="flex items-center gap-2">
           <span className="font-bold text-cyan-400 flex items-center gap-1">
             <Layers className="w-3.5 h-3.5" />
-            抓取诊断透视器:
+            Extraction Diagnostics:
           </span>
           <span className="text-slate-300">
-            抓取源: <code className="text-amber-300 bg-slate-800 px-1 py-0.5 rounded font-mono text-[11px]">{currentJob.extractionSource}</code>
+            Source: <code className="text-amber-300 bg-slate-800 px-1 py-0.5 rounded font-mono text-[11px]">{currentJob.extractionSource}</code>
           </span>
           <span className="text-slate-400">|</span>
           <span className="text-slate-300">
-            捕获统计: <strong className="text-emerald-400">{currentJob.characterCount}</strong> 字符 / <strong className="text-emerald-400">{currentJob.wordCount}</strong> 单词
+            Captured: <strong className="text-emerald-400">{currentJob.characterCount}</strong> chars / <strong className="text-emerald-400">{currentJob.wordCount}</strong> words
           </span>
         </div>
 
@@ -121,7 +121,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
                 : 'bg-slate-800 text-amber-300 border-amber-500/40 hover:bg-slate-700'
             }`}
           >
-            {highlightMode === '153snippet' ? '✓ 正在高亮 153字残缺区域' : '高亮 153字残缺区域'}
+            {highlightMode === '153snippet' ? '✓ Highlighting 153-Char Snippet' : 'Highlight 153-Char Snippet'}
           </button>
 
           <button
@@ -132,7 +132,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
                 : 'bg-slate-800 text-emerald-300 border-emerald-500/40 hover:bg-slate-700'
             }`}
           >
-            {highlightMode === 'fullTree' ? '✓ 正在高亮 3000字全量DOM' : '高亮 3000字全量DOM'}
+            {highlightMode === 'fullTree' ? '✓ Highlighting 3,000+ Chars Full DOM' : 'Highlight 3,000+ Chars Full DOM'}
           </button>
         </div>
       </div>
@@ -144,20 +144,20 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
             <div className="flex items-center justify-between">
               <label className="font-bold text-xs text-indigo-950 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                输入任何 Indeed 职位链接、完整 HTML 源码或职位描述文本进行全量提取:
+                Input any Indeed Job URL, raw HTML source, or job text for deep extraction:
               </label>
               <button
                 type="button"
                 onClick={() => setActiveTab('job')}
                 className="text-xs text-slate-500 hover:text-slate-800"
               >
-                收起
+                Close
               </button>
             </div>
             <textarea
               value={customInput}
               onChange={(e) => setCustomInput(e.target.value)}
-              placeholder="粘贴 Indeed 网页链接 (例如 https://www.indeed.com/viewjob?jk=...) 或粘贴完整的岗位 HTML / 纯文本..."
+              placeholder="Paste Indeed job posting URL (e.g. https://www.indeed.com/viewjob?jk=...) or paste complete job description HTML / text..."
               rows={4}
               className="w-full p-2.5 text-xs font-mono bg-white border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
@@ -167,14 +167,14 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
                 onClick={() => setCustomInput(FULL_INDEED_AI_TRAINER_JD.fullBodyText)}
                 className="px-3 py-1 text-xs bg-slate-200 hover:bg-slate-300 rounded text-slate-700"
               >
-                填入 AI Trainer 3000字
+                Load AI Trainer (3,000+ chars)
               </button>
               <button
                 type="submit"
                 disabled={isLoading || !customInput.trim()}
                 className="px-4 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow disabled:opacity-50"
               >
-                {isLoading ? '正在深度解析...' : '执行 3000字 深度抓取'}
+                {isLoading ? 'Extracting...' : 'Run Deep Extraction'}
               </button>
             </div>
           </form>
@@ -237,7 +237,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
             {highlightMode === '153snippet' && (
               <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 mb-2">
                 <AlertCircle className="w-4 h-4 text-amber-600" />
-                <span>⚠️ [原Bug诊断] 旧抓取器仅捕获了这前 153 个字符，其余关键技能全部丢弃！</span>
+                <span>⚠️ [Original Bug Diagnostics] Previous scraper captured only these first 153 characters, discarding all critical qualifications!</span>
               </div>
             )}
             <p className="text-slate-700">

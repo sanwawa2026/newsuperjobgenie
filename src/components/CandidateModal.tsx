@@ -52,7 +52,7 @@ export const CandidateModal: React.FC<CandidateModalProps> = ({
         <div className="px-5 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-cyan-400" />
-            <h3 className="font-bold text-sm text-white">编辑候选人画像与简历文本</h3>
+            <h3 className="font-bold text-sm text-white">Edit Candidate Profile & Resume Text</h3>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-white">
             <X className="w-4 h-4" />
@@ -62,7 +62,7 @@ export const CandidateModal: React.FC<CandidateModalProps> = ({
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto text-xs">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="font-semibold text-slate-300 block mb-1">目标职位 (Target Role Focus):</label>
+              <label className="font-semibold text-slate-300 block mb-1">Target Role Focus:</label>
               <input
                 type="text"
                 value={targetRole}
@@ -71,7 +71,7 @@ export const CandidateModal: React.FC<CandidateModalProps> = ({
               />
             </div>
             <div>
-              <label className="font-semibold text-slate-300 block mb-1">求职期望地点 (Candidate Location):</label>
+              <label className="font-semibold text-slate-300 block mb-1">Candidate Location:</label>
               <input
                 type="text"
                 value={location}
@@ -83,8 +83,8 @@ export const CandidateModal: React.FC<CandidateModalProps> = ({
 
           <div className="flex items-center justify-between p-3 bg-slate-950 rounded-lg border border-slate-800">
             <div>
-              <span className="font-semibold text-emerald-400 block text-xs">匿名求职盾 (Privacy & ATS Scrubbing):</span>
-              <span className="text-[11px] text-slate-400">自动抹除姓名、电话、住址与邮箱等 PII 敏感信息</span>
+              <span className="font-semibold text-emerald-400 block text-xs">Privacy & ATS Scrubbing Shield:</span>
+              <span className="text-[11px] text-slate-400">Automatically scrubs names, phone numbers, addresses, and emails (PII)</span>
             </div>
             <button
               type="button"
@@ -95,13 +95,13 @@ export const CandidateModal: React.FC<CandidateModalProps> = ({
                   : 'bg-slate-800 text-slate-400 border border-slate-700'
               }`}
             >
-              {isAnonymousMode ? '✓ 匿名模式已开启' : '关闭匿名模式'}
+              {isAnonymousMode ? '✓ Privacy Mode Active' : 'Standard Mode'}
             </button>
           </div>
 
           <div>
             <label className="font-semibold text-slate-300 block mb-1">
-              识别技能标签 (逗号分隔):
+              Extracted Skills (comma separated):
             </label>
             <input
               type="text"
@@ -113,7 +113,7 @@ export const CandidateModal: React.FC<CandidateModalProps> = ({
 
           <div>
             <label className="font-semibold text-slate-300 block mb-1">
-              完整简历正文 (全量 15+ 年架构师经历):
+              Full Resume Text (Full 15+ YOE Experience):
             </label>
             <textarea
               rows={10}
@@ -129,13 +129,13 @@ export const CandidateModal: React.FC<CandidateModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-medium"
             >
-              取消
+              Cancel
             </button>
             <button
               type="submit"
               className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-bold shadow"
             >
-              保存并重新分析
+              Save & Re-analyze
             </button>
           </div>
         </form>

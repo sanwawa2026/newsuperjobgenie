@@ -1,6 +1,6 @@
 {
-  "name": "SuperJobGenie - AI求职匹配与跨赛道分析",
-  "description": "智能解决Indeed与全网职位全量抓取(告别153字残缺截断)、真实简历技能匹配与跨赛道职业转换深度分析系统，配备HUD智能透视球与高阶专家分析面板",
+  "name": "SuperJobGenie - AI Job Match & Career Pivot Intelligence",
+  "description": "Next-gen AI job match and career pivot intelligence system. Solves 153-character truncation with full 8,000+ char scraping, accurate match scoring, and strategic career pivots.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

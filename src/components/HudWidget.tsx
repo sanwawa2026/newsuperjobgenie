@@ -18,6 +18,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { MatchAnalysisResult, ExtractedJobData, CandidateProfile } from '../types';
+import { TelemetryManager } from '../services/telemetry';
 
 interface HudWidgetProps {
   jobData: ExtractedJobData;
@@ -66,7 +67,7 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
         </span>
         <span className="font-semibold tracking-wider text-xs uppercase text-white">SuperJobGenie HUD</span>
         <span className="bg-cyan-500/20 text-cyan-300 text-[10px] font-mono px-2 py-0.5 rounded-full border border-cyan-500/30">
-          {displayScore}% {isBuggyMode ? '(153字残缺)' : '(3000字全量)'}
+          {displayScore}% {isBuggyMode ? '(153-char bug)' : '(Full JD)'}
         </span>
       </button>
     );
@@ -238,7 +239,7 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
             <div className="flex items-center gap-2">
               <Target className={`w-4 h-4 ${isBuggyMode ? 'text-amber-400' : 'text-cyan-400'}`} />
               <span className="font-bold text-xs text-white">
-                {isBuggyMode ? '98% Exceptional Match · Strong Fit! (TOP 1%)' : `${matchResult.overallMatchScore}% ${matchResult.matchTier}`}
+                {isBuggyMode ? '98% Naive Match (Truncated 153 Chars)' : `${displayScore}% ${matchResult.matchTier}`}
               </span>
             </div>
             <span
@@ -248,14 +249,34 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
                   : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
               }`}
             >
-              {isBuggyMode ? 'TOP 1% (虚假)' : '真实多维加权'}
+              {isBuggyMode ? '⚠️ Fake 98%' : displayScore >= 90 ? 'Top Tier (90-100%)' : displayScore >= 75 ? 'Competitive (75-89%)' : 'Transfer (60-74%)'}
             </span>
+          </div>
+
+          {/* 4-Tier Scale Legend */}
+          <div className="grid grid-cols-4 gap-1 bg-slate-950/80 p-1.5 rounded-lg border border-slate-800/80 mb-2.5">
+            <div className={`flex flex-col items-center py-1 px-0.5 rounded transition ${displayScore >= 90 && !isBuggyMode ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold scale-[1.02]' : 'text-slate-500 opacity-60'}`}>
+              <span className="text-[9px] font-mono leading-none">90-100%</span>
+              <span className="text-[8px] mt-0.5">Top 1% 🎆</span>
+            </div>
+            <div className={`flex flex-col items-center py-1 px-0.5 rounded transition ${displayScore >= 75 && displayScore < 90 && !isBuggyMode ? 'bg-sky-500/20 text-sky-400 border border-sky-500/40 font-bold scale-[1.02]' : 'text-slate-500 opacity-60'}`}>
+              <span className="text-[9px] font-mono leading-none">75-89%</span>
+              <span className="text-[8px] mt-0.5">Strong 🎯</span>
+            </div>
+            <div className={`flex flex-col items-center py-1 px-0.5 rounded transition ${displayScore >= 60 && displayScore < 75 && !isBuggyMode ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold scale-[1.02]' : 'text-slate-500 opacity-60'}`}>
+              <span className="text-[9px] font-mono leading-none">60-74%</span>
+              <span className="text-[8px] mt-0.5">Transfer 🌱</span>
+            </div>
+            <div className={`flex flex-col items-center py-1 px-0.5 rounded transition ${displayScore < 60 && !isBuggyMode ? 'bg-slate-700/30 text-slate-300 border border-slate-600/40 font-bold scale-[1.02]' : 'text-slate-500 opacity-60'}`}>
+              <span className="text-[9px] font-mono leading-none">&lt;60%</span>
+              <span className="text-[8px] mt-0.5">Cross 🧭</span>
+            </div>
           </div>
 
           <p className="text-[11px] text-slate-300 leading-relaxed mb-3">
             {isBuggyMode ? (
               <span className="text-amber-200">
-                ✨ Core technical skills fully aligned · Highly recommended to apply now! (⚠️ 警告: 仅扫描153字导致假匹配!)
+                ⚠️ Warning: Only 153 chars scanned caused fake match! Toggle mode above to restore full JD.
               </span>
             ) : (
               <span className="text-cyan-200">{matchResult.matchHeadline}</span>
@@ -296,12 +317,12 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
 
             <div className="space-y-1 text-[11px]">
               <div className="font-semibold text-white flex items-center gap-1">
-                <span>{isBuggyMode ? '🌟 Exceptional Match · Strong Fit (Top 1%)' : '跨赛道转移高潜力评估'}</span>
+                <span>{isBuggyMode ? '⚠️ Truncated Match · 153 chars only' : 'Recommended to Apply · Bridge Gaps via Cover Letter'}</span>
               </div>
               <div className="text-slate-400 font-mono text-[10px]">
                 JD Skills: <strong className="text-white">{displayJdSkillsCount}</strong> detected | Have:{' '}
-                <strong className="text-emerald-400">{displayHaveCount}</strong> | Missing:{' '}
-                <strong className={displayMissingCount > 0 ? 'text-amber-400' : 'text-emerald-400'}>{displayMissingCount}</strong>
+                <strong className="text-emerald-400">{displayHaveCount}</strong> | Bridge:{' '}
+                <strong className="text-cyan-400">{displayMissingCount} (Bridgeable)</strong>
               </div>
             </div>
           </div>
@@ -354,7 +375,7 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
           {isBuggyMode ? (
             <div className="p-2 bg-emerald-950/30 border border-emerald-500/20 rounded text-[11px] text-emerald-300 flex items-center gap-1.5">
               <span className="text-base">🎉</span>
-              <span>All 1 required skills verified! Zero technical gaps. (虚假结论)</span>
+              <span>All 1 required skills verified! Zero technical gaps. (Misleading conclusion)</span>
             </div>
           ) : (
             <div className="flex flex-wrap gap-1.5">
@@ -379,7 +400,10 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
         {/* HUD Quick Action Buttons */}
         <div className="space-y-2 pt-1">
           <button
-            onClick={() => onOpenDashboard('diagnostics')}
+            onClick={() => {
+              TelemetryManager.track('panel_expanded', { source: 'hud_main_btn' });
+              onOpenDashboard('diagnostics');
+            }}
             className="w-full py-2 px-3 rounded-lg font-bold text-xs bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-500 hover:to-orange-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2 transition"
           >
             <Crown className="w-3.5 h-3.5 text-amber-200" />
@@ -387,22 +411,31 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
           </button>
 
           <button
-            onClick={() => onOpenDashboard('pivot')}
+            onClick={() => {
+              TelemetryManager.track('pivot_analysis_viewed', { source: 'hud_pivot_btn' });
+              onOpenDashboard('pivot');
+            }}
             className="w-full py-2 px-3 rounded-lg font-bold text-xs bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-500/40 flex items-center justify-center gap-2 transition"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>✨ Smart Career Pivot Discovery (跨赛道分析)</span>
+            <span>✨ Smart Career Pivot Discovery</span>
           </button>
 
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => onOpenDashboard('cover-letter')}
+              onClick={() => {
+                TelemetryManager.track('panel_expanded', { source: 'hud_letter_free' });
+                onOpenDashboard('cover-letter');
+              }}
               className="py-1.5 px-2 rounded-lg font-semibold text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1 transition"
             >
               <span>📨 3-Tier Letter (Free)</span>
             </button>
             <button
-              onClick={() => onOpenDashboard('cover-letter-pro')}
+              onClick={() => {
+                TelemetryManager.track('paywall_modal_hit', { source: 'hud_letter_pro' });
+                onOpenDashboard('cover-letter-pro');
+              }}
               className="py-1.5 px-2 rounded-lg font-semibold text-[11px] bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-500/40 flex items-center justify-center gap-1 transition"
             >
               <Crown className="w-3 h-3 text-amber-300" />

@@ -321,24 +321,58 @@
     // Calculate realistic dynamic score
     let overallMatchScore = Math.min(99, Math.max(25, Math.round(ratio * 70 + (cand.yearsOfExperience > 0 ? 25 : 10))));
     if (isBuggyMode) {
-      overallMatchScore = 98; // simulated naive match
+      overallMatchScore = 98; // simulated naive match from truncated 153 chars
     }
 
-    let matchTier = `${overallMatchScore}% Strong Alignment`;
-    if (overallMatchScore >= 90) matchTier = `${overallMatchScore}% Top 1% Exceptional`;
-    else if (overallMatchScore >= 75) matchTier = `${overallMatchScore}% Competitive Match`;
-    else matchTier = `${overallMatchScore}% Pivot / Growth Opportunity`;
+    // Determine strict tier definitions based on the EXACT calculated overallMatchScore
+    let tierLevel = 'growth'; // 'exceptional' | 'competitive' | 'growth' | 'pivot'
+    let tierTitle = 'Pivot & Growth Opportunity';
+    let tierDesc = 'Core transferable skills detected · Minor gap bridging needed';
+    let tierBadge = 'Growth Match (60-74%)';
+    let tierColor = '#f59e0b'; // amber
+
+    if (overallMatchScore >= 90) {
+      tierLevel = 'exceptional';
+      tierTitle = 'Top 1% Exceptional Match';
+      tierDesc = 'Direct domain overlap · Outstanding qualification alignment · High callback probability';
+      tierBadge = 'Top Tier (90-100%)';
+      tierColor = '#34d399'; // emerald
+    } else if (overallMatchScore >= 75) {
+      tierLevel = 'competitive';
+      tierTitle = 'Competitive Strong Match';
+      tierDesc = 'High core skill alignment · Meets primary job requirements · Recommended to apply';
+      tierBadge = 'Competitive (75-89%)';
+      tierColor = '#38bdf8'; // sky blue
+    } else if (overallMatchScore >= 60) {
+      tierLevel = 'growth';
+      tierTitle = 'Solid Transferable Foundation';
+      tierDesc = 'Transferable skills present · Tailor resume highlights to bridge domain gaps';
+      tierBadge = 'Transferable (60-74%)';
+      tierColor = '#fbbf24'; // amber
+    } else {
+      tierLevel = 'pivot';
+      tierTitle = 'Cross-Track Exploration';
+      tierDesc = 'Cross-domain role · Emphasize soft skills and core analytical fundamentals';
+      tierBadge = 'Cross-Track (<60%)';
+      tierColor = '#94a3b8'; // slate
+    }
 
     const candRole = cand.title || 'Applicant';
-    const candExp = cand.yearsOfExperience > 0 ? `${cand.yearsOfExperience} Yrs` : 'Target Domain';
+    const candExp = cand.yearsOfExperience > 0 ? `${cand.yearsOfExperience} Yrs Exp` : 'Target Domain';
     
+    const matchTier = `${overallMatchScore}% ${tierTitle}`;
     const matchHeadline = isBuggyMode
-      ? 'Core technical skills aligned (Scanned 153 chars preliminary snippet)'
-      : `${overallMatchScore}% ${candRole} Match (${candExp} Experience Profile)`;
+      ? '⚠️ Naive 98% Match: Based solely on 153 chars truncated preview. Click mode toggle to scan full JD!'
+      : `${overallMatchScore}% Match for ${candRole} (${candExp}) · ${tierDesc}`;
 
     return {
       overallMatchScore,
       matchTier,
+      tierTitle,
+      tierDesc,
+      tierBadge,
+      tierColor,
+      tierLevel,
       matchHeadline,
       verifiedSkills,
       missingSkillGaps,
@@ -758,7 +792,7 @@
       gap: 6px;
     }
 
-    /* Card 3: Match Overview Card (Blue Glow Border) */
+    /* Card 3: Match Overview Card (Dynamic Tier Glow Border) */
     .sjg-match-card {
       background: #0d1428;
       border: 1.5px solid rgba(59, 130, 246, 0.4);
@@ -785,13 +819,57 @@
     }
 
     .sjg-match-tier-badge {
-      background: rgba(14, 116, 144, 0.4);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.4);
       font-size: 10px;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: 999px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Clear, self-explaining 4-tier benchmark scale */
+    .sjg-tier-legend {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      background: #070b14;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+      margin: 2px 0;
+    }
+
+    .sjg-tier-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 2px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid transparent;
+      opacity: 0.45;
+      transition: all 0.2s;
+    }
+
+    .sjg-tier-step.active {
+      opacity: 1;
+      border-color: currentColor;
+      background: rgba(30, 41, 59, 0.9);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+      transform: scale(1.02);
+    }
+
+    .sjg-tier-step-range {
+      font-size: 9px;
+      font-family: ui-monospace, monospace;
+      font-weight: 800;
+    }
+
+    .sjg-tier-step-label {
+      font-size: 8px;
+      font-weight: 700;
+      white-space: nowrap;
+      margin-top: 1px;
     }
 
     .sjg-match-desc {
@@ -1125,9 +1203,9 @@
 
         <!-- Mode Banner -->
         <div class="sjg-mode-bar">
-          <span class="sjg-mode-label">Extraction Mode:</span>
-          <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="Click to toggle between 153 chars truncated vs 3,000+ full-body chars">
-            ${isBuggyMode ? '⚠️ Truncated: 153 Chars (Click to Fix)' : '🛡️ Full Body: 3,000+ Chars Verified'}
+          <span class="sjg-mode-label">Career Pivot Intelligence:</span>
+          <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="Click to toggle between 153 chars truncated vs 8,000+ full-body chars">
+            ${isBuggyMode ? '⚠️ Truncated: 153 Chars (Naive)' : '🛡️ Full Body: 8,000+ Chars Verified'}
           </div>
         </div>
 
@@ -1187,14 +1265,37 @@
           </div>
 
           <!-- Match Card -->
-          <div class="sjg-match-card">
+          <div class="sjg-match-card" style="border-color: ${evaluation.tierColor}66;">
             <div class="sjg-match-header">
               <div class="sjg-match-tier">
-                <span style="color:#38bdf8; font-size:15px;">◎</span>
-                <span>${escapeHtml(evaluation.matchTier)}</span>
+                <span style="color: ${evaluation.tierColor}; font-size:16px;">◉</span>
+                <span style="color: #ffffff; font-weight:800;">${evaluation.overallMatchScore}% ${escapeHtml(evaluation.tierTitle)}</span>
               </div>
-              <span class="sjg-match-tier-badge">Multi-Dimensional Weighted</span>
+              <span class="sjg-match-tier-badge" style="background: ${evaluation.tierColor}22; color: ${evaluation.tierColor}; border: 1px solid ${evaluation.tierColor}55;">
+                ${escapeHtml(evaluation.tierBadge)}
+              </span>
             </div>
+
+            <!-- Clear, Visual 4-Tier Benchmark Scale (Solves user's 'what does 78% vs 95% mean?' confusion) -->
+            <div class="sjg-tier-legend">
+              <div class="sjg-tier-step ${evaluation.overallMatchScore >= 90 ? 'active' : ''}" style="color: #34d399;">
+                <span class="sjg-tier-step-range">90-100%</span>
+                <span class="sjg-tier-step-label">Top 1% 🎆</span>
+              </div>
+              <div class="sjg-tier-step ${evaluation.overallMatchScore >= 75 && evaluation.overallMatchScore < 90 ? 'active' : ''}" style="color: #38bdf8;">
+                <span class="sjg-tier-step-range">75-89%</span>
+                <span class="sjg-tier-step-label">Strong 🎯</span>
+              </div>
+              <div class="sjg-tier-step ${evaluation.overallMatchScore >= 60 && evaluation.overallMatchScore < 75 ? 'active' : ''}" style="color: #fbbf24;">
+                <span class="sjg-tier-step-range">60-74%</span>
+                <span class="sjg-tier-step-label">Transfer 🌱</span>
+              </div>
+              <div class="sjg-tier-step ${evaluation.overallMatchScore < 60 ? 'active' : ''}" style="color: #94a3b8;">
+                <span class="sjg-tier-step-range">&lt;60%</span>
+                <span class="sjg-tier-step-label">Cross 🧭</span>
+              </div>
+            </div>
+
             <div class="sjg-match-desc">
               ${escapeHtml(evaluation.matchHeadline)}
             </div>
@@ -1203,16 +1304,16 @@
               <div class="sjg-ring-box">
                 <svg class="sjg-ring-svg" viewBox="0 0 54 54">
                   <circle cx="27" cy="27" r="22" stroke="#1e293b" stroke-width="4" fill="none" />
-                  <circle cx="27" cy="27" r="22" stroke="#06b6d4" stroke-width="4" fill="none"
+                  <circle cx="27" cy="27" r="22" stroke="${evaluation.tierColor}" stroke-width="4" fill="none"
                           stroke-dasharray="138" stroke-dashoffset="${strokeDashoffset}" stroke-linecap="round" />
                 </svg>
                 <div class="sjg-ring-text">
-                  <span class="sjg-ring-num">${evaluation.overallMatchScore}%</span>
+                  <span class="sjg-ring-num" style="color:${evaluation.tierColor};">${evaluation.overallMatchScore}%</span>
                   <span class="sjg-ring-sub">MATCH</span>
                 </div>
               </div>
               <div class="sjg-match-inner-text">
-                <div class="sjg-match-inner-title">High-Potential Pivot & Transferability Score</div>
+                <div class="sjg-match-inner-title">${escapeHtml(evaluation.tierTitle)}</div>
                 <div class="sjg-match-inner-stats">
                   JD Skills: <strong style="color:#fff;">${evaluation.detectedJdSkillsCount}</strong> detected | 
                   Have: <strong style="color:#34d399;">${evaluation.verifiedSkills.length}</strong> | 

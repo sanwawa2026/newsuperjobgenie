@@ -57,7 +57,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
       document.body.removeChild(a);
     } catch (err) {
       console.error(err);
-      alert('下载生成失败，请确认后端服务正常运行。');
+      alert('Failed to generate download. Please ensure the service is running.');
     } finally {
       setIsDownloading(null);
     }
@@ -68,13 +68,13 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     'content.js': {
       label: 'extension/content.js',
       lang: 'javascript',
-      desc: '【融合核心脚本】招聘网沉浸式大弹窗 (In-Page Modal) + Schema.org JSON-LD 3000字全量提取 + 多画像实时重算 + 定制求职信生成。',
-      code: `// SuperJobGenie 2.2 - 招聘网沉浸式大弹窗 + 3000字全量解析 (核心提取逻辑)
+      desc: 'In-Page Modal + Schema.org JSON-LD 3000+ chars extraction + real-time profile re-evaluation + cover letter generator.',
+      code: `// SuperJobGenie 2.2 - In-Page Modal + 3000+ chars extraction
 function extractFullIndeedJob() {
   let fullBodyText = '';
   let extractionSource = 'DOM #jobDescriptionText';
 
-  // 1. 优先解析 Schema.org JSON-LD (100% 完整，不受微前端或页面折叠影响)
+  // 1. Primary: Schema.org JSON-LD (100% complete, unimpacted by micro-frontends)
   const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
   for (const script of jsonLdScripts) {
     try {
@@ -91,7 +91,7 @@ function extractFullIndeedJob() {
     } catch (e) {}
   }
 
-  // 2. 备用 DOM 递归解析 #jobDescriptionText 容器
+  // 2. Fallback: DOM recursive extraction on #jobDescriptionText
   if (!fullBodyText || fullBodyText.length < 300) {
     const jdContainer = document.querySelector('#jobDescriptionText') || 
                         document.querySelector('.jobsearch-JobComponent-description');
@@ -107,8 +107,8 @@ function extractFullIndeedJob() {
     'styles.css': {
       label: 'extension/styles.css',
       lang: 'css',
-      desc: '招聘网右下角悬浮胶囊徽章与居中沉浸式交互大弹窗独立暗黑样式。',
-      code: `/* 招聘网沉浸式大弹窗样式截录 */
+      desc: 'Floating HUD pill and centered immersive interactive modal styling.',
+      code: `/* Immersive Modal Styles */
 .sjg-floating-pill {
   position: fixed;
   bottom: 30px;
@@ -138,12 +138,12 @@ function extractFullIndeedJob() {
     'manifest.json': {
       label: 'extension/manifest.json',
       lang: 'json',
-      desc: 'Chrome 扩展 Manifest V3 配置文件，声明 Indeed 匹配权限与脚本注入规则。',
+      desc: 'Chrome Extension Manifest V3 configuration, declaring western job board match permissions and content script injection rules.',
       code: `{
   "manifest_version": 3,
-  "name": "SuperJobGenie - AI求职匹配与跨赛道分析",
-  "version": "2.1.0",
-  "description": "解决Indeed抓取153字截断问题，全量捕获3000+字职位描述，提供真实多维技能匹配与跨赛道职业转换分析。",
+  "name": "SuperJobGenie - AI Job Match & Career Pivot Intelligence",
+  "version": "2.9.0",
+  "description": "Fixes 153-char truncation with 8,000+ char deep scraping, precise skill match scoring, and strategic career pivots.",
   "permissions": ["storage", "activeTab"],
   "host_permissions": [
     "https://*.indeed.com/*",
@@ -166,10 +166,10 @@ function extractFullIndeedJob() {
 }`
     },
     'server.ts': {
-      label: 'server.ts (全量提取 & 评分算法)',
+      label: 'server.ts (Deep Extraction & Scoring Engine)',
       lang: 'typescript',
-      desc: 'Node.js 后端双模解析逻辑、Gemini 3.8 Flash 提示词工程与离线高精语义算法。',
-      code: `// server.ts 关键抓取清洗函数
+      desc: 'Node.js dual-mode parser, Gemini 3.8 Flash prompt engineering, and offline semantic fallback engine.',
+      code: `// server.ts core extraction & sanitize logic
 function cleanHtmlToFormattedText(html: string): string {
   if (!html) return '';
   let text = html.replace(/<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>/gi, '');
@@ -195,13 +195,13 @@ function cleanHtmlToFormattedText(html: string): string {
             </div>
             <div>
               <div className="text-base font-bold text-white flex items-center gap-2">
-                <span>导出与下载 SuperJobGenie 到本地</span>
+                <span>Export & Download SuperJobGenie</span>
                 <span className="text-[11px] font-mono bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">
-                  v2.1.0 稳定版
+                  v2.9.0 Stable
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                已将修复后的 3,000+ 字全量抓取代码与 Chrome 扩展全部打包，可直接一键下载安装或复制代码
+                Packaged full 8,000+ char deep scraping engine and Chrome Extension. Download or copy code in 1-click.
               </p>
             </div>
           </div>
@@ -225,7 +225,7 @@ function cleanHtmlToFormattedText(html: string): string {
             }`}
           >
             <FolderArchive className="w-4 h-4" />
-            <span>📦 一键打包下载 (ZIP)</span>
+            <span>📦 1-Click ZIP Downloads</span>
           </button>
 
           <button
@@ -237,7 +237,7 @@ function cleanHtmlToFormattedText(html: string): string {
             }`}
           >
             <Chrome className="w-4 h-4" />
-            <span>🛠️ Chrome 插件本地加载指南 (30秒)</span>
+            <span>🛠️ Chrome Load Unpacked Guide (30s)</span>
           </button>
 
           <button
@@ -249,7 +249,7 @@ function cleanHtmlToFormattedText(html: string): string {
             }`}
           >
             <FileCode className="w-4 h-4" />
-            <span>📄 关键修改文件一览与代码复制</span>
+            <span>📄 Key Source Files & Copy</span>
           </button>
 
           <button
@@ -261,7 +261,7 @@ function cleanHtmlToFormattedText(html: string): string {
             }`}
           >
             <Code2 className="w-4 h-4 text-emerald-400" />
-            <span>🧩 导出按钮移植补丁 (Patch)</span>
+            <span>🧩 Export Button Patch</span>
           </button>
         </div>
 
@@ -281,29 +281,29 @@ function cleanHtmlToFormattedText(html: string): string {
                         <Chrome className="w-6 h-6" />
                       </div>
                       <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
-                        即下即用
+                        Ready to Install
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="text-base font-bold text-white">SuperJobGenie Chrome 插件包</h3>
+                      <h3 className="text-base font-bold text-white">SuperJobGenie Chrome Extension</h3>
                       <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                        包含已经修复的 <code className="text-cyan-300">content.js</code> 3000 字抓取器、Manifest V3、HUD 浮窗样式、背景服务与图标。
+                        Contains fixed <code className="text-cyan-300">content.js</code> deep scraper, Manifest V3, HUD styling, background worker, and icons.
                       </p>
                     </div>
 
                     <div className="bg-slate-950/60 rounded-lg p-3 text-xs space-y-1.5 font-mono text-slate-300">
                       <div className="flex items-center gap-2 text-emerald-400">
                         <span>✓</span>
-                        <span>已修复 153 字截断 Bug (Schema.org 递归)</span>
+                        <span>Fixed 153-char truncation (Recursive Schema.org)</span>
                       </div>
                       <div className="flex items-center gap-2 text-emerald-400">
                         <span>✓</span>
-                        <span>内置 Indeed 页面右下角实时 HUD 透视球</span>
+                        <span>Live floating HUD pill on western job boards</span>
                       </div>
                       <div className="flex items-center gap-2 text-emerald-400">
                         <span>✓</span>
-                        <span>解压后直接在 Chrome「加载已解压」即可运行</span>
+                        <span>Load unpacked directly in Chrome extensions</span>
                       </div>
                     </div>
                   </div>
@@ -315,7 +315,7 @@ function cleanHtmlToFormattedText(html: string): string {
                       className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg font-bold text-xs shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
                     >
                       <Download className="w-4 h-4" />
-                      <span>{isDownloading === 'extension' ? '打包中...' : '下载 Chrome 插件 (.zip)'}</span>
+                      <span>{isDownloading === 'extension' ? 'Packaging...' : 'Download Chrome Extension (.zip)'}</span>
                     </button>
                   </div>
                 </div>
@@ -328,29 +328,29 @@ function cleanHtmlToFormattedText(html: string): string {
                         <FolderArchive className="w-6 h-6" />
                       </div>
                       <span className="text-[11px] font-semibold text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/30">
-                        全栈完整工程
+                        Full-Stack Project
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="text-base font-bold text-white">完整全栈工程源码包</h3>
+                      <h3 className="text-base font-bold text-white">Full Stack Project Source Code</h3>
                       <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                        包含 Express 全栈后端、Gemini 3.8 Flash 跨赛道分析、React 前端高阶控制台及 Chrome 插件全部源码。
+                        Contains Express backend, Gemini 3.8 Flash career pivot engine, React frontend dashboard, and Chrome Extension source.
                       </p>
                     </div>
 
                     <div className="bg-slate-950/60 rounded-lg p-3 text-xs space-y-1.5 font-mono text-slate-300">
                       <div className="flex items-center gap-2 text-indigo-400">
                         <span>✓</span>
-                        <span>含 server.ts 全量抓取与高精语义评分后端</span>
+                        <span>Includes server.ts deep scraper & scoring backend</span>
                       </div>
                       <div className="flex items-center gap-2 text-indigo-400">
                         <span>✓</span>
-                        <span>含 ExecutiveDashboard (PRO) 跨赛道雷达前端</span>
+                        <span>Includes ExecutiveDashboard (PRO) radar</span>
                       </div>
                       <div className="flex items-center gap-2 text-indigo-400">
                         <span>✓</span>
-                        <span>含 npm run dev 极速本地部署脚本</span>
+                        <span>Includes npm run dev local startup scripts</span>
                       </div>
                     </div>
                   </div>
@@ -362,7 +362,7 @@ function cleanHtmlToFormattedText(html: string): string {
                       className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-lg font-bold text-xs shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
                     >
                       <Download className="w-4 h-4" />
-                      <span>{isDownloading === 'full' ? '打包中...' : '下载完整工程源码 (.zip)'}</span>
+                      <span>{isDownloading === 'full' ? 'Packaging...' : 'Download Full Project Source (.zip)'}</span>
                     </button>
                   </div>
                 </div>
@@ -373,8 +373,8 @@ function cleanHtmlToFormattedText(html: string): string {
               <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex items-start gap-3 text-xs text-slate-400">
                 <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
                 <div className="leading-relaxed">
-                  <span className="font-semibold text-slate-200">下载后怎么使用？</span>
-                  如果您只需要在 Chrome 浏览器里对 Indeed 职位进行真实抓取与匹配，下载上面的 <strong>「Chrome 插件包」</strong> 即可，解压后在浏览器扩展页中加载即可生效！
+                  <span className="font-semibold text-slate-200">How to use after download?</span>
+                  If you only need live scraping and matching on job boards in your Chrome browser, download the <strong>Chrome Extension (.zip)</strong> above, unzip it and load it in your browser extensions tab!
                 </div>
               </div>
             </div>
@@ -386,7 +386,7 @@ function cleanHtmlToFormattedText(html: string): string {
               <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950/40">
                 <div className="p-4 bg-slate-800/40 border-b border-slate-800 flex items-center gap-2 text-sm font-bold text-white">
                   <Chrome className="w-4 h-4 text-blue-400" />
-                  <span>Chrome 扩展本地安装四步走 (预计耗时 30 秒)</span>
+                  <span>Chrome Extension 4-Step Local Installation (30 Seconds)</span>
                 </div>
                 
                 <div className="p-5 space-y-5 text-xs text-slate-300">
@@ -396,9 +396,9 @@ function cleanHtmlToFormattedText(html: string): string {
                       1
                     </div>
                     <div>
-                      <div className="font-bold text-white text-sm">下载并解压插件包</div>
+                      <div className="font-bold text-white text-sm">Download and Unzip Extension</div>
                       <p className="text-slate-400 mt-1">
-                        点击上方「下载 Chrome 插件 (.zip)」，下载完成后解压到您电脑上的任意文件夹（如 <code className="text-cyan-300">D:\superjobgenie-extension</code> 或 <code className="text-cyan-300">~/Downloads/extension</code>）。
+                        Click "Download Chrome Extension (.zip)" above, and unzip it to any folder on your computer (e.g. <code className="text-cyan-300">~/Downloads/superjobgenie-extension</code>).
                       </p>
                     </div>
                   </div>
@@ -409,9 +409,9 @@ function cleanHtmlToFormattedText(html: string): string {
                       2
                     </div>
                     <div>
-                      <div className="font-bold text-white text-sm">打开 Chrome 扩展管理界面</div>
+                      <div className="font-bold text-white text-sm">Open Chrome Extensions Manager</div>
                       <p className="text-slate-400 mt-1">
-                        在 Chrome / Edge 浏览器地址栏复制并回车打开：
+                        In your Chrome or Edge browser address bar, open:
                       </p>
                       <div className="mt-2 flex items-center gap-2">
                         <code className="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg font-mono text-cyan-300 text-xs">
@@ -422,7 +422,7 @@ function cleanHtmlToFormattedText(html: string): string {
                           className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-sans flex items-center gap-1"
                         >
                           {copiedKey === 'chrome-url' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                          <span>{copiedKey === 'chrome-url' ? '已复制' : '复制地址'}</span>
+                          <span>{copiedKey === 'chrome-url' ? 'Copied' : 'Copy URL'}</span>
                         </button>
                       </div>
                     </div>
@@ -434,11 +434,11 @@ function cleanHtmlToFormattedText(html: string): string {
                       3
                     </div>
                     <div>
-                      <div className="font-bold text-white text-sm">开启右上角「开发者模式」并加载</div>
+                      <div className="font-bold text-white text-sm">Enable "Developer Mode" and Load Unpacked</div>
                       <p className="text-slate-400 mt-1">
-                        1. 勾选页面右上角的 <strong>「开发者模式」(Developer mode)</strong> 开关。<br />
-                        2. 点击左上角出现的 <strong>「加载已解压的扩展程序」(Load unpacked)</strong> 按钮。<br />
-                        3. 在弹出的文件选择器中，选择您刚才解压出来的插件文件夹！
+                        1. Toggle the <strong>Developer mode</strong> switch in the top right corner.<br />
+                        2. Click the <strong>Load unpacked</strong> button that appears on the top left.<br />
+                        3. In the file picker, select your unzipped extension directory!
                       </p>
                     </div>
                   </div>
@@ -449,9 +449,9 @@ function cleanHtmlToFormattedText(html: string): string {
                       4
                     </div>
                     <div>
-                      <div className="font-bold text-white text-sm">打开 Indeed 职位测试效果</div>
+                      <div className="font-bold text-white text-sm">Open Job Page to Experience Live Scraper</div>
                       <p className="text-slate-400 mt-1">
-                        打开任意 Indeed 职位页面（例如 DataAnnotation 的 AI Trainer），页面右下角会自动弹出 <strong>SuperJobGenie HUD</strong> 智能浮窗，显示实时捕获的 3,000+ 字符与精准跨赛道匹配分析！
+                        Visit any job posting on Indeed, LinkedIn, or Greenhouse. The <strong>SuperJobGenie HUD</strong> floating widget will automatically appear in the bottom-right corner, displaying live 8,000+ char capture and strategic match intelligence!
                       </p>
                     </div>
                   </div>
@@ -488,19 +488,19 @@ function cleanHtmlToFormattedText(html: string): string {
                       {fileSnippets[selectedFile].label}
                     </span>
                   </div>
-                  <button
+                    <button
                     onClick={() => handleCopy(fileSnippets[selectedFile].code, selectedFile)}
                     className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition"
                   >
                     {copiedKey === selectedFile ? (
                       <>
                         <Check className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="text-emerald-400">已复制到剪贴板</span>
+                        <span className="text-emerald-400">Copied to Clipboard</span>
                       </>
                     ) : (
                       <>
                         <Copy className="w-3.5 h-3.5" />
-                        <span>复制代码</span>
+                        <span>Copy Code</span>
                       </>
                     )}
                   </button>
@@ -524,11 +524,11 @@ function cleanHtmlToFormattedText(html: string): string {
                 <div>
                   <h4 className="text-sm font-bold text-emerald-300 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-emerald-400" />
-                    <span>通用导出按钮 (英文版) 跨工作台极速移植补丁</span>
+                    <span>Universal Export Button Cross-Workbench Integration Patch</span>
                   </h4>
                   <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    您可以直接将此英文导出按钮 <code className="text-cyan-300">ExportExtensionButton.tsx</code> 复制并放入任何其他 React / Vite / Next.js 工作台系统中。
-                    内置<strong>双模驱动</strong>：在没有后端 API 支持时，自动在浏览器端通过 JSZip 纯前端打包下载，零配置无依赖！
+                    You can directly copy <code className="text-cyan-300">ExportExtensionButton.tsx</code> into any other React / Vite / Next.js workbench.
+                    Equipped with <strong>dual-mode execution</strong>: automatically packages downloads in-browser via JSZip if no backend API is reachable!
                   </p>
                 </div>
                 <button
@@ -536,7 +536,7 @@ function cleanHtmlToFormattedText(html: string): string {
                   className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer shadow-md"
                 >
                   {copiedKey === 'patch_npm_full' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedKey === 'patch_npm_full' ? '已复制命令!' : '复制 npm 安装命令'}</span>
+                  <span>{copiedKey === 'patch_npm_full' ? 'Copied Command!' : 'Copy npm Command'}</span>
                 </button>
               </div>
 
@@ -546,7 +546,7 @@ function cleanHtmlToFormattedText(html: string): string {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-indigo-400 flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">1</span>
-                      <span>安装 peer 依赖 (项目根目录执行)</span>
+                      <span>Install Peer Dependencies (Project Root)</span>
                     </span>
                   </div>
                   <div className="bg-slate-900 p-3 rounded-lg text-xs font-mono text-cyan-300 border border-slate-800 flex items-center justify-between">
@@ -555,7 +555,7 @@ function cleanHtmlToFormattedText(html: string): string {
                       onClick={() => handleCopy('npm install jszip lucide-react', 'cmd1')}
                       className="text-slate-400 hover:text-white text-xs cursor-pointer"
                     >
-                      {copiedKey === 'cmd1' ? '已复制' : '复制'}
+                      {copiedKey === 'cmd1' ? 'Copied' : 'Copy'}
                     </button>
                   </div>
                 </div>
@@ -564,19 +564,19 @@ function cleanHtmlToFormattedText(html: string): string {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-indigo-400 flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">2</span>
-                      <span>在您的目标工作台中引入并渲染组件</span>
+                      <span>Import and Render Component in Your Workbench</span>
                     </span>
                     <button
-                      onClick={() => handleCopy(`import { ExportExtensionButton } from './components/ExportExtensionButton';\n\n// 在导航栏或顶部工作台操作栏渲染：\n<ExportExtensionButton \n  variant="gradient" \n  label="Export Extension" \n  extensionName="SuperJobGenie"\n/>`, 'code_render')}
+                      onClick={() => handleCopy(`import { ExportExtensionButton } from './components/ExportExtensionButton';\n\n// Render in top navbar or header action bar:\n<ExportExtensionButton \n  variant="gradient" \n  label="Export Extension" \n  extensionName="SuperJobGenie"\n/>`, 'code_render')}
                       className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer"
                     >
-                      {copiedKey === 'code_render' ? '已复制 JSX 代码' : '复制代码片段'}
+                      {copiedKey === 'code_render' ? 'Copied JSX' : 'Copy JSX'}
                     </button>
                   </div>
                   <pre className="bg-slate-900 p-3 rounded-lg text-xs font-mono text-slate-300 border border-slate-800 overflow-x-auto">
 {`import { ExportExtensionButton } from './components/ExportExtensionButton';
 
-// 放入任意导航栏、操作面板或抽屉组件中：
+// Render in top navbar or action bar:
 <ExportExtensionButton 
   variant="gradient" 
   label="Export Extension" 
@@ -589,14 +589,14 @@ function cleanHtmlToFormattedText(html: string): string {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-indigo-400 flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">3</span>
-                      <span>查看或下载补丁文档</span>
+                      <span>View or Download Patch Documentation</span>
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 leading-relaxed">
-                    补丁文件已自动保存在本地项目路径中：<br />
-                    • 文档说明：<code className="text-indigo-300">/docs/EXPORT_BUTTON_PATCH.md</code><br />
-                    • Git Patch 文件：<code className="text-indigo-300">/patches/export-extension-button.patch</code><br />
-                    • 独立组件文件：<code className="text-indigo-300">/src/components/ExportExtensionButton.tsx</code>
+                    Patch files are automatically saved in local paths:<br />
+                    • Documentation: <code className="text-indigo-300">/docs/EXPORT_BUTTON_PATCH.md</code><br />
+                    • Git Patch File: <code className="text-indigo-300">/patches/export-extension-button.patch</code><br />
+                    • Standalone Component: <code className="text-indigo-300">/src/components/ExportExtensionButton.tsx</code>
                   </p>
                 </div>
               </div>
@@ -609,13 +609,13 @@ function cleanHtmlToFormattedText(html: string): string {
         <div className="px-6 py-3.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>所有代码已通过本地严格 linter 与编译验证，可直接投产。</span>
+            <span>All code verified with strict linter and compiler, ready for production.</span>
           </div>
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-semibold transition"
           >
-            完成并关闭
+            Done & Close
           </button>
         </div>
 

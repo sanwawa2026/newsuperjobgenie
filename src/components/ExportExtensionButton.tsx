@@ -262,7 +262,7 @@ chrome.runtime.onInstalled.addListener(() => {
 1. Unzip this package to a local folder.
 2. Open Google Chrome and navigate to \`chrome://extensions\`.
 3. Enable **Developer mode** toggle in the top-right corner.
-4. Click **Load unpacked** (加载已解压的扩展程序) in the top-left corner.
+4. Click **Load unpacked** in the top-left corner.
 5. Select this unzipped directory.
 6. Open any Indeed or LinkedIn job posting to see the floating assistant!
 `);
@@ -362,7 +362,7 @@ chrome.runtime.onInstalled.addListener(() => {
                       Chrome Extension Exporter & Workstation Patch
                     </h3>
                     <span className="text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">
-                      v2.5.0 (100% 像素级对齐图片版)
+                      v2.9.0 (Pixel-Perfect Clean Edition)
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">
