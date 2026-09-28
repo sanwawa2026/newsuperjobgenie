@@ -121,13 +121,15 @@
     return s.includes(' jobs in ') || 
            s.includes(' jobs near ') || 
            s.includes(' jobs, employment') || 
-           s.includes(' jobs available') || 
-           s.startsWith('jobs in ') || 
-           s.endsWith(' jobs');
+           s.includes(' jobs available in ') || 
+           s.startsWith('jobs in ');
   }
 
+  // Track the most recent job card the user clicked in the search list
+  let lastClickedCard = null;
+
   /**
-   * Deep Extractor v3.5: Multilayer Extraction with Active Card & Search Header Protection
+   * Deep Extractor v4.0: Global Un-scoped Extraction & Resilient Matcher
    */
   function extractFullIndeedJob() {
     const platform = detectPlatform();
@@ -138,113 +140,22 @@
     let fullBodyText = '';
     let extractionSource = `${platform} Dynamic Engine`;
     let isSchemaOrg = false;
-
-    // 1. Determine active jobKey (jk) from URL or DOM
     let jk = '';
+
+    // 1. Get jobKey from URL if available
     try {
       const urlParams = new URLSearchParams(window.location.search);
       jk = urlParams.get('vjk') || urlParams.get('jk') || '';
     } catch (e) {}
 
-    // 2. Identify the active / selected job card in the search results list
-    let activeCard = null;
-    if (jk) {
-      activeCard = document.querySelector(`[data-jk="${jk}"], a[href*="${jk}"]`)?.closest('div.job_seen_beacon, li, div[data-jk], div.cardOutline');
-    }
-    if (!activeCard) {
-      activeCard = document.querySelector('div.job_seen_beacon[aria-current="true"], li[aria-current="true"], div[data-jk].selected, div.cardOutline.selected');
-    }
-    if (!activeCard && jk) {
-      activeCard = document.querySelector(`[data-jk="${jk}"]`);
-    }
-
-    // 3. Identify the active detail pane in the DOM
-    const activePane = document.querySelector(
-      'div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob, #jobsearch-ViewjobPaneWrapper, #vjs-container, div[class*="RightPane"], div[class*="JobComponent"]'
-    ) || document;
-
-    // 4. Extract Job Title (Specific selectors only, NEVER generic h1 on document)
-    const titleSelectors = [
-      '[data-testid="jobsearch-JobInfoHeader-title"]',
-      'h1.jobsearch-JobInfoHeader-title',
-      'h2.jobsearch-JobInfoHeader-title',
-      '.jobsearch-JobInfoHeader-title',
-      'h1[data-cy="jobTitle"]',
-      '[data-testid="simpler-job-title"]',
-      '#vjs-jobtitle',
-      '.job-details-jobs-unified-top-card__job-title',
-      '[data-test="job-title"]'
-    ];
-    for (const sel of titleSelectors) {
-      const el = activePane.querySelector(sel);
-      if (el && el.innerText.trim() && !isSearchHeader(el.innerText.trim())) {
-        title = el.innerText.trim();
-        break;
-      }
-    }
-
-    // If activePane is a dedicated right-pane container (not document), check h1/h2 inside it
-    if (!title && activePane !== document) {
-      const hEl = activePane.querySelector('h1, h2');
-      if (hEl && hEl.innerText.trim() && !isSearchHeader(hEl.innerText.trim())) {
-        title = hEl.innerText.trim();
-      }
-    }
-
-    // If still no title, inspect the active card in the search list
-    if (!title && activeCard) {
-      const cardTitleEl = activeCard.querySelector('a.jcs-JobTitle span[title], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle');
-      if (cardTitleEl && cardTitleEl.innerText.trim() && !isSearchHeader(cardTitleEl.innerText.trim())) {
-        title = cardTitleEl.innerText.trim();
-      }
-    }
-
-    // 5. Extract Company
-    const compSelectors = [
-      '[data-testid="inlineHeader-companyName"]',
-      '.jobsearch-InlineCompanyRating-companyHeader a',
-      '.jobsearch-InlineCompanyRating-companyHeader',
-      '[data-company-name="true"]',
-      '.hiring_company_text',
-      'a[data-cy="companyName"]',
-      '.company-name',
-      '#vjs-cn',
-      '.job-details-jobs-unified-top-card__company-name',
-      '[data-test="employer-name"]',
-      '.hiring-org'
-    ];
-    for (const sel of compSelectors) {
-      const el = activePane.querySelector(sel);
-      if (el && el.innerText.trim()) {
-        company = el.innerText.trim();
-        break;
-      }
-    }
-    if (!company && activeCard) {
-      const cardComp = activeCard.querySelector('[data-testid="company-name"], .companyName, span.css-63koeb')?.innerText.trim();
-      if (cardComp) company = cardComp;
-    }
-
-    // 6. Extract Location and Salary
-    if (activeCard) {
-      const cardLoc = activeCard.querySelector('[data-testid="text-location"], .companyLocation')?.innerText.trim();
-      if (cardLoc) location = cardLoc;
-      const cardSal = activeCard.querySelector('.salary-snippet-container, [data-testid="attribute_snippet_testid"]')?.innerText.trim();
-      if (cardSal) salary = cardSal;
-    }
-    const locEl = activePane.querySelector('[data-testid="jobsearch-JobInfoHeader-companyLocation"], .jobsearch-JobInfoHeader-companyLocation');
-    if (locEl && locEl.innerText.trim()) location = locEl.innerText.trim();
-    const salEl = activePane.querySelector('#salaryInfoAndJobType, [data-testid="jobsearch-JobDescriptionSection-section--salary"]');
-    if (salEl && salEl.innerText.trim()) salary = salEl.innerText.trim();
-
-    // 7. Extract Description from active pane or document
+    // 2. Extract Description (Directly from document or iframes, NEVER scoped to broken containers!)
     const jdSelectors = [
       '#jobDescriptionText',
       '[data-testid="jobDescriptionText"]',
-      '.jobsearch-JobComponent-description',
+      '.jobsearch-jobDescriptionText',
       '#vjs-job-description',
       '#vjs-content',
-      'div.jobsearch-jobDescriptionText',
+      '.jobsearch-JobComponent-description',
       '[data-automation-id="jobPostingDescription"]',
       '.jobs-description__content',
       'div.show-more-less-html__markup',
@@ -258,88 +169,211 @@
       '.GWContent'
     ];
 
+    let foundJdEl = null;
     for (const sel of jdSelectors) {
-      const el = activePane.querySelector(sel) || document.querySelector(sel);
-      if (el && el.innerText && el.innerText.trim().length > 100) {
+      const el = document.querySelector(sel);
+      if (el && el.innerText && el.innerText.trim().length > 80) {
+        foundJdEl = el;
         fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
         extractionSource = `${platform} DOM (${sel})`;
         break;
       }
     }
 
-    // 8. Layer 2: Iframe Penetration (Common on Indeed fastview / vjs-container)
-    if (!fullBodyText || fullBodyText.length < 150) {
+    // 3. Iframe fallback for description
+    if (!fullBodyText || fullBodyText.length < 100) {
       const iframes = document.querySelectorAll('iframe');
       for (const iframe of iframes) {
         try {
           const doc = iframe.contentDocument || iframe.contentWindow?.document;
           if (doc) {
-            const el = doc.querySelector('#jobDescriptionText, [data-testid="jobDescriptionText"], .jobsearch-JobComponent-description');
-            if (el && el.innerText && el.innerText.trim().length > 100) {
-              fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
-              extractionSource = `${platform} Iframe (#${iframe.id || 'vjs-frame'})`;
-              if (!title) {
-                const ifTitle = doc.querySelector('h1, h2, .jobsearch-JobInfoHeader-title')?.innerText.trim();
-                if (ifTitle && !isSearchHeader(ifTitle)) title = ifTitle;
+            for (const sel of jdSelectors) {
+              const el = doc.querySelector(sel);
+              if (el && el.innerText && el.innerText.trim().length > 80) {
+                foundJdEl = el;
+                fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
+                extractionSource = `${platform} Iframe (#${iframe.id || 'vjs-frame'})`;
+                break;
               }
-              if (!company) {
-                const ifComp = doc.querySelector('[data-testid="inlineHeader-companyName"], .company-name')?.innerText.trim();
-                if (ifComp) company = ifComp;
-              }
-              break;
             }
+            if (fullBodyText) break;
           }
         } catch (e) {}
       }
     }
 
-    // 9. Layer 3: Schema.org JSON-LD
-    if (!fullBodyText || fullBodyText.length < 150) {
+    // 4. Schema.org fallback
+    if (!fullBodyText || fullBodyText.length < 100) {
       const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
       for (const script of jsonLdScripts) {
         try {
           const parsed = JSON.parse(script.textContent || '{}');
           const items = Array.isArray(parsed) ? parsed : [parsed];
           for (const item of items) {
-            if (item && item['@type'] === 'JobPosting' && item.description && item.description.length > 150) {
-              const itemTitle = item.title || '';
-              if (!title || !itemTitle || itemTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(itemTitle.toLowerCase())) {
-                isSchemaOrg = true;
-                if (!title && itemTitle && !isSearchHeader(itemTitle)) title = itemTitle;
-                if (!company && item.hiringOrganization?.name) company = item.hiringOrganization.name;
-                if (item.jobLocation?.address?.addressLocality) location = `${item.jobLocation.address.addressLocality} • Active`;
-                if (item.baseSalary?.value?.value) salary = `$${item.baseSalary.value.value}`;
-                fullBodyText = cleanHtmlToFormattedText(item.description);
-                extractionSource = `${platform} Schema.org JSON-LD`;
-                break;
-              }
+            if (item && item['@type'] === 'JobPosting' && item.description && item.description.length > 100) {
+              isSchemaOrg = true;
+              if (item.title && !isSearchHeader(item.title)) title = item.title;
+              if (item.hiringOrganization?.name) company = item.hiringOrganization.name;
+              if (item.jobLocation?.address?.addressLocality) location = `${item.jobLocation.address.addressLocality} • Active`;
+              if (item.baseSalary?.value?.value) salary = `$${item.baseSalary.value.value}`;
+              fullBodyText = cleanHtmlToFormattedText(item.description);
+              extractionSource = `${platform} Schema.org JSON-LD`;
+              break;
             }
           }
         } catch (e) {}
-        if (fullBodyText && fullBodyText.length > 150) break;
+        if (fullBodyText && fullBodyText.length > 100) break;
       }
     }
 
-    // 10. Fallback: If no job clicked yet, inspect the first job card in the list
-    if (!title) {
-      const firstCard = document.querySelector('div.job_seen_beacon, div[data-jk], li.css-5lfssm, a.jcs-JobTitle');
-      if (firstCard) {
-        const cardEl = firstCard.closest('div.job_seen_beacon, div[data-jk]') || firstCard;
-        const tEl = cardEl.querySelector ? cardEl.querySelector('a.jcs-JobTitle span[title], a.jcs-JobTitle, h2.jobTitle') : null;
-        if (tEl && tEl.innerText.trim() && !isSearchHeader(tEl.innerText.trim())) {
-          title = tEl.innerText.trim();
+    // 5. Extract Title
+    const titleSelectors = [
+      '[data-testid="jobsearch-JobInfoHeader-title"]',
+      'h1.jobsearch-JobInfoHeader-title',
+      'h2.jobsearch-JobInfoHeader-title',
+      '.jobsearch-JobInfoHeader-title',
+      'h1[data-cy="jobTitle"]',
+      '[data-testid="simpler-job-title"]',
+      '#vjs-jobtitle',
+      '.job-details-jobs-unified-top-card__job-title',
+      '[data-test="job-title"]'
+    ];
+
+    // Priority A: Right pane header (scoped near found description if available)
+    if (foundJdEl) {
+      const container = foundJdEl.closest('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob, #vjs-container, #jobsearch-ViewjobPaneWrapper, div[role="main"]') || foundJdEl.parentElement?.parentElement;
+      if (container) {
+        for (const sel of titleSelectors) {
+          const el = container.querySelector(sel);
+          if (el && el.innerText.trim()) {
+            const clean = el.innerText.replace(/^new\s+/i, '').trim();
+            if (!isSearchHeader(clean)) {
+              title = clean;
+              break;
+            }
+          }
         }
-        const cEl = cardEl.querySelector ? cardEl.querySelector('[data-testid="company-name"], .companyName, span.css-63koeb') : null;
-        if (cEl && cEl.innerText.trim()) company = cEl.innerText.trim();
-        if (!jk && cardEl.getAttribute) jk = cardEl.getAttribute('data-jk') || '';
+        if (!title) {
+          const h = container.querySelector('h1, h2');
+          if (h && h.innerText.trim()) {
+            const clean = h.innerText.replace(/^new\s+/i, '').trim();
+            if (!isSearchHeader(clean)) title = clean;
+          }
+        }
       }
     }
 
-    // Final honest fallbacks
+    // Direct document query for title if still not found
+    if (!title) {
+      for (const sel of titleSelectors) {
+        const el = document.querySelector(sel);
+        if (el && el.innerText.trim()) {
+          const clean = el.innerText.replace(/^new\s+/i, '').trim();
+          if (!isSearchHeader(clean)) {
+            title = clean;
+            break;
+          }
+        }
+      }
+    }
+
+    // Priority B: Use last clicked card from left list
+    if (!title && lastClickedCard?.title) {
+      title = lastClickedCard.title;
+    }
+
+    // Priority C: Check active / selected card in left list
+    if (!title) {
+      const activeCard = document.querySelector('div.job_seen_beacon[aria-current="true"], li[aria-current="true"], div[data-jk].selected, div.cardOutline.selected');
+      if (activeCard) {
+        const tEl = activeCard.querySelector('a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"]');
+        if (tEl && tEl.innerText.trim()) {
+          const clean = tEl.innerText.replace(/^new\s+/i, '').trim();
+          if (!isSearchHeader(clean)) title = clean;
+        }
+      }
+    }
+
+    // 6. Extract Company
+    const compSelectors = [
+      '[data-testid="inlineHeader-companyName"]',
+      '.jobsearch-InlineCompanyRating-companyHeader a',
+      '.jobsearch-InlineCompanyRating-companyHeader',
+      '[data-company-name="true"]',
+      'a[data-cy="companyName"]',
+      '.company-name',
+      '#vjs-cn',
+      '.job-details-jobs-unified-top-card__company-name',
+      '[data-test="employer-name"]'
+    ];
+
+    if (foundJdEl) {
+      const container = foundJdEl.closest('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob, #vjs-container, #jobsearch-ViewjobPaneWrapper, div[role="main"]') || foundJdEl.parentElement?.parentElement;
+      if (container) {
+        for (const sel of compSelectors) {
+          const el = container.querySelector(sel);
+          if (el && el.innerText.trim()) {
+            company = el.innerText.trim();
+            break;
+          }
+        }
+      }
+    }
+
+    if (!company) {
+      for (const sel of compSelectors) {
+        const el = document.querySelector(sel);
+        if (el && el.innerText.trim()) {
+          company = el.innerText.trim();
+          break;
+        }
+      }
+    }
+
+    if (!company && lastClickedCard?.company) {
+      company = lastClickedCard.company;
+    }
+
+    // 7. Location & Salary
+    if (foundJdEl) {
+      const container = foundJdEl.closest('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob, #vjs-container') || foundJdEl.parentElement?.parentElement;
+      if (container) {
+        const locEl = container.querySelector('[data-testid="jobsearch-JobInfoHeader-companyLocation"], .jobsearch-JobInfoHeader-companyLocation');
+        if (locEl && locEl.innerText.trim()) location = locEl.innerText.trim();
+        const salEl = container.querySelector('#salaryInfoAndJobType, [data-testid="jobsearch-JobDescriptionSection-section--salary"]');
+        if (salEl && salEl.innerText.trim()) salary = salEl.innerText.trim();
+      }
+    }
+
+    if (!jk) {
+      jk = lastClickedCard?.jk || '';
+    }
+
+    // 8. Fallback to the first card in the search list if on search results page
+    if (!title || !company) {
+      const firstCard = document.querySelector('div.job_seen_beacon, div[data-jk], li.css-5lfssm, div.cardOutline');
+      if (firstCard) {
+        if (!title) {
+          const tEl = firstCard.querySelector('a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"]');
+          if (tEl && tEl.innerText.trim()) {
+            const clean = tEl.innerText.replace(/^new\s+/i, '').trim();
+            if (!isSearchHeader(clean)) title = clean;
+          }
+        }
+        if (!company) {
+          const cEl = firstCard.querySelector('[data-testid="company-name"], .companyName, span.css-63koeb');
+          if (cEl && cEl.innerText.trim()) company = cEl.innerText.trim();
+        }
+        if (!jk) {
+          jk = firstCard.getAttribute('data-jk') || firstCard.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
+        }
+      }
+    }
+
     if (!title) title = 'Select a Job on Indeed';
     if (!company) company = 'Click to Inspect JD';
 
-    const hasRealBody = Boolean(fullBodyText && fullBodyText.length >= 200);
+    const hasRealBody = Boolean(fullBodyText && fullBodyText.length >= 100);
 
     return {
       title,
@@ -361,11 +395,11 @@
    * Evaluate Job Match against Candidate Profile (Fully Dynamic & Multi-Domain)
    */
   function evaluateJobMatch(jobData, cand) {
-    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 200);
+    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 80);
     const jobText = (jobData?.fullBodyText || '').toLowerCase();
     const candSkills = cand.skills || [];
 
-    if (!hasBody) {
+    if (!hasBody || jobData?.title === 'Select a Job on Indeed') {
       return {
         overallMatchScore: 0,
         matchTier: 'Awaiting Job Selection',
@@ -1894,13 +1928,22 @@
       return;
     }
     // Check if user clicked a job card or link in Indeed/LinkedIn/Glassdoor
-    const jobItem = e.target.closest('li, a, div[data-jk], div.job_seen_beacon, .tapItem, .jobsearch-ResultsList, div.cardOutline');
+    const jobItem = e.target.closest('li, a, div[data-jk], div.job_seen_beacon, .tapItem, .jobsearch-ResultsList, div.cardOutline, h2.jobTitle');
     if (jobItem) {
-      setTimeout(() => checkAndAutoRescan(), 150);
-      setTimeout(() => checkAndAutoRescan(), 500);
-      setTimeout(() => checkAndAutoRescan(), 1200);
-      setTimeout(() => checkAndAutoRescan(), 2200);
+      const cardEl = jobItem.closest('div.job_seen_beacon, div[data-jk], li, div.cardOutline') || jobItem;
+      const t = cardEl.querySelector('a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"]')?.innerText?.replace(/^new\s+/i, '')?.trim();
+      const c = cardEl.querySelector('[data-testid="company-name"], .companyName, span.css-63koeb')?.innerText?.trim();
+      const jk = cardEl.getAttribute('data-jk') || cardEl.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
+      if (t && !isSearchHeader(t)) {
+        lastClickedCard = { title: t, company: c || '', jk: jk || '' };
+        console.log('[SuperJobGenie] User clicked card:', t, 'at', c);
+        setTimeout(() => checkAndAutoRescan(), 40);
+      }
     }
+    setTimeout(() => checkAndAutoRescan(), 150);
+    setTimeout(() => checkAndAutoRescan(), 500);
+    setTimeout(() => checkAndAutoRescan(), 1200);
+    setTimeout(() => checkAndAutoRescan(), 2200);
   }, true);
 
   // 3. MutationObserver on document.body (Never unmounts, catches all React/SPA view swaps)
