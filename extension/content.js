@@ -166,17 +166,13 @@
       }
     }
 
-    // Extract Description from active pane
+    // Extract Description from active pane (Specific content containers only, NOT outer layout wrappers)
     const jdSelectors = [
       '#jobDescriptionText',
       '[data-testid="jobDescriptionText"]',
       '.jobsearch-JobComponent-description',
       '#vjs-job-description',
       '#vjs-content',
-      'div.fastviewjob',
-      'div.jobsearch-ViewJobLayout',
-      'div.jobsearch-RightPane',
-      'div[aria-label="Job details"]',
       '[data-automation-id="jobPostingDescription"]',
       '.jobs-description__content',
       'div.show-more-less-html__markup',
@@ -243,6 +239,33 @@
       }
     }
 
+    // Fallback to active card in the search list if detail pane header is still rendering
+    let jk = '';
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      jk = urlParams.get('vjk') || urlParams.get('jk') || '';
+      if (!jk && activePane && activePane.querySelector) {
+        const paneJk = activePane.querySelector('[data-jk]')?.getAttribute('data-jk');
+        if (paneJk) jk = paneJk;
+      }
+      if (!jk) {
+        const activeCard = document.querySelector('div.job_seen_beacon[aria-current="true"], li[aria-current="true"], .selected[data-jk], div.cardOutline.selected');
+        if (activeCard) {
+          jk = activeCard.getAttribute('data-jk') || activeCard.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
+        }
+      }
+    } catch (e) {}
+
+    if (!title) {
+      const activeCard = document.querySelector('div.job_seen_beacon[aria-current="true"], li[aria-current="true"], .selected[data-jk], div.cardOutline.selected');
+      if (activeCard) {
+        const titleEl = activeCard.querySelector('a.jcs-JobTitle span[title], h2.jobTitle span[title], a.jcs-JobTitle, h2.jobTitle');
+        if (titleEl && titleEl.innerText.trim()) title = titleEl.innerText.trim();
+        const compEl = activeCard.querySelector('[data-testid="company-name"], span.css-63koeb, .companyName');
+        if (!company && compEl && compEl.innerText.trim()) company = compEl.innerText.trim();
+      }
+    }
+
     // Fallbacks
     if (!title) title = 'Financial & Business Analyst';
     if (!company) company = 'Target Employer';
@@ -260,7 +283,8 @@
       platform,
       extractionSource,
       isSchemaOrg,
-      hasRealBody
+      hasRealBody,
+      jk
     };
   }
 
@@ -1671,34 +1695,34 @@
    */
   let lastJobKey = '';
   let lastBodyLength = 0;
+  let lastHadRealBody = false;
 
   function checkAndAutoRescan(forceRescan = false) {
     if (isEditCandidateOpen) return; // Guard: Prevent auto-rescan while editing
     
     const job = extractFullIndeedJob();
-    const currentJobKey = `${job.title}::${job.company}`;
-    
-    // Always log for debugging
-    console.log(`[SuperJobGenie] Rescan check: ${currentJobKey}, Chars: ${job.characterCount}, Force: ${forceRescan}`);
+    const currentJobKey = `${job.title}::${job.company}::${job.jk || ''}`;
+    const hasSubstantialBody = Boolean(job.fullBodyText && job.characterCount >= 180);
 
-    const isFragment = job.characterCount < 300; // Indeed job descriptions are rarely this small.
-    
-    // We only skip if it's the EXACT same job key AND it's NOT a fragment.
-    // If the job key changed, we MUST rescan, regardless of character count.
-    if (!forceRescan && currentJobKey === lastJobKey && !isFragment) {
-      return;
-    }
+    // Decision logic:
+    // 1. Force rescan requested (e.g. user clicked Rescan button or popstate)
+    // 2. The job identity (title/company/jk) changed
+    // 3. Previously we didn't have the real body text, but now it has finished loading!
+    // 4. The body grew significantly (e.g. from preview/stub to full description)
+    const jobChanged = currentJobKey !== lastJobKey;
+    const bodyNewlyArrived = !lastHadRealBody && hasSubstantialBody;
+    const bodySignificantlyExpanded = hasSubstantialBody && (job.characterCount > lastBodyLength + 150);
 
-    if (isFragment) {
-      console.log('[SuperJobGenie] Skipping fragment content (too short):', job.characterCount);
+    if (!forceRescan && !jobChanged && !bodyNewlyArrived && !bodySignificantlyExpanded) {
       return;
     }
 
     lastJobKey = currentJobKey;
     lastBodyLength = job.characterCount;
+    lastHadRealBody = hasSubstantialBody;
     cachedJobData = job;
 
-    console.log('[SuperJobGenie] Successfully rescanned job:', job.title, 'at', job.company, 'Chars:', job.characterCount);
+    console.log('[SuperJobGenie] Rescanned job:', job.title, 'at', job.company, 'Chars:', job.characterCount, 'hasRealBody:', hasSubstantialBody);
     renderShadowUI();
   }
 
@@ -1746,10 +1770,12 @@
 
   // 1. Auto-rescan on SPA URL changes
   window.addEventListener('popstate', () => {
-    setTimeout(() => checkAndAutoRescan(true), 300);
+    setTimeout(() => checkAndAutoRescan(true), 150);
+    setTimeout(() => checkAndAutoRescan(true), 600);
   });
   window.addEventListener('hashchange', () => {
-    setTimeout(() => checkAndAutoRescan(true), 300);
+    setTimeout(() => checkAndAutoRescan(true), 150);
+    setTimeout(() => checkAndAutoRescan(true), 600);
   });
 
   // 2. Auto-rescan on Click Delegation (When clicking job cards in the left list on Indeed)
@@ -1759,28 +1785,31 @@
       return;
     }
     // Check if user clicked a job card or link in Indeed/LinkedIn/Glassdoor
-    const jobItem = e.target.closest('li, a, div[data-jk], div.job_seen_beacon, .tapItem, .jobsearch-ResultsList');
+    const jobItem = e.target.closest('li, a, div[data-jk], div.job_seen_beacon, .tapItem, .jobsearch-ResultsList, div.cardOutline');
     if (jobItem) {
-      setTimeout(() => checkAndAutoRescan(), 250);
-      setTimeout(() => checkAndAutoRescan(), 650);
+      setTimeout(() => checkAndAutoRescan(), 150);
+      setTimeout(() => checkAndAutoRescan(), 500);
+      setTimeout(() => checkAndAutoRescan(), 1200);
+      setTimeout(() => checkAndAutoRescan(), 2200);
     }
   }, true);
 
-  // 3. MutationObserver on the active Job Pane for dynamic changes
+  // 3. MutationObserver on document.body (Never unmounts, catches all React/SPA view swaps)
   let paneObserverTimeout = null;
-  const paneObserver = new MutationObserver(() => {
+  const bodyObserver = new MutationObserver(() => {
     if (paneObserverTimeout) clearTimeout(paneObserverTimeout);
     paneObserverTimeout = setTimeout(() => {
       checkAndAutoRescan();
-    }, 400);
+    }, 250);
   });
 
-  // Observe only the job detail pane for changes instead of entire body
-  const jobPane = document.querySelector('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob');
-  if (jobPane) {
-    paneObserver.observe(jobPane, { childList: true, subtree: true, characterData: true });
-  } else if (document.body) {
-    paneObserver.observe(document.body, { childList: true, subtree: true });
+  if (document.body) {
+    bodyObserver.observe(document.body, { childList: true, subtree: true });
   }
+
+  // 4. Heartbeat Safety Net (Every 800ms, ultra-lightweight check to guarantee 100% responsiveness)
+  setInterval(() => {
+    checkAndAutoRescan();
+  }, 800);
 
 })();
