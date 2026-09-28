@@ -1669,17 +1669,32 @@
   /**
    * Main Check & Auto-Rescan Trigger (Auto-scans whenever user clicks or navigates to a new job)
    */
+  let lastJobKey = '';
+  let lastBodyLength = 0;
+
   function checkAndAutoRescan(forceRescan = false) {
     if (isEditCandidateOpen) return; // Guard: Prevent auto-rescan while editing
     const job = extractFullIndeedJob();
-    const currentJobKey = `${job.title}::${job.company}::${job.characterCount}`;
-
-    if (forceRescan || hasAutoPoppedForJobKey !== currentJobKey) {
-      hasAutoPoppedForJobKey = currentJobKey;
-      cachedJobData = job;
-      console.log('[SuperJobGenie] Auto-rescanned job:', job.title, 'at', job.company, 'Chars:', job.characterCount);
-      renderShadowUI();
+    const currentJobKey = `${job.title}::${job.company}`;
+    
+    // Data Integrity Check: If body text is significantly smaller than previous, it's likely still loading
+    const isFragment = job.characterCount < lastBodyLength * 0.8 && job.characterCount < 500;
+    
+    if (!forceRescan && currentJobKey === lastJobKey && !isFragment) {
+      return;
     }
+
+    if (isFragment) {
+      console.log('[SuperJobGenie] Skipping fragment content:', job.characterCount);
+      return;
+    }
+
+    lastJobKey = currentJobKey;
+    lastBodyLength = job.characterCount;
+    cachedJobData = job;
+
+    console.log('[SuperJobGenie] Auto-rescanned job:', job.title, 'at', job.company, 'Chars:', job.characterCount);
+    renderShadowUI();
   }
 
   // Handle ESC key globally
