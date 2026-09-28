@@ -1670,6 +1670,7 @@
    * Main Check & Auto-Rescan Trigger (Auto-scans whenever user clicks or navigates to a new job)
    */
   function checkAndAutoRescan(forceRescan = false) {
+    if (isEditCandidateOpen) return; // Guard: Prevent auto-rescan while editing
     const job = extractFullIndeedJob();
     const currentJobKey = `${job.title}::${job.company}::${job.characterCount}`;
 
@@ -1754,8 +1755,11 @@
     }, 400);
   });
 
-  // Observe body for changes in job detail pane
-  if (document.body) {
+  // Observe only the job detail pane for changes instead of entire body
+  const jobPane = document.querySelector('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob');
+  if (jobPane) {
+    paneObserver.observe(jobPane, { childList: true, subtree: true, characterData: true });
+  } else if (document.body) {
     paneObserver.observe(document.body, { childList: true, subtree: true });
   }
 
