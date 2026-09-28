@@ -112,6 +112,23 @@
   /**
    * Deep Extractor v3.0: Multilayer Extraction
    */
+  /**
+   * Helper: Filter out search page headers like "finance analyst jobs in Los Angeles, CA"
+   */
+  function isSearchHeader(str) {
+    if (!str) return true;
+    const s = str.trim().toLowerCase();
+    return s.includes(' jobs in ') || 
+           s.includes(' jobs near ') || 
+           s.includes(' jobs, employment') || 
+           s.includes(' jobs available') || 
+           s.startsWith('jobs in ') || 
+           s.endsWith(' jobs');
+  }
+
+  /**
+   * Deep Extractor v3.5: Multilayer Extraction with Active Card & Search Header Protection
+   */
   function extractFullIndeedJob() {
     const platform = detectPlatform();
     let title = '';
@@ -122,57 +139,112 @@
     let extractionSource = `${platform} Dynamic Engine`;
     let isSchemaOrg = false;
 
-    // 1. Layer 1: Active Detail Pane DOM (Top priority for SPA clicking list items!)
-    const activePane = document.querySelector('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob') || document;
+    // 1. Determine active jobKey (jk) from URL or DOM
+    let jk = '';
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      jk = urlParams.get('vjk') || urlParams.get('jk') || '';
+    } catch (e) {}
 
+    // 2. Identify the active / selected job card in the search results list
+    let activeCard = null;
+    if (jk) {
+      activeCard = document.querySelector(`[data-jk="${jk}"], a[href*="${jk}"]`)?.closest('div.job_seen_beacon, li, div[data-jk], div.cardOutline');
+    }
+    if (!activeCard) {
+      activeCard = document.querySelector('div.job_seen_beacon[aria-current="true"], li[aria-current="true"], div[data-jk].selected, div.cardOutline.selected');
+    }
+    if (!activeCard && jk) {
+      activeCard = document.querySelector(`[data-jk="${jk}"]`);
+    }
+
+    // 3. Identify the active detail pane in the DOM
+    const activePane = document.querySelector(
+      'div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob, #jobsearch-ViewjobPaneWrapper, #vjs-container, div[class*="RightPane"], div[class*="JobComponent"]'
+    ) || document;
+
+    // 4. Extract Job Title (Specific selectors only, NEVER generic h1 on document)
     const titleSelectors = [
       '[data-testid="jobsearch-JobInfoHeader-title"]',
       'h1.jobsearch-JobInfoHeader-title',
       'h2.jobsearch-JobInfoHeader-title',
+      '.jobsearch-JobInfoHeader-title',
       'h1[data-cy="jobTitle"]',
       '[data-testid="simpler-job-title"]',
-      'h1.job_title',
+      '#vjs-jobtitle',
       '.job-details-jobs-unified-top-card__job-title',
-      'h1.t-24',
-      '[data-test="job-title"]',
-      '.posting-headline h2',
-      'h1'
+      '[data-test="job-title"]'
     ];
     for (const sel of titleSelectors) {
-      const el = activePane.querySelector(sel) || document.querySelector(sel);
-      if (el && el.innerText.trim()) {
+      const el = activePane.querySelector(sel);
+      if (el && el.innerText.trim() && !isSearchHeader(el.innerText.trim())) {
         title = el.innerText.trim();
         break;
       }
     }
 
+    // If activePane is a dedicated right-pane container (not document), check h1/h2 inside it
+    if (!title && activePane !== document) {
+      const hEl = activePane.querySelector('h1, h2');
+      if (hEl && hEl.innerText.trim() && !isSearchHeader(hEl.innerText.trim())) {
+        title = hEl.innerText.trim();
+      }
+    }
+
+    // If still no title, inspect the active card in the search list
+    if (!title && activeCard) {
+      const cardTitleEl = activeCard.querySelector('a.jcs-JobTitle span[title], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle');
+      if (cardTitleEl && cardTitleEl.innerText.trim() && !isSearchHeader(cardTitleEl.innerText.trim())) {
+        title = cardTitleEl.innerText.trim();
+      }
+    }
+
+    // 5. Extract Company
     const compSelectors = [
       '[data-testid="inlineHeader-companyName"]',
+      '.jobsearch-InlineCompanyRating-companyHeader a',
       '.jobsearch-InlineCompanyRating-companyHeader',
       '[data-company-name="true"]',
       '.hiring_company_text',
       'a[data-cy="companyName"]',
       '.company-name',
+      '#vjs-cn',
       '.job-details-jobs-unified-top-card__company-name',
-      'a.ember-view.t-black',
       '[data-test="employer-name"]',
       '.hiring-org'
     ];
     for (const sel of compSelectors) {
-      const el = activePane.querySelector(sel) || document.querySelector(sel);
+      const el = activePane.querySelector(sel);
       if (el && el.innerText.trim()) {
         company = el.innerText.trim();
         break;
       }
     }
+    if (!company && activeCard) {
+      const cardComp = activeCard.querySelector('[data-testid="company-name"], .companyName, span.css-63koeb')?.innerText.trim();
+      if (cardComp) company = cardComp;
+    }
 
-    // Extract Description from active pane (Specific content containers only, NOT outer layout wrappers)
+    // 6. Extract Location and Salary
+    if (activeCard) {
+      const cardLoc = activeCard.querySelector('[data-testid="text-location"], .companyLocation')?.innerText.trim();
+      if (cardLoc) location = cardLoc;
+      const cardSal = activeCard.querySelector('.salary-snippet-container, [data-testid="attribute_snippet_testid"]')?.innerText.trim();
+      if (cardSal) salary = cardSal;
+    }
+    const locEl = activePane.querySelector('[data-testid="jobsearch-JobInfoHeader-companyLocation"], .jobsearch-JobInfoHeader-companyLocation');
+    if (locEl && locEl.innerText.trim()) location = locEl.innerText.trim();
+    const salEl = activePane.querySelector('#salaryInfoAndJobType, [data-testid="jobsearch-JobDescriptionSection-section--salary"]');
+    if (salEl && salEl.innerText.trim()) salary = salEl.innerText.trim();
+
+    // 7. Extract Description from active pane or document
     const jdSelectors = [
       '#jobDescriptionText',
       '[data-testid="jobDescriptionText"]',
       '.jobsearch-JobComponent-description',
       '#vjs-job-description',
       '#vjs-content',
+      'div.jobsearch-jobDescriptionText',
       '[data-automation-id="jobPostingDescription"]',
       '.jobs-description__content',
       'div.show-more-less-html__markup',
@@ -188,25 +260,52 @@
 
     for (const sel of jdSelectors) {
       const el = activePane.querySelector(sel) || document.querySelector(sel);
-      if (el && el.innerText && el.innerText.trim().length > 150) {
+      if (el && el.innerText && el.innerText.trim().length > 100) {
         fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
         extractionSource = `${platform} DOM (${sel})`;
         break;
       }
     }
 
-    // 2. Layer 2: Schema.org JSON-LD (If DOM was empty or matching active title)
-    if (!fullBodyText || fullBodyText.length < 200) {
+    // 8. Layer 2: Iframe Penetration (Common on Indeed fastview / vjs-container)
+    if (!fullBodyText || fullBodyText.length < 150) {
+      const iframes = document.querySelectorAll('iframe');
+      for (const iframe of iframes) {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow?.document;
+          if (doc) {
+            const el = doc.querySelector('#jobDescriptionText, [data-testid="jobDescriptionText"], .jobsearch-JobComponent-description');
+            if (el && el.innerText && el.innerText.trim().length > 100) {
+              fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
+              extractionSource = `${platform} Iframe (#${iframe.id || 'vjs-frame'})`;
+              if (!title) {
+                const ifTitle = doc.querySelector('h1, h2, .jobsearch-JobInfoHeader-title')?.innerText.trim();
+                if (ifTitle && !isSearchHeader(ifTitle)) title = ifTitle;
+              }
+              if (!company) {
+                const ifComp = doc.querySelector('[data-testid="inlineHeader-companyName"], .company-name')?.innerText.trim();
+                if (ifComp) company = ifComp;
+              }
+              break;
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
+    // 9. Layer 3: Schema.org JSON-LD
+    if (!fullBodyText || fullBodyText.length < 150) {
       const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
       for (const script of jsonLdScripts) {
         try {
           const parsed = JSON.parse(script.textContent || '{}');
           const items = Array.isArray(parsed) ? parsed : [parsed];
           for (const item of items) {
-            if (item && item['@type'] === 'JobPosting' && item.description && item.description.length > 180) {
-              if (!title || !item.title || item.title.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(item.title.toLowerCase())) {
+            if (item && item['@type'] === 'JobPosting' && item.description && item.description.length > 150) {
+              const itemTitle = item.title || '';
+              if (!title || !itemTitle || itemTitle.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(itemTitle.toLowerCase())) {
                 isSchemaOrg = true;
-                title = title || item.title || '';
+                if (!title && itemTitle && !isSearchHeader(itemTitle)) title = itemTitle;
                 if (!company && item.hiringOrganization?.name) company = item.hiringOrganization.name;
                 if (item.jobLocation?.address?.addressLocality) location = `${item.jobLocation.address.addressLocality} • Active`;
                 if (item.baseSalary?.value?.value) salary = `$${item.baseSalary.value.value}`;
@@ -217,60 +316,30 @@
             }
           }
         } catch (e) {}
-        if (fullBodyText && fullBodyText.length > 200) break;
+        if (fullBodyText && fullBodyText.length > 150) break;
       }
     }
 
-    // 3. Layer 3: Iframe Penetration
-    if (!fullBodyText || fullBodyText.length < 200) {
-      const iframes = document.querySelectorAll('iframe');
-      for (const iframe of iframes) {
-        try {
-          const doc = iframe.contentDocument || iframe.contentWindow?.document;
-          if (doc) {
-            const el = doc.querySelector('#jobDescriptionText, [data-testid="jobDescriptionText"], .jobsearch-JobComponent-description');
-            if (el && el.innerText && el.innerText.trim().length > 150) {
-              fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
-              extractionSource = `${platform} Iframe (#${iframe.id || 'vjs-frame'})`;
-              break;
-            }
-          }
-        } catch (e) {}
-      }
-    }
-
-    // Fallback to active card in the search list if detail pane header is still rendering
-    let jk = '';
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      jk = urlParams.get('vjk') || urlParams.get('jk') || '';
-      if (!jk && activePane && activePane.querySelector) {
-        const paneJk = activePane.querySelector('[data-jk]')?.getAttribute('data-jk');
-        if (paneJk) jk = paneJk;
-      }
-      if (!jk) {
-        const activeCard = document.querySelector('div.job_seen_beacon[aria-current="true"], li[aria-current="true"], .selected[data-jk], div.cardOutline.selected');
-        if (activeCard) {
-          jk = activeCard.getAttribute('data-jk') || activeCard.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
-        }
-      }
-    } catch (e) {}
-
+    // 10. Fallback: If no job clicked yet, inspect the first job card in the list
     if (!title) {
-      const activeCard = document.querySelector('div.job_seen_beacon[aria-current="true"], li[aria-current="true"], .selected[data-jk], div.cardOutline.selected');
-      if (activeCard) {
-        const titleEl = activeCard.querySelector('a.jcs-JobTitle span[title], h2.jobTitle span[title], a.jcs-JobTitle, h2.jobTitle');
-        if (titleEl && titleEl.innerText.trim()) title = titleEl.innerText.trim();
-        const compEl = activeCard.querySelector('[data-testid="company-name"], span.css-63koeb, .companyName');
-        if (!company && compEl && compEl.innerText.trim()) company = compEl.innerText.trim();
+      const firstCard = document.querySelector('div.job_seen_beacon, div[data-jk], li.css-5lfssm, a.jcs-JobTitle');
+      if (firstCard) {
+        const cardEl = firstCard.closest('div.job_seen_beacon, div[data-jk]') || firstCard;
+        const tEl = cardEl.querySelector ? cardEl.querySelector('a.jcs-JobTitle span[title], a.jcs-JobTitle, h2.jobTitle') : null;
+        if (tEl && tEl.innerText.trim() && !isSearchHeader(tEl.innerText.trim())) {
+          title = tEl.innerText.trim();
+        }
+        const cEl = cardEl.querySelector ? cardEl.querySelector('[data-testid="company-name"], .companyName, span.css-63koeb') : null;
+        if (cEl && cEl.innerText.trim()) company = cEl.innerText.trim();
+        if (!jk && cardEl.getAttribute) jk = cardEl.getAttribute('data-jk') || '';
       }
     }
 
-    // Fallbacks
-    if (!title) title = 'Financial & Business Analyst';
-    if (!company) company = 'Target Employer';
+    // Final honest fallbacks
+    if (!title) title = 'Select a Job on Indeed';
+    if (!company) company = 'Click to Inspect JD';
 
-    const hasRealBody = Boolean(fullBodyText && fullBodyText.length >= 250);
+    const hasRealBody = Boolean(fullBodyText && fullBodyText.length >= 200);
 
     return {
       title,
@@ -292,9 +361,26 @@
    * Evaluate Job Match against Candidate Profile (Fully Dynamic & Multi-Domain)
    */
   function evaluateJobMatch(jobData, cand) {
-    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 250);
+    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 200);
     const jobText = (jobData?.fullBodyText || '').toLowerCase();
     const candSkills = cand.skills || [];
+
+    if (!hasBody) {
+      return {
+        overallMatchScore: 0,
+        matchTier: 'Awaiting Job Selection',
+        tierTitle: 'Ready to Scan',
+        tierDesc: 'Click any job posting on Indeed to inspect full requirements & real-time skills fit',
+        tierBadge: 'Ready to Scan',
+        tierColor: '#94a3b8',
+        tierLevel: 'ready',
+        matchHeadline: '👉 Click any job on Indeed to inspect full requirements & real-time skills fit',
+        verifiedSkills: [],
+        missingSkillGaps: [],
+        detectedJdSkillsCount: 0,
+        isAwaitingJob: true
+      };
+    }
 
     // All possible domain skill candidates to check in the JD
     const catalogSkills = [
@@ -324,7 +410,7 @@
       detectedJdSkills = catalogSkills.filter(item => jobText.includes(item.key));
     }
     
-    // If no specific catalog skills found in body or body still loading, provide balanced baseline
+    // If no specific catalog skills found in body, provide balanced baseline
     if (detectedJdSkills.length === 0) {
       detectedJdSkills = [
         { name: 'Core Domain Execution', key: 'domain' },
@@ -350,9 +436,6 @@
     });
 
     const totalDetected = detectedJdSkills.length;
-    // CRITICAL FIX: Eliminate the "95% Ghost" (1/1 = 100% false spike)
-    // A professional job profile always has at least 5 competency dimensions.
-    // Never allow a 1-keyword partial snippet to compute 1/1 = 100% (95%).
     const effectiveTotal = Math.max(totalDetected, totalDetected < 4 ? 5 : totalDetected);
     let ratio = totalDetected > 0 ? (verifiedSkills.length / effectiveTotal) : 0.4;
     
@@ -414,7 +497,8 @@
       matchHeadline,
       verifiedSkills,
       missingSkillGaps,
-      detectedJdSkillsCount: totalDetected
+      detectedJdSkillsCount: totalDetected,
+      isAwaitingJob: false
     };
   }
 
@@ -1242,8 +1326,14 @@
         <!-- Mode Banner -->
         <div class="sjg-mode-bar">
           <span class="sjg-mode-label">Career Pivot Intelligence:</span>
-          <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="Click to toggle between 153 chars truncated vs 8,000+ full-body chars">
-            ${isBuggyMode ? '⚠️ Truncated: 153 Chars (Naive)' : '🛡️ Full Body: 8,000+ Chars Verified'}
+          <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="Click to toggle between 153 chars truncated vs full-body chars">
+            ${isBuggyMode 
+              ? '⚠️ Truncated: 153 Chars (Naive)' 
+              : (job.characterCount >= 200 
+                  ? `🛡️ Full Body: ${job.characterCount.toLocaleString()} Chars Verified` 
+                  : (job.characterCount > 0 
+                      ? `⏳ Parsing: ${job.characterCount} Chars` 
+                      : '🔍 Select a Job to Verify Full Body'))}
           </div>
         </div>
 
@@ -1258,7 +1348,7 @@
                 Live Job Target (${escapeHtml(job.platform)}):
               </span>
               <span class="sjg-chars-badge">
-                ⚡ Captured ${displayChars} chars body
+                ⚡ ${displayChars > 0 ? `Captured ${displayChars} chars body` : 'Waiting for job click'}
               </span>
             </div>
             <div class="sjg-job-title">${escapeHtml(job.title)}</div>
@@ -1306,13 +1396,13 @@
           <div class="sjg-match-card" style="border-color: ${evaluation.tierColor}66;">
             <div class="sjg-match-header" style="margin-bottom: 6px;">
               <div class="sjg-match-tier">
-                <span style="color: ${evaluation.tierColor}; font-size:16px;">✅</span>
-                <span style="color: #ffffff; font-weight:800; font-size: 14px;">Smart Match — ${escapeHtml(evaluation.tierTitle)}</span>
+                <span style="color: ${evaluation.tierColor}; font-size:16px;">${evaluation.isAwaitingJob ? '🔍' : '✅'}</span>
+                <span style="color: #ffffff; font-weight:800; font-size: 14px;">${evaluation.isAwaitingJob ? 'Ready for Job Selection' : `Smart Match — ${escapeHtml(evaluation.tierTitle)}`}</span>
               </div>
             </div>
 
             <div class="sjg-match-desc" style="font-weight: 700; color: #fff; margin-bottom: 5px;">
-              Role Fit Score: ${evaluation.overallMatchScore}% ${escapeHtml(evaluation.tierTitle)}
+              ${evaluation.isAwaitingJob ? 'Click any job posting on Indeed to inspect full JD & fit score' : `Role Fit Score: ${evaluation.overallMatchScore}% ${escapeHtml(evaluation.tierTitle)}`}
             </div>
             
             <div class="sjg-match-inner">
@@ -1320,53 +1410,72 @@
                 <svg class="sjg-ring-svg" viewBox="0 0 54 54">
                   <circle cx="27" cy="27" r="22" stroke="#1e293b" stroke-width="4" fill="none" />
                   <circle cx="27" cy="27" r="22" stroke="${evaluation.tierColor}" stroke-width="4" fill="none"
-                          stroke-dasharray="138" stroke-dashoffset="${strokeDashoffset}" stroke-linecap="round" />
+                          stroke-dasharray="138" stroke-dashoffset="${evaluation.isAwaitingJob ? 138 : strokeDashoffset}" stroke-linecap="round" />
                 </svg>
                 <div class="sjg-ring-text">
-                  <span class="sjg-ring-num" style="color:${evaluation.tierColor};">${evaluation.overallMatchScore}%</span>
+                  <span class="sjg-ring-num" style="color:${evaluation.tierColor}; font-size: ${evaluation.isAwaitingJob ? '10px' : '14px'};">${evaluation.isAwaitingJob ? 'READY' : `${evaluation.overallMatchScore}%`}</span>
                 </div>
               </div>
               <div class="sjg-match-inner-text">
-                <div class="sjg-match-inner-title" style="font-size: 13px;">Strong Alignment</div>
+                <div class="sjg-match-inner-title" style="font-size: 13px;">${evaluation.isAwaitingJob ? 'Awaiting Target JD' : (evaluation.overallMatchScore >= 75 ? 'Strong Alignment' : 'Transferable Match')}</div>
                 <div class="sjg-match-inner-stats">
-                  Skills: <strong style="color:#34d399;">${evaluation.verifiedSkills.length}</strong> matched | 
-                  Gaps: <strong style="color:#f59e0b;">${evaluation.missingSkillGaps.length}</strong>
+                  ${evaluation.isAwaitingJob 
+                    ? `<span style="color:#94a3b8;">Candidate skills ready (${candidateProfile.skills.length})</span>`
+                    : `Skills: <strong style="color:#34d399;">${evaluation.verifiedSkills.length}</strong> matched | Gaps: <strong style="color:#f59e0b;">${evaluation.missingSkillGaps.length}</strong>`}
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Verified Skills -->
-          <div class="sjg-section-header">
-            <span class="sjg-verified-label">
-              ✓ Verified Skills (Have it)
-            </span>
-            <span class="sjg-total-count">Total ${evaluation.verifiedSkills.length}</span>
-          </div>
-          <div class="sjg-chips-list">
-            ${evaluation.verifiedSkills.map(skill => `
-              <div class="sjg-chip verified">
-                <span>•</span>
-                <span>${escapeHtml(skill.name)}</span>
-              </div>
-            `).join('')}
-          </div>
+          ${evaluation.isAwaitingJob ? `
+            <div class="sjg-section-header">
+              <span class="sjg-verified-label">✓ Candidate Core Skills Loaded</span>
+              <span class="sjg-total-count">${candidateProfile.skills.length} Loaded</span>
+            </div>
+            <div class="sjg-chips-list">
+              ${candidateProfile.skills.slice(0, 8).map(skill => `
+                <div class="sjg-chip verified">
+                  <span>•</span>
+                  <span>${escapeHtml(skill)}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div style="margin: 10px 0; padding: 12px; background: rgba(30, 41, 59, 0.4); border-radius: 8px; border: 1px dashed #334155; font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.5;">
+              👉 <strong>Click any job in Indeed's left list</strong> to parse its full description and see your exact fit score & matched skills!
+            </div>
+          ` : `
+            <!-- Verified Skills -->
+            <div class="sjg-section-header">
+              <span class="sjg-verified-label">
+                ✓ Verified Skills (Have it)
+              </span>
+              <span class="sjg-total-count">Total ${evaluation.verifiedSkills.length}</span>
+            </div>
+            <div class="sjg-chips-list">
+              ${evaluation.verifiedSkills.map(skill => `
+                <div class="sjg-chip verified">
+                  <span>•</span>
+                  <span>${escapeHtml(skill.name)}</span>
+                </div>
+              `).join('')}
+            </div>
 
-          <!-- Skill Gaps -->
-          <div class="sjg-section-header">
-            <span class="sjg-gaps-label">
-              ⚠️ Skill Gaps (Missing)
-            </span>
-            <span class="sjg-total-count">Total ${evaluation.missingSkillGaps.length}</span>
-          </div>
-          <div class="sjg-chips-list">
-            ${evaluation.missingSkillGaps.map(gap => `
-              <div class="sjg-chip gap">
-                <span>•</span>
-                <span>${escapeHtml(gap.name)}</span>
-              </div>
-            `).join('')}
-          </div>
+            <!-- Skill Gaps -->
+            <div class="sjg-section-header">
+              <span class="sjg-gaps-label">
+                ⚠️ Skill Gaps (Missing)
+              </span>
+              <span class="sjg-total-count">Total ${evaluation.missingSkillGaps.length}</span>
+            </div>
+            <div class="sjg-chips-list">
+              ${evaluation.missingSkillGaps.map(gap => `
+                <div class="sjg-chip gap">
+                  <span>•</span>
+                  <span>${escapeHtml(gap.name)}</span>
+                </div>
+              `).join('')}
+            </div>
+          `}
 
           <!-- Bottom Action Buttons -->
           <div class="sjg-cover-letter-options" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #333;">
