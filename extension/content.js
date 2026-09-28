@@ -247,17 +247,20 @@
     if (!title) title = 'Financial & Business Analyst';
     if (!company) company = 'Target Employer';
 
+    const hasRealBody = Boolean(fullBodyText && fullBodyText.length >= 250);
+
     return {
       title,
       company,
       location,
       salary,
       fullBodyText,
-      characterCount: fullBodyText.length || 2045,
-      wordCount: fullBodyText ? fullBodyText.split(/\s+/).length : 288,
+      characterCount: fullBodyText ? fullBodyText.length : 0,
+      wordCount: fullBodyText ? fullBodyText.split(/\s+/).filter(Boolean).length : 0,
       platform,
       extractionSource,
-      isSchemaOrg
+      isSchemaOrg,
+      hasRealBody
     };
   }
 
@@ -265,7 +268,8 @@
    * Evaluate Job Match against Candidate Profile (Fully Dynamic & Multi-Domain)
    */
   function evaluateJobMatch(jobData, cand) {
-    const jobText = (jobData?.fullBodyText || jobData?.title || '').toLowerCase();
+    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 250);
+    const jobText = (jobData?.fullBodyText || '').toLowerCase();
     const candSkills = cand.skills || [];
 
     // All possible domain skill candidates to check in the JD
@@ -291,13 +295,19 @@
     ];
 
     // Detect which skills the JD actually requires
-    let detectedJdSkills = catalogSkills.filter(item => jobText.includes(item.key));
+    let detectedJdSkills = [];
+    if (hasBody) {
+      detectedJdSkills = catalogSkills.filter(item => jobText.includes(item.key));
+    }
+    
+    // If no specific catalog skills found in body or body still loading, provide balanced baseline
     if (detectedJdSkills.length === 0) {
-      // Fallback detected from common JD tokens
       detectedJdSkills = [
         { name: 'Core Domain Execution', key: 'domain' },
         { name: 'Data & Quantitative Analysis', key: 'analysis' },
-        { name: 'Cross-Functional Collaboration', key: 'communication' }
+        { name: 'Cross-Functional Collaboration', key: 'communication' },
+        { name: 'Operational Problem Solving', key: 'operations' },
+        { name: 'Strategic Planning & Execution', key: 'strategy' }
       ];
     }
 
@@ -316,7 +326,11 @@
     });
 
     const totalDetected = detectedJdSkills.length;
-    let ratio = totalDetected > 0 ? (verifiedSkills.length / totalDetected) : 0.5;
+    // CRITICAL FIX: Eliminate the "95% Ghost" (1/1 = 100% false spike)
+    // A professional job profile always has at least 5 competency dimensions.
+    // Never allow a 1-keyword partial snippet to compute 1/1 = 100% (95%).
+    const effectiveTotal = Math.max(totalDetected, totalDetected < 4 ? 5 : totalDetected);
+    let ratio = totalDetected > 0 ? (verifiedSkills.length / effectiveTotal) : 0.4;
     
     // Calculate realistic dynamic score
     let overallMatchScore = Math.min(99, Math.max(25, Math.round(ratio * 70 + (cand.yearsOfExperience > 0 ? 25 : 10))));
@@ -1266,38 +1280,15 @@
 
           <!-- Match Card -->
           <div class="sjg-match-card" style="border-color: ${evaluation.tierColor}66;">
-            <div class="sjg-match-header">
+            <div class="sjg-match-header" style="margin-bottom: 6px;">
               <div class="sjg-match-tier">
-                <span style="color: ${evaluation.tierColor}; font-size:16px;">◉</span>
-                <span style="color: #ffffff; font-weight:800;">${evaluation.overallMatchScore}% ${escapeHtml(evaluation.tierTitle)}</span>
-              </div>
-              <span class="sjg-match-tier-badge" style="background: ${evaluation.tierColor}22; color: ${evaluation.tierColor}; border: 1px solid ${evaluation.tierColor}55;">
-                ${escapeHtml(evaluation.tierBadge)}
-              </span>
-            </div>
-
-            <!-- Clear, Visual 4-Tier Benchmark Scale (Solves user's 'what does 78% vs 95% mean?' confusion) -->
-            <div class="sjg-tier-legend">
-              <div class="sjg-tier-step ${evaluation.overallMatchScore >= 90 ? 'active' : ''}" style="color: #34d399;">
-                <span class="sjg-tier-step-range">90-100%</span>
-                <span class="sjg-tier-step-label">Top 1% 🎆</span>
-              </div>
-              <div class="sjg-tier-step ${evaluation.overallMatchScore >= 75 && evaluation.overallMatchScore < 90 ? 'active' : ''}" style="color: #38bdf8;">
-                <span class="sjg-tier-step-range">75-89%</span>
-                <span class="sjg-tier-step-label">Strong 🎯</span>
-              </div>
-              <div class="sjg-tier-step ${evaluation.overallMatchScore >= 60 && evaluation.overallMatchScore < 75 ? 'active' : ''}" style="color: #fbbf24;">
-                <span class="sjg-tier-step-range">60-74%</span>
-                <span class="sjg-tier-step-label">Transfer 🌱</span>
-              </div>
-              <div class="sjg-tier-step ${evaluation.overallMatchScore < 60 ? 'active' : ''}" style="color: #94a3b8;">
-                <span class="sjg-tier-step-range">&lt;60%</span>
-                <span class="sjg-tier-step-label">Cross 🧭</span>
+                <span style="color: ${evaluation.tierColor}; font-size:16px;">✅</span>
+                <span style="color: #ffffff; font-weight:800; font-size: 14px;">Smart Match — ${escapeHtml(evaluation.tierTitle)}</span>
               </div>
             </div>
 
-            <div class="sjg-match-desc">
-              ${escapeHtml(evaluation.matchHeadline)}
+            <div class="sjg-match-desc" style="font-weight: 700; color: #fff; margin-bottom: 5px;">
+              Role Fit Score: ${evaluation.overallMatchScore}% ${escapeHtml(evaluation.tierTitle)}
             </div>
             
             <div class="sjg-match-inner">
@@ -1309,15 +1300,13 @@
                 </svg>
                 <div class="sjg-ring-text">
                   <span class="sjg-ring-num" style="color:${evaluation.tierColor};">${evaluation.overallMatchScore}%</span>
-                  <span class="sjg-ring-sub">MATCH</span>
                 </div>
               </div>
               <div class="sjg-match-inner-text">
-                <div class="sjg-match-inner-title">${escapeHtml(evaluation.tierTitle)}</div>
+                <div class="sjg-match-inner-title" style="font-size: 13px;">Strong Alignment</div>
                 <div class="sjg-match-inner-stats">
-                  JD Skills: <strong style="color:#fff;">${evaluation.detectedJdSkillsCount}</strong> detected | 
-                  Have: <strong style="color:#34d399;">${evaluation.verifiedSkills.length}</strong> | 
-                  Missing: <strong style="color:#f59e0b;">${evaluation.missingSkillGaps.length}</strong>
+                  Skills: <strong style="color:#34d399;">${evaluation.verifiedSkills.length}</strong> matched | 
+                  Gaps: <strong style="color:#f59e0b;">${evaluation.missingSkillGaps.length}</strong>
                 </div>
               </div>
             </div>
@@ -1356,7 +1345,17 @@
           </div>
 
           <!-- Bottom Action Buttons -->
-          <button id="sjg-open-dashboard-btn" class="sjg-btn-executive">
+          <div class="sjg-cover-letter-options" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #333;">
+            <div style="color: #bbb; font-size: 11px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Generate Cover Letter</div>
+            <button id="sjg-gen-pro-letter" class="sjg-btn" style="width: 100%; margin-bottom: 5px; padding: 6px; font-size: 12px; border-radius: 4px; background: #333; color: #fff; cursor: pointer;">
+              ✉️ 3-Tier Professional
+            </button>
+            <button id="sjg-gen-exec-letter" class="sjg-btn" style="width: 100%; padding: 6px; font-size: 12px; border-radius: 4px; background: #222; color: #ffd700; border: 1px solid #ffd700; cursor: pointer;">
+              👑 4-Tier Executive
+            </button>
+          </div>
+
+          <button id="sjg-open-dashboard-btn" class="sjg-btn-executive" style="margin-top: 10px;">
             👑 Open in Executive Dashboard (PRO)
           </button>
 
