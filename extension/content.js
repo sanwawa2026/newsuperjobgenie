@@ -1551,7 +1551,13 @@
     });
 
     wrapper.querySelector('#sjg-smart-pivot-btn')?.addEventListener('click', () => {
-      window.open(`${remoteDashboardUrl}?tab=pivot`, '_blank');
+      // If low match score, pivot to Indeed search for the target role instead of dashboard
+      if (evaluation.overallMatchScore < 60) {
+        const pivotQuery = encodeURIComponent(candidateProfile.targetRole || 'Software Engineer');
+        window.open(`https://www.indeed.com/jobs?q=${pivotQuery}`, '_blank');
+      } else {
+        window.open(`${remoteDashboardUrl}?tab=pivot`, '_blank');
+      }
     });
 
     wrapper.querySelector('#sjg-cl-free-btn')?.addEventListener('click', () => {
