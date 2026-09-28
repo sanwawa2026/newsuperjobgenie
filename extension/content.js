@@ -1677,15 +1677,17 @@
     const job = extractFullIndeedJob();
     const currentJobKey = `${job.title}::${job.company}`;
     
-    // Data Integrity Check: If body text is significantly smaller than previous, it's likely still loading
+    // If body text is significantly smaller than previous, it's likely still loading
     const isFragment = job.characterCount < lastBodyLength * 0.8 && job.characterCount < 500;
     
+    // If it's a completely new job or successful extraction, proceed
     if (!forceRescan && currentJobKey === lastJobKey && !isFragment) {
       return;
     }
 
     if (isFragment) {
       console.log('[SuperJobGenie] Skipping fragment content:', job.characterCount);
+      // Don't update lastJobKey here so we can retry when the full content loads
       return;
     }
 
