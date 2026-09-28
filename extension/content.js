@@ -1674,20 +1674,26 @@
 
   function checkAndAutoRescan(forceRescan = false) {
     if (isEditCandidateOpen) return; // Guard: Prevent auto-rescan while editing
+    
     const job = extractFullIndeedJob();
     const currentJobKey = `${job.title}::${job.company}`;
     
-    // If body text is significantly smaller than previous, it's likely still loading
-    const isFragment = job.characterCount < lastBodyLength * 0.8 && job.characterCount < 500;
+    // Always log for debugging
+    console.log(`[SuperJobGenie] Rescan check: ${currentJobKey}, Chars: ${job.characterCount}, Force: ${forceRescan}`);
+
+    // If we have a new job, or it's a forced rescan, we should try to process it.
+    // If it's a fragment (too short, potentially loading), we skip updating the lastJobKey 
+    // so we can re-try when it loads fully.
     
-    // If it's a completely new job or successful extraction, proceed
-    if (!forceRescan && currentJobKey === lastJobKey && !isFragment) {
+    const isFragment = job.characterCount < 300; // Indeed job descriptions are rarely this small.
+    
+    // Only skip if it's the SAME job AND it's NOT a fragment
+    if (!forceRescan && currentJobKey === lastJobKey && !isFragment && job.characterCount >= lastBodyLength * 0.9) {
       return;
     }
 
     if (isFragment) {
-      console.log('[SuperJobGenie] Skipping fragment content:', job.characterCount);
-      // Don't update lastJobKey here so we can retry when the full content loads
+      console.log('[SuperJobGenie] Skipping fragment content (too short):', job.characterCount);
       return;
     }
 
@@ -1695,7 +1701,7 @@
     lastBodyLength = job.characterCount;
     cachedJobData = job;
 
-    console.log('[SuperJobGenie] Auto-rescanned job:', job.title, 'at', job.company, 'Chars:', job.characterCount);
+    console.log('[SuperJobGenie] Successfully rescanned job:', job.title, 'at', job.company, 'Chars:', job.characterCount);
     renderShadowUI();
   }
 
