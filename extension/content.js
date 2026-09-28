@@ -1681,14 +1681,11 @@
     // Always log for debugging
     console.log(`[SuperJobGenie] Rescan check: ${currentJobKey}, Chars: ${job.characterCount}, Force: ${forceRescan}`);
 
-    // If we have a new job, or it's a forced rescan, we should try to process it.
-    // If it's a fragment (too short, potentially loading), we skip updating the lastJobKey 
-    // so we can re-try when it loads fully.
-    
     const isFragment = job.characterCount < 300; // Indeed job descriptions are rarely this small.
     
-    // Only skip if it's the SAME job AND it's NOT a fragment
-    if (!forceRescan && currentJobKey === lastJobKey && !isFragment && job.characterCount >= lastBodyLength * 0.9) {
+    // We only skip if it's the EXACT same job key AND it's NOT a fragment.
+    // If the job key changed, we MUST rescan, regardless of character count.
+    if (!forceRescan && currentJobKey === lastJobKey && !isFragment) {
       return;
     }
 
