@@ -453,6 +453,24 @@
       };
     }
 
+    if (!hasBody) {
+      return {
+        overallMatchScore: 0,
+        matchTier: 'Scanning Job Description',
+        tierTitle: 'Scanning Job Description',
+        tierDesc: 'Extracting the full job description before scoring — one moment.',
+        tierBadge: 'Scanning…',
+        tierColor: '#94a3b8',
+        tierLevel: 'scanning',
+        matchHeadline: '⏳ Extracting the full job description before scoring…',
+        verifiedSkills: [],
+        missingSkillGaps: [],
+        detectedJdSkillsCount: 0,
+        isAwaitingJob: false,
+        isScanning: true
+      };
+    }
+
     // All possible domain skill candidates to check in the JD
     const catalogSkills = [
       // Tech / Software
