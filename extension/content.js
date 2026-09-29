@@ -1413,7 +1413,7 @@
           </span>
           <span class="sjg-pill-chars">${displayChars.toLocaleString()} chars</span>
         </div>
-        <div class="sjg-pill-badge">${evaluation.overallMatchScore}%</div>
+        <div class="sjg-pill-badge">${evaluation.isScanning ? '···' : `${evaluation.overallMatchScore}%`}</div>
       </div>
 
       <!-- Bottom-Right Floating Panel (Zero Center Blocking) -->
