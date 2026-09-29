@@ -141,6 +141,7 @@
     let extractionSource = `${platform} Dynamic Engine`;
     let isSchemaOrg = false;
     let jk = '';
+    let foundJdEl = null;
 
     // 1. Get jobKey from URL if available
     try {
@@ -177,8 +178,8 @@
     }
 
     // ==========================================
-    // ⚔️ CHANNEL 2: The 3,000+ Char Recursive DOM Traversal Patch
-    // Traverses all p, li, h1-h4, div to capture complete unabridged paragraphs
+    // ⚔️ CHANNEL 2: The 3,000+ Char Native DOM Traversal Patch
+    // Traverses primary JD containers taking full native browser formatted text
     // ==========================================
     if (!fullBodyText || fullBodyText.length < 150) {
       const jdContainers = [
@@ -193,33 +194,11 @@
       ].filter(Boolean);
 
       for (const container of jdContainers) {
-        const paras = Array.from(container.querySelectorAll('p, li, h1, h2, h3, h4, div'))
-          .map(el => (el.innerText || el.textContent || '').trim())
-          .filter(t => t.length > 0);
-
-        if (paras.length > 0) {
-          // Deduplicate overlapping parent-child innerTexts
-          const uniqueParas = [];
-          for (const p of paras) {
-            if (!uniqueParas.some(existing => existing.includes(p) && existing !== p)) {
-              uniqueParas.push(p);
-            }
-          }
-          const rawJoined = uniqueParas.join('\n\n');
-          if (rawJoined.length > 150) {
-            fullBodyText = rawJoined;
-            foundJdEl = container;
-            extractionSource = `${platform} DOM 3000+ Traversal`;
-            break;
-          }
-        }
-
-        // Direct container fallback
         const directText = (container.innerText || container.textContent || '').trim();
         if (directText.length > 150) {
           fullBodyText = directText;
           foundJdEl = container;
-          extractionSource = `${platform} DOM Direct Fallback`;
+          extractionSource = `${platform} DOM (3000+ Native)`;
           break;
         }
       }
@@ -599,10 +578,16 @@
   }
 
   /**
-   * Ensure Isolated Shadow DOM Host is Attached
+   * Ensure Isolated Shadow DOM Host is Attached directly to document.body
    */
   function getOrCreateShadowRoot() {
-    if (shadowRoot) return shadowRoot;
+    if (shadowRoot && hostContainer && hostContainer.parentElement === document.body) {
+      return shadowRoot;
+    }
+
+    if (!document.body) {
+      return null;
+    }
 
     hostContainer = document.getElementById('sjg-shadow-host-root');
     if (!hostContainer) {
@@ -613,9 +598,10 @@
       hostContainer.style.inset = '0';
       hostContainer.style.pointerEvents = 'none';
       hostContainer.style.display = 'block';
-
-      const targetParent = document.documentElement || document.body;
-      targetParent.appendChild(hostContainer);
+      document.body.appendChild(hostContainer);
+    } else if (hostContainer.parentElement !== document.body) {
+      // Reparent to document.body so it is never trapped outside the body context
+      document.body.appendChild(hostContainer);
     }
 
     shadowRoot = hostContainer.shadowRoot || hostContainer.attachShadow({ mode: 'open' });
@@ -1356,24 +1342,44 @@
    * Render or Update the HUD UI inside Shadow DOM
    */
   function renderShadowUI() {
-    const sRoot = getOrCreateShadowRoot();
-    if (!sRoot) return;
+    try {
+      const sRoot = getOrCreateShadowRoot();
+      if (!sRoot) {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => renderShadowUI(), { once: true });
+        } else {
+          setTimeout(renderShadowUI, 100);
+        }
+        return;
+      }
 
-    const job = cachedJobData || extractFullIndeedJob();
-    cachedJobData = job;
+      const job = cachedJobData || {
+        title: 'Select a Job on Indeed',
+        company: 'Click any job posting to evaluate',
+        location: 'Los Angeles, CA • On-site / Hybrid',
+        salary: '',
+        fullBodyText: '',
+        characterCount: 0,
+        wordCount: 0,
+        platform: detectPlatform(),
+        extractionSource: 'Awaiting Selection',
+        isSchemaOrg: false,
+        hasRealBody: false,
+        jk: ''
+      };
 
-    const evaluation = evaluateJobMatch(job, candidateProfile);
-    const displayChars = isBuggyMode ? 153 : job.characterCount;
+      const evaluation = evaluateJobMatch(job, candidateProfile);
+      const displayChars = isBuggyMode ? 153 : (job.characterCount || 0);
 
-    let wrapper = sRoot.getElementById('sjg-shadow-wrapper');
-    if (!wrapper) {
-      wrapper = document.createElement('div');
-      wrapper.id = 'sjg-shadow-wrapper';
-      sRoot.innerHTML = `<style>${SHADOW_CSS}</style>`;
-      sRoot.appendChild(wrapper);
-    }
+      let wrapper = sRoot.querySelector('#sjg-shadow-wrapper');
+      if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.id = 'sjg-shadow-wrapper';
+        sRoot.innerHTML = `<style>${SHADOW_CSS}</style>`;
+        sRoot.appendChild(wrapper);
+      }
 
-    const strokeDashoffset = Math.round(138 - (138 * evaluation.overallMatchScore) / 100);
+      const strokeDashoffset = Math.round(138 - (138 * evaluation.overallMatchScore) / 100);
 
     wrapper.innerHTML = `
       <!-- Hidden file input for resume uploading -->
@@ -1811,6 +1817,9 @@
         }, 150);
       }
     }
+    } catch (err) {
+      console.error('[SuperJobGenie] renderShadowUI error:', err);
+    }
   }
 
   /**
@@ -1965,11 +1974,18 @@
     });
   }
 
-  // Execute once on load
-  const initialJob = extractFullIndeedJob();
-  cachedJobData = initialJob;
-  hasAutoPoppedForJobKey = `${initialJob.title}::${initialJob.company}::${initialJob.characterCount}`;
+  // Execute immediately to paint the floating pill without blocking
   renderShadowUI();
+
+  // Then perform extraction and update UI
+  try {
+    const initialJob = extractFullIndeedJob();
+    cachedJobData = initialJob;
+    hasAutoPoppedForJobKey = `${initialJob.title}::${initialJob.company}::${initialJob.characterCount}`;
+    renderShadowUI();
+  } catch (err) {
+    console.error('[SuperJobGenie] Initial scan error:', err);
+  }
 
   // 1. Auto-rescan on SPA URL changes
   window.addEventListener('popstate', () => {
