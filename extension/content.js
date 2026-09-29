@@ -535,11 +535,21 @@
     });
 
     const totalDetected = detectedJdSkills.length;
-    const effectiveTotal = Math.max(totalDetected, totalDetected < 4 ? 5 : totalDetected);
-    let ratio = totalDetected > 0 ? (verifiedSkills.length / effectiveTotal) : 0.4;
+    // Score based on fulfillment ratio: 
+    // If all required skills are verified, we start from 90, otherwise calculate proportion.
+    let ratio = totalDetected > 0 ? (verifiedSkills.length / totalDetected) : 0;
     
     // Calculate realistic dynamic score
-    let overallMatchScore = Math.min(99, Math.max(25, Math.round(ratio * 70 + (cand.yearsOfExperience > 0 ? 25 : 10))));
+    // If gaps exist, reflect coverage accurately. If no gaps, reflect high match.
+    let overallMatchScore;
+    if (totalDetected === 0) {
+      overallMatchScore = 60; // Baseline for unknown job requirements
+    } else if (missingSkillGaps.length === 0) {
+      overallMatchScore = Math.min(99, 90 + (cand.yearsOfExperience > 2 ? 5 : 0));
+    } else {
+      overallMatchScore = Math.max(40, Math.round(ratio * 80));
+    }
+    
     if (isBuggyMode) {
       overallMatchScore = 98; // simulated naive match from truncated 153 chars
     }
