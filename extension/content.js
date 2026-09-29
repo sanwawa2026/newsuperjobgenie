@@ -494,9 +494,14 @@
     ];
 
     // Detect which skills the JD actually requires (from full body + title)
-    let detectedJdSkills = catalogSkills.filter(item => combinedText.includes(item.key));
+    // Use word boundary regex to prevent false positives (e.g., 'financ' matching 'refinance')
+    let detectedJdSkills = catalogSkills.filter(item => {
+      const regex = new RegExp(`\\b${item.key}`, 'i');
+      return regex.test(combinedText);
+    });
     
     // If no specific catalog skills found in body, provide balanced baseline
+    // But ONLY if the user has no skills relevant to the job at all
     if (detectedJdSkills.length === 0) {
       detectedJdSkills = [
         { name: 'Core Domain Execution', key: 'domain' },
@@ -510,14 +515,22 @@
     let verifiedSkills = [];
     let missingSkillGaps = [];
 
-    detectedJdSkills.forEach(dim => {
-      const match = candSkills.some(s => 
-        s.toLowerCase().includes(dim.key) || dim.name.toLowerCase().includes(s.toLowerCase())
+    // Filter candidate skills against JD requirements.
+    // Important: A 'gap' only exists if the JD specifically requires the skill (detectedJdSkills),
+    // and the candidate does not have it.
+    
+    detectedJdSkills.forEach(reqSkill => {
+      // Check if candidate has this specific skill
+      const hasSkill = candSkills.some(s => 
+        s.toLowerCase().includes(reqSkill.key) || reqSkill.name.toLowerCase().includes(s.toLowerCase())
       );
-      if (match) {
-        verifiedSkills.push(dim);
+      
+      if (hasSkill) {
+        verifiedSkills.push(reqSkill);
       } else {
-        missingSkillGaps.push(dim);
+        // Only mark as a gap if the job explicitly requires it!
+        // combinedText already includes JD content, detectedJdSkills is already filtered by this.
+        missingSkillGaps.push(reqSkill);
       }
     });
 
