@@ -62,6 +62,7 @@
   let fireworkParticles = [];
   let fireworkAnimId = null;
   let lastFireworksJobKey = null;
+  let renderDebounceTimer = null; // Coalesces rapid back-to-back rescans into a single render
 
   /**
    * HTML Sanitizer & Formatter
@@ -1935,7 +1936,15 @@
     cachedJobData = job;
 
     console.log('[SuperJobGenie] Rescanned job:', job.title, 'at', job.company, 'Chars:', job.characterCount, 'hasRealBody:', hasSubstantialBody);
-    renderShadowUI();
+
+    // Debounce the actual DOM rebuild: if another rescan lands within 250ms
+    // (e.g. Indeed's Schema.org data and full DOM text arriving moments apart),
+    // only the last one triggers renderShadowUI(), avoiding a double rebuild/flicker.
+    if (renderDebounceTimer) clearTimeout(renderDebounceTimer);
+    renderDebounceTimer = setTimeout(() => {
+      renderDebounceTimer = null;
+      renderShadowUI();
+    }, 250);
   }
 
   // Handle ESC key globally
