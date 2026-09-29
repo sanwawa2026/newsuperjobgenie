@@ -1512,7 +1512,8 @@
           </div>
 
           <!-- Match Card -->
-          <div class="sjg-match-card" style="border-color: ${evaluation.tierColor}66;">
+          ${evaluation.isScanning ? '' : `
+            <div class="sjg-match-card" style="border-color: ${evaluation.tierColor}66;">
             <div class="sjg-match-header" style="margin-bottom: 6px;">
               <div class="sjg-match-tier">
                 <span style="color: ${evaluation.tierColor}; font-size:16px;">${evaluation.isAwaitingJob ? '🔍' : '✅'}</span>
@@ -1594,7 +1595,7 @@
                 </div>
               `).join('')}
             </div>
-          `}
+          `}`}
 
           <!-- Bottom Action Buttons -->
           <div class="sjg-cover-letter-options" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #333;">
