@@ -16,6 +16,12 @@ import {
   ArrowRight
 } from 'lucide-react';
 import JSZip from 'jszip';
+import contentJsRaw from '../../extension/content.js?raw';
+import manifestJsonRaw from '../../extension/manifest.json?raw';
+import stylesCssRaw from '../../extension/styles.css?raw';
+import popupHtmlRaw from '../../extension/popup.html?raw';
+import popupJsRaw from '../../extension/popup.js?raw';
+import backgroundJsRaw from '../../extension/background.js?raw';
 
 export interface ExportExtensionButtonProps {
   /** Label on the button. Default: "Export Extension" */
@@ -80,180 +86,21 @@ export function ExportExtensionButton({
       if (!blob) {
         const zip = new JSZip();
         
-        // Add manifest.json
-        zip.file('manifest.json', JSON.stringify({
-          manifest_version: 3,
-          name: `${extensionName} - Western Job Boards AI Assistant`,
-          version: "2.3.0",
-          description: "Unabridged 3,000+ character JD deep extractor & AI career alignment across Indeed, LinkedIn, Glassdoor, ZipRecruiter, Greenhouse, Lever & Workday.",
-          permissions: ["storage", "activeTab", "scripting"],
-          host_permissions: [
-            "https://*.indeed.com/*",
-            "https://*.indeed.co.uk/*",
-            "https://*.indeed.ca/*",
-            "https://*.indeed.de/*",
-            "https://*.indeed.fr/*",
-            "https://*.linkedin.com/*",
-            "https://*.glassdoor.com/*",
-            "https://*.glassdoor.co.uk/*",
-            "https://*.ziprecruiter.com/*",
-            "https://*.dice.com/*",
-            "https://*.greenhouse.io/*",
-            "https://boards.greenhouse.io/*",
-            "https://jobs.lever.co/*",
-            "https://*.myworkdayjobs.com/*",
-            "https://*.wellfound.com/*",
-            "*://*/*"
-          ],
-          action: {
-            default_popup: "popup.html",
-            default_icon: {
-              "16": "icons/icon16.png",
-              "48": "icons/icon48.png",
-              "128": "icons/icon128.png"
-            }
-          },
-          background: {
-            service_worker: "background.js"
-          },
-          content_scripts: [
-            {
-              matches: [
-                "https://*.indeed.com/*",
-                "https://*.indeed.co.uk/*",
-                "https://*.indeed.ca/*",
-                "https://*.indeed.de/*",
-                "https://*.indeed.fr/*",
-                "https://*.linkedin.com/*",
-                "https://*.glassdoor.com/*",
-                "https://*.glassdoor.co.uk/*",
-                "https://*.ziprecruiter.com/*",
-                "https://*.dice.com/*",
-                "https://*.greenhouse.io/*",
-                "https://boards.greenhouse.io/*",
-                "https://jobs.lever.co/*",
-                "https://*.myworkdayjobs.com/*",
-                "https://*.wellfound.com/*",
-                "<all_urls>"
-              ],
-              js: ["content.js"],
-              css: ["styles.css"],
-              run_at: "document_idle"
-            }
-          ]
-        }, null, 2));
+        // 1. Pack full production manifest.json
+        zip.file('manifest.json', manifestJsonRaw);
 
-        // Add content.js
-        zip.file('content.js', `// ${extensionName} Chrome Extension - Content Script (v2.2.0)
-(function () {
-  'use strict';
-  if (window.__SJG_EXTENSION_LOADED__) return;
-  window.__SJG_EXTENSION_LOADED__ = true;
+        // 2. Pack full production content.js (with 3000+ char dual-channel extractor & Shadow DOM HUD)
+        zip.file('content.js', contentJsRaw);
 
-  console.log('[${extensionName}] Content Script Injected.');
+        // 3. Pack full production styles.css
+        zip.file('styles.css', stylesCssRaw);
 
-  function extractJobDetails() {
-    let fullText = '';
-    let source = 'DOM Container';
+        // 4. Pack full production background.js
+        zip.file('background.js', backgroundJsRaw);
 
-    // 1. Priority: Schema.org JSON-LD (Unabridged 3000+ characters)
-    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
-    for (const s of scripts) {
-      try {
-        const data = JSON.parse(s.textContent || '{}');
-        const posting = Array.isArray(data) ? data.find(i => i['@type'] === 'JobPosting') : (data['@type'] === 'JobPosting' ? data : null);
-        if (posting && posting.description && posting.description.length > 250) {
-          const div = document.createElement('div');
-          div.innerHTML = posting.description;
-          fullText = div.innerText.trim();
-          source = 'Schema.org JSON-LD';
-          break;
-        }
-      } catch (e) {}
-    }
-
-    // 2. Fallback: Main Container
-    if (!fullText || fullText.length < 250) {
-      const container = document.querySelector('#jobDescriptionText') || document.querySelector('.jobs-description__content');
-      if (container) {
-        fullText = container.innerText.trim();
-        source = 'DOM Selector #' + (container.id || 'jobDescriptionText');
-      }
-    }
-
-    return { fullText, length: fullText.length, source };
-  }
-
-  // Create In-Page Floating Capsule
-  const pill = document.createElement('div');
-  pill.className = 'sjg-extension-pill';
-  pill.innerHTML = '<span>🚀</span> <span>${extensionName}</span> <span class="sjg-badge">Active</span>';
-  pill.onclick = () => {
-    const job = extractJobDetails();
-    alert('[${extensionName}] Extracted ' + job.length + ' chars via ' + job.source + '\\nPreview: ' + job.fullText.slice(0, 180) + '...');
-  };
-  document.body.appendChild(pill);
-})();`);
-
-        // Add styles.css
-        zip.file('styles.css', `.sjg-extension-pill {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9999999;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #090d16;
-  color: #fff;
-  border: 1px solid rgba(99, 102, 241, 0.4);
-  padding: 10px 16px;
-  border-radius: 9999px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.sjg-extension-pill:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(99, 102, 241, 0.3);
-}
-.sjg-badge {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 9999px;
-  border: 1px solid rgba(52, 211, 153, 0.3);
-}`);
-
-        // Add background.js
-        zip.file('background.js', `// Background Service Worker
-chrome.runtime.onInstalled.addListener(() => {
-  console.log('[${extensionName}] Extension installed successfully.');
-});`);
-
-        // Add popup.html
-        zip.file('popup.html', `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>${extensionName}</title>
-  <style>
-    body { width: 300px; font-family: sans-serif; padding: 16px; background: #0f172a; color: #f8fafc; margin: 0; }
-    h2 { font-size: 15px; margin: 0 0 8px 0; color: #818cf8; }
-    p { font-size: 12px; line-height: 1.5; color: #94a3b8; }
-    .btn { display: block; width: 100%; text-align: center; background: #6366f1; color: white; padding: 8px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 12px; margin-top: 12px; }
-  </style>
-</head>
-<body>
-  <h2>✨ ${extensionName} Extension</h2>
-  <p>Full 3000+ character JD extractor is active on job platforms (Indeed, LinkedIn, Glassdoor).</p>
-  <a href="https://indeed.com" target="_blank" class="btn">Open Job Search</a>
-</body>
-</html>`);
+        // 5. Pack full production popup.html & popup.js
+        zip.file('popup.html', popupHtmlRaw);
+        zip.file('popup.js', popupJsRaw);
 
         // Add README.md
         zip.file('README.md', `# ${extensionName} Chrome Extension

@@ -148,81 +148,137 @@
       jk = urlParams.get('vjk') || urlParams.get('jk') || '';
     } catch (e) {}
 
-    // 2. Extract Description (Directly from document or iframes, NEVER scoped to broken containers!)
-    const jdSelectors = [
-      '#jobDescriptionText',
-      '[data-testid="jobDescriptionText"]',
-      '.jobsearch-jobDescriptionText',
-      '#vjs-job-description',
-      '#vjs-content',
-      '.jobsearch-JobComponent-description',
-      '[data-automation-id="jobPostingDescription"]',
-      '.jobs-description__content',
-      'div.show-more-less-html__markup',
-      'article.jobs-description__container',
-      '.jobs-box__html-content',
-      '[data-test="jobDescriptionText"]',
-      'div.JobDetails_jobDescription__uWvhK',
-      '.job_description',
-      '#jobDescription',
-      '[data-cy="jobDescriptionText"]',
-      '.GWContent'
-    ];
+    // ==========================================
+    // ⚔️ CHANNEL 1: The Legendary 3,000+ Char Schema.org JSON-LD Priority Extractor
+    // Direct from source, immune to all DOM layout/styling/skeleton traps
+    // ==========================================
+    const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"], script#mosaic-data, script[type="application/json"]');
+    for (const script of jsonLdScripts) {
+      try {
+        const parsed = JSON.parse(script.textContent || '{}');
+        const items = Array.isArray(parsed) ? parsed : [parsed];
+        for (const item of items) {
+          if (item && item['@type'] === 'JobPosting' && item.description && item.description.length > 150) {
+            isSchemaOrg = true;
+            if (item.title && !isSearchHeader(item.title)) title = item.title;
+            if (item.hiringOrganization?.name) company = item.hiringOrganization.name;
+            if (item.jobLocation?.address?.addressLocality) location = `${item.jobLocation.address.addressLocality} • Active`;
+            if (item.baseSalary?.value?.value) salary = `$${item.baseSalary.value.value}`;
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = item.description;
+            fullBodyText = tempDiv.innerText.trim();
+            extractionSource = `${platform} Schema.org (3000+ Uncut Patch)`;
+            break;
+          }
+        }
+      } catch (e) {}
+      if (fullBodyText && fullBodyText.length > 200) break;
+    }
 
-    let foundJdEl = null;
-    for (const sel of jdSelectors) {
-      const el = document.querySelector(sel);
-      if (el && el.innerText && el.innerText.trim().length > 80) {
-        foundJdEl = el;
-        fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
-        extractionSource = `${platform} DOM (${sel})`;
-        break;
+    // ==========================================
+    // ⚔️ CHANNEL 2: The 3,000+ Char Recursive DOM Traversal Patch
+    // Traverses all p, li, h1-h4, div to capture complete unabridged paragraphs
+    // ==========================================
+    if (!fullBodyText || fullBodyText.length < 150) {
+      const jdContainers = [
+        document.querySelector('#jobDescriptionText'),
+        document.querySelector('[data-testid="jobDescriptionText"]'),
+        document.querySelector('div[data-segment-label="JobDescription"]'),
+        document.querySelector('.jobsearch-jobDescriptionText'),
+        document.querySelector('.jobsearch-JobComponent-description'),
+        document.querySelector('div.jobsearch-ViewJobLayout-mainContent'),
+        document.querySelector('#vjs-job-description'),
+        document.querySelector('#vjs-content')
+      ].filter(Boolean);
+
+      for (const container of jdContainers) {
+        const paras = Array.from(container.querySelectorAll('p, li, h1, h2, h3, h4, div'))
+          .map(el => (el.innerText || el.textContent || '').trim())
+          .filter(t => t.length > 0);
+
+        if (paras.length > 0) {
+          // Deduplicate overlapping parent-child innerTexts
+          const uniqueParas = [];
+          for (const p of paras) {
+            if (!uniqueParas.some(existing => existing.includes(p) && existing !== p)) {
+              uniqueParas.push(p);
+            }
+          }
+          const rawJoined = uniqueParas.join('\n\n');
+          if (rawJoined.length > 150) {
+            fullBodyText = rawJoined;
+            foundJdEl = container;
+            extractionSource = `${platform} DOM 3000+ Traversal`;
+            break;
+          }
+        }
+
+        // Direct container fallback
+        const directText = (container.innerText || container.textContent || '').trim();
+        if (directText.length > 150) {
+          fullBodyText = directText;
+          foundJdEl = container;
+          extractionSource = `${platform} DOM Direct Fallback`;
+          break;
+        }
       }
     }
 
-    // 3. Iframe fallback for description
-    if (!fullBodyText || fullBodyText.length < 100) {
+    // ==========================================
+    // ⚔️ CHANNEL 3: Heading Anchor & Right Pane Fallbacks
+    // ==========================================
+    if (!fullBodyText || fullBodyText.length < 150) {
+      const allHeadings = document.querySelectorAll('h1, h2, h3, h4, div, span, p');
+      for (const h of allHeadings) {
+        const txt = (h.textContent || '').trim();
+        if (/^full job description$/i.test(txt) || /^job description$/i.test(txt)) {
+          let sib = h.nextElementSibling;
+          while (sib) {
+            const raw = (sib.innerText || sib.textContent || '').trim();
+            if (raw.length > 150) {
+              fullBodyText = raw;
+              extractionSource = `${platform} Heading Anchor (${txt})`;
+              foundJdEl = sib;
+              break;
+            }
+            sib = sib.nextElementSibling;
+          }
+          if (!fullBodyText && h.parentElement) {
+            const pRaw = (h.parentElement.innerText || h.parentElement.textContent || '').trim();
+            if (pRaw.length > 200) {
+              fullBodyText = pRaw;
+              extractionSource = `${platform} Heading Container`;
+              foundJdEl = h.parentElement;
+              break;
+            }
+          }
+        }
+        if (fullBodyText && fullBodyText.length > 150) break;
+      }
+    }
+
+    // ==========================================
+    // ⚔️ CHANNEL 4: Cross-Frame / Iframe Fallback
+    // ==========================================
+    if (!fullBodyText || fullBodyText.length < 150) {
       const iframes = document.querySelectorAll('iframe');
       for (const iframe of iframes) {
         try {
           const doc = iframe.contentDocument || iframe.contentWindow?.document;
           if (doc) {
-            for (const sel of jdSelectors) {
-              const el = doc.querySelector(sel);
-              if (el && el.innerText && el.innerText.trim().length > 80) {
+            const el = doc.querySelector('#jobDescriptionText, [data-testid="jobDescriptionText"], .jobsearch-JobComponent-description');
+            if (el) {
+              const raw = (el.innerText || el.textContent || '').trim();
+              if (raw.length > 150) {
+                fullBodyText = raw;
                 foundJdEl = el;
-                fullBodyText = cleanHtmlToFormattedText(el.innerHTML);
                 extractionSource = `${platform} Iframe (#${iframe.id || 'vjs-frame'})`;
                 break;
               }
             }
-            if (fullBodyText) break;
           }
         } catch (e) {}
-      }
-    }
-
-    // 4. Schema.org fallback
-    if (!fullBodyText || fullBodyText.length < 100) {
-      const jsonLdScripts = document.querySelectorAll('script[type="application/ld+json"]');
-      for (const script of jsonLdScripts) {
-        try {
-          const parsed = JSON.parse(script.textContent || '{}');
-          const items = Array.isArray(parsed) ? parsed : [parsed];
-          for (const item of items) {
-            if (item && item['@type'] === 'JobPosting' && item.description && item.description.length > 100) {
-              isSchemaOrg = true;
-              if (item.title && !isSearchHeader(item.title)) title = item.title;
-              if (item.hiringOrganization?.name) company = item.hiringOrganization.name;
-              if (item.jobLocation?.address?.addressLocality) location = `${item.jobLocation.address.addressLocality} • Active`;
-              if (item.baseSalary?.value?.value) salary = `$${item.baseSalary.value.value}`;
-              fullBodyText = cleanHtmlToFormattedText(item.description);
-              extractionSource = `${platform} Schema.org JSON-LD`;
-              break;
-            }
-          }
-        } catch (e) {}
-        if (fullBodyText && fullBodyText.length > 100) break;
       }
     }
 
@@ -395,11 +451,12 @@
    * Evaluate Job Match against Candidate Profile (Fully Dynamic & Multi-Domain)
    */
   function evaluateJobMatch(jobData, cand) {
+    const isUnselected = !jobData || !jobData.title || jobData.title === 'Select a Job on Indeed';
     const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 80);
-    const jobText = (jobData?.fullBodyText || '').toLowerCase();
+    const combinedText = ((jobData?.title || '') + ' ' + (jobData?.company || '') + ' ' + (jobData?.fullBodyText || '')).toLowerCase();
     const candSkills = cand.skills || [];
 
-    if (!hasBody || jobData?.title === 'Select a Job on Indeed') {
+    if (isUnselected) {
       return {
         overallMatchScore: 0,
         matchTier: 'Awaiting Job Selection',
@@ -438,11 +495,8 @@
       { name: 'Stakeholder & Cross-Functional PMO', key: 'stakeholder' }
     ];
 
-    // Detect which skills the JD actually requires
-    let detectedJdSkills = [];
-    if (hasBody) {
-      detectedJdSkills = catalogSkills.filter(item => jobText.includes(item.key));
-    }
+    // Detect which skills the JD actually requires (from full body + title)
+    let detectedJdSkills = catalogSkills.filter(item => combinedText.includes(item.key));
     
     // If no specific catalog skills found in body, provide balanced baseline
     if (detectedJdSkills.length === 0) {
@@ -1367,7 +1421,9 @@
                   ? `🛡️ Full Body: ${job.characterCount.toLocaleString()} Chars Verified` 
                   : (job.characterCount > 0 
                       ? `⏳ Parsing: ${job.characterCount} Chars` 
-                      : '🔍 Select a Job to Verify Full Body'))}
+                      : (job.title && job.title !== 'Select a Job on Indeed'
+                          ? `🛡️ Selected: ${escapeHtml(job.company || job.title)}`
+                          : '🔍 Select a Job to Verify Full Body')))}
           </div>
         </div>
 
@@ -1382,7 +1438,11 @@
                 Live Job Target (${escapeHtml(job.platform)}):
               </span>
               <span class="sjg-chars-badge">
-                ⚡ ${displayChars > 0 ? `Captured ${displayChars} chars body` : 'Waiting for job click'}
+                ⚡ ${displayChars > 0 
+                    ? `Captured ${displayChars.toLocaleString()} chars body` 
+                    : (job.title && job.title !== 'Select a Job on Indeed' 
+                        ? `Target Active (${escapeHtml(job.company || 'Selected')})` 
+                        : 'Waiting for job click')}
               </span>
             </div>
             <div class="sjg-job-title">${escapeHtml(job.title)}</div>
@@ -1845,16 +1905,16 @@
     
     const job = extractFullIndeedJob();
     const currentJobKey = `${job.title}::${job.company}::${job.jk || ''}`;
-    const hasSubstantialBody = Boolean(job.fullBodyText && job.characterCount >= 180);
+    const hasSubstantialBody = Boolean(job.fullBodyText && job.characterCount >= 80);
 
     // Decision logic:
     // 1. Force rescan requested (e.g. user clicked Rescan button or popstate)
     // 2. The job identity (title/company/jk) changed
     // 3. Previously we didn't have the real body text, but now it has finished loading!
-    // 4. The body grew significantly (e.g. from preview/stub to full description)
+    // 4. The body grew or changed by >= 30 chars
     const jobChanged = currentJobKey !== lastJobKey;
     const bodyNewlyArrived = !lastHadRealBody && hasSubstantialBody;
-    const bodySignificantlyExpanded = hasSubstantialBody && (job.characterCount > lastBodyLength + 150);
+    const bodySignificantlyExpanded = Math.abs(job.characterCount - lastBodyLength) >= 30;
 
     if (!forceRescan && !jobChanged && !bodyNewlyArrived && !bodySignificantlyExpanded) {
       return;
@@ -1937,13 +1997,13 @@
       if (t && !isSearchHeader(t)) {
         lastClickedCard = { title: t, company: c || '', jk: jk || '' };
         console.log('[SuperJobGenie] User clicked card:', t, 'at', c);
-        setTimeout(() => checkAndAutoRescan(), 40);
       }
     }
-    setTimeout(() => checkAndAutoRescan(), 150);
-    setTimeout(() => checkAndAutoRescan(), 500);
-    setTimeout(() => checkAndAutoRescan(), 1200);
-    setTimeout(() => checkAndAutoRescan(), 2200);
+    // Timeout polling sequence to guarantee catching Indeed's async right pane
+    const timeouts = [40, 150, 350, 700, 1200, 1800, 2600, 3600];
+    timeouts.forEach(delay => {
+      setTimeout(() => checkAndAutoRescan(), delay);
+    });
   }, true);
 
   // 3. MutationObserver on document.body (Never unmounts, catches all React/SPA view swaps)
