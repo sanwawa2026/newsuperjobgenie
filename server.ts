@@ -248,9 +248,8 @@ TASK REQUIREMENTS:
 1. Thoroughly parse EVERY line of the Job Description (Benefits, Responsibilities, Qualifications, Quantitative requirements like A/B testing, statistical modeling, hypothesis testing, Python/SQL analytical code, Kaggle/ML credentials, education degrees).
 2. Deeply evaluate the Candidate's 15+ years Senior Software Engineer background against this role.
 3. Compute an AUTHENTIC, TRUTHFUL, UNBIASED MATCH SCORE (do NOT output a fake 98%!).
-   - Notice: The candidate is an Enterprise Backend / Distributed Systems Engineer (Java, Spring Boot, K8s, Microservices).
-   - This job is "Product Analyst - AI Trainer" requiring statistical inference, predictive modeling, A/B testing, quantitative benchmark problem creation.
-   - The match is a CROSS-TRACK PIVOT (~45% - 60% realistic technical alignment), because while the candidate has strong Python, SQL, AWS, and engineering logic, they lack explicit statistics, hypothesis testing, and quantitative research training.
+   - Multi-Industry Disambiguation Guardrails: Strictly adhere to industry domain context. In Pharma/Biotech, GCP means Good Clinical Practice (NOT Google Cloud); Pipeline in pharma means drug discovery pipeline (NOT CI/CD); in Cardiology/Medicine, CAD means Coronary Artery Disease (NOT AutoCAD); in Civil/Architecture, CAD means AutoCAD and Framework means structural framing. Never hallucinate or confuse cross-domain acronyms.
+   - For Cross-Track candidates (e.g. Senior Software Engineer applying to Product Analyst, FinTech, or BioTech): Evaluate realistic technical alignment (~45% - 65%), highlighting transferable engineering execution while truthfully identifying domain-specific prerequisite gaps.
 4. Provide an in-depth CROSS-TRACK CAREER PIVOT ANALYSIS:
    - Explain how a 15-year Senior SWE can successfully pivot into AI Trainer / Quantitative Evaluator.
    - List transferable superpowers (e.g., benchmark analytical code verification, backend performance logic, Python/SQL scripting, deep architecture mindset).

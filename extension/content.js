@@ -401,53 +401,146 @@
   }
 
   /**
-   * Helper: Multi-Domain Knowledge Base for Accurate JD Skill Extraction
-   * Regex-bounded matching prevents false positives (no-job-requirement noise)
+   * Multi-Industry Domain Signatures & Disambiguation Engine
+   * Eliminates cross-industry polysemy: GCP (Good Clinical Practice vs Cloud), CAD (Cardiology vs AutoCAD), Pipeline, etc.
+   */
+  const INDUSTRY_DOMAINS = {
+    BIOTECH_PHARMA: {
+      code: 'BIOTECH_PHARMA',
+      label: 'Biotech & Pharma (生物医药与制药)',
+      signature: /\b(clinical trial|clinical study|pharmaceutical|biotech|biotechnology|drug development|oncology|pharmacology|in-vivo|in-vitro|fda submission|ind application|nda submission|good clinical practice|gcp guidelines|ich guidelines|gmp|glp|bioassay|cell culture|pipetting|molecular biology|elisa|pcr|western blot|medicinal chemistry|pharmacokinetics|cro|biostatistics|recombinant|mrna|antibody|cro management|small molecule|biologics|preclinical)\b/i
+    },
+    HEALTHCARE_MEDICINE: {
+      code: 'HEALTHCARE_MEDICINE',
+      label: 'Healthcare & Clinical Medicine (医疗与临床医学)',
+      signature: /\b(patient care|hospital|physician|nurse|practitioner|clinical practice|diagnosis|medical doctor|inpatient|outpatient|cardiology|coronary|pathology|surgery|electronic health record|ehr|emr|epic system|cerner|hipaa|medical terminology|vital signs|patient triage|clinical workflow|intensive care|icu|pediatric|oncology clinic)\b/i
+    },
+    FINANCE_BANKING: {
+      code: 'FINANCE_BANKING',
+      label: 'Finance, Banking & Accounting (金融投行与财会)',
+      signature: /\b(investment banking|private equity|hedge fund|equity research|valuation model|financial modeling|dcf|lbo|comps|portfolio management|fp&a|financial planning|gaap|sec reporting|10-k|10-q|m&a|mergers and acquisitions|bloomberg terminal|factset|derivatives|capital markets|balance sheet|income statement|general ledger|ebitda|audit senior|financial controller)\b/i
+    },
+    CIVIL_ARCHITECTURE: {
+      code: 'CIVIL_ARCHITECTURE',
+      label: 'Civil Engineering & Architecture (建筑设计与土木工程)',
+      signature: /\b(civil engineer|civil engineering|architectural design|architect|construction management|autocad|revit|building information modeling|\bbim\b|structural engineering|structural design|mep|hvac|steel frame|timber frame|concrete design|building code|site inspection|surveying|blueprints|dwg|contractor|osha 30|osha 10|general contractor|leed)\b/i
+    },
+    TECH_SOFTWARE: {
+      code: 'TECH_SOFTWARE',
+      label: 'Software Engineering & Cloud (计算机软件与云计算)',
+      signature: /\b(software engineer|software developer|backend developer|frontend developer|full stack|web developer|systems programming|devops|cloud infrastructure|database administrator|microservices|distributed systems|computer science|programming language|github|docker|kubernetes|aws|api design|full-stack|c\+\+|golang|react|spring boot)\b/i
+    }
+  };
+
+  /**
+   * Helper: Multi-Domain Knowledge Base with Explicit Industry Tags
+   * Disambiguated across Tech, Pharma, Medicine, Civil/Architecture, and Finance
    */
   const COMPREHENSIVE_SKILL_CATALOG = [
-    // --- Software Engineering & Backend ---
-    { name: 'Java & Spring Ecosystem', key: 'java(?!script)|spring boot|spring cloud|jvm|quarkus' },
-    { name: 'C++ & Systems Programming', key: 'c\\+\\+|modern c\\+\\+|cpp' },
-    { name: 'C# & .NET Platform', key: 'c#|\\.net|dotnet' },
-    { name: 'Python & Scripting', key: 'python|fastapi|django|flask' },
-    { name: 'Go (Golang)', key: 'golang|go language|go programming|go backend|go developer' },
-    { name: 'TypeScript & Modern JS', key: 'typescript|javascript' },
-    { name: 'Linux / Unix Environments', key: 'linux|unix|bash|shell scripting' },
-    { name: 'Distributed Systems & Microservices', key: 'microservice|distributed system|distributed systems' },
-    { name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread|high throughput' },
-    { name: 'System Architecture & Design', key: 'system architecture|software architecture|system design|distributed architecture' },
-    { name: 'SQL & Relational Databases', key: 'sql|mysql|postgresql|postgres' },
-    { name: 'NoSQL & Cache (Redis/Mongo)', key: 'redis|mongodb|nosql|elasticsearch' },
-    { name: 'Docker & Kubernetes', key: 'docker|kubernetes|k8s' },
-    { name: 'Cloud Infrastructure (AWS/GCP/Azure)', key: 'aws|azure|google cloud|cloud computing|gcp' },
-    { name: 'CI/CD & DevOps Automation', key: 'ci/cd|jenkins|devops|deployment pipeline|ci\\/cd pipeline|automated pipeline' },
-    { name: 'Unit Testing & QA Validation', key: 'unit test|integration test|automated test|qa test|e2e test|tdd|software testing' },
-    { name: 'Agile & Scrum Methodologies', key: 'agile|scrum' },
-    { name: 'Security Clearance (DoD)', key: 'secret clearance|dod clearance|top secret|security clearance|ts\\/sci' },
-    { name: 'Algorithms & Problem Solving', key: 'algorithm|algorithms|data structure|data structures|leetcode' },
+    // ==========================================
+    // --- TECH & SOFTWARE ENGINEERING ---
+    // ==========================================
+    { domain: 'TECH_SOFTWARE', name: 'Java & Spring Ecosystem', key: 'java(?!script)|spring boot|spring cloud|jvm|quarkus' },
+    { domain: 'TECH_SOFTWARE', name: 'C++ & Systems Programming', key: 'c\\+\\+|modern c\\+\\+|cpp' },
+    { domain: 'TECH_SOFTWARE', name: 'C# & .NET Platform', key: 'c#|\\.net|dotnet' },
+    { domain: 'TECH_SOFTWARE', name: 'Python & Scripting', key: 'python|fastapi|django|flask' },
+    { domain: 'TECH_SOFTWARE', name: 'Go (Golang)', key: 'golang|go language|go programming|go backend|go developer' },
+    { domain: 'TECH_SOFTWARE', name: 'TypeScript & Modern JS', key: 'typescript|javascript' },
+    { domain: 'TECH_SOFTWARE', name: 'Linux / Unix Environments', key: 'linux|unix|bash|shell scripting' },
+    { domain: 'TECH_SOFTWARE', name: 'Distributed Systems & Microservices', key: 'microservice|distributed system|distributed systems' },
+    { domain: 'TECH_SOFTWARE', name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread|high throughput' },
+    { domain: 'TECH_SOFTWARE', name: 'System Architecture & Design', key: 'system architecture|software architecture|system design|distributed architecture' },
+    { domain: 'TECH_SOFTWARE', name: 'SQL & Relational Databases', key: 'sql|mysql|postgresql|postgres' },
+    { domain: 'TECH_SOFTWARE', name: 'NoSQL & Cache (Redis/Mongo)', key: 'redis|mongodb|nosql|elasticsearch' },
+    { domain: 'TECH_SOFTWARE', name: 'Docker & Kubernetes', key: 'docker|kubernetes|k8s' },
+    { domain: 'TECH_SOFTWARE', name: 'Cloud Infrastructure (AWS/GCP/Azure)', key: 'aws|azure|google cloud|cloud computing|gcp cloud' },
+    { domain: 'TECH_SOFTWARE', name: 'CI/CD & DevOps Automation', key: 'ci/cd|jenkins|devops|deployment pipeline|ci\\/cd pipeline|automated pipeline' },
+    { domain: 'TECH_SOFTWARE', name: 'Unit Testing & QA Validation', key: 'unit test|integration test|automated test|qa test|e2e test|tdd|software testing' },
+    { domain: 'TECH_SOFTWARE', name: 'Security Clearance (DoD)', key: 'secret clearance|dod clearance|top secret|security clearance|ts\\/sci' },
+    { domain: 'TECH_SOFTWARE', name: 'Algorithms & Problem Solving', key: 'algorithm|algorithms|data structure|data structures|leetcode' },
+    { domain: 'TECH_SOFTWARE', name: 'Machine Learning & AI', key: 'machine learning|deep learning|artificial intelligence|pytorch|tensorflow' },
+    { domain: 'TECH_SOFTWARE', name: 'Computer Vision', key: 'computer vision|opencv' },
+    { domain: 'TECH_SOFTWARE', name: 'Natural Language Processing (NLP)', key: 'natural language processing|\\bnlp\\b|information retrieval' },
+    { domain: 'TECH_SOFTWARE', name: '3D Graphics & Rendering (OpenGL/Vulkan/DirectX)', key: 'opengl|vulkan|directx|metal api|apple metal|glsl|hlsl|shader|3d rendering|rendering engine|3d graphics' },
+    { domain: 'TECH_SOFTWARE', name: 'Game Engines & AR/VR (Unity/Unreal/Lens Studio)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine|virtual reality' },
+    { domain: 'TECH_SOFTWARE', name: 'React & Frontend Frameworks', key: 'react|vue|angular|next\\.js' },
+    { domain: 'TECH_SOFTWARE', name: 'Node.js & Backend Services', key: 'node\\.js|nodejs|node\\s+js|expressjs|express\\.js' },
+    { domain: 'TECH_SOFTWARE', name: 'APIs & Developer SDKs', key: 'developer-facing api|graphql|rest api|api design|restful' },
 
-    // --- AI, ML & Specialized Technologies (Clean, Unbundled) ---
-    { name: 'Machine Learning & AI', key: 'machine learning|deep learning|artificial intelligence|pytorch|tensorflow' },
-    { name: 'Computer Vision', key: 'computer vision|opencv' },
-    { name: 'Natural Language Processing (NLP)', key: 'natural language processing|\\bnlp\\b|information retrieval' },
-    { name: '3D Graphics & Rendering (OpenGL/Vulkan/DirectX)', key: 'opengl|vulkan|directx|metal api|apple metal|glsl|hlsl|shader|3d rendering|rendering engine|3d graphics' },
-    { name: 'Game Engines & AR/VR (Unity/Unreal/Lens Studio)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine|virtual reality' },
+    // ==========================================
+    // --- BIOTECH & PHARMACEUTICAL ---
+    // ==========================================
+    { domain: 'BIOTECH_PHARMA', name: 'Good Clinical Practice (GCP & ICH Guidelines)', key: 'gcp|good clinical practice|ich-gcp|clinical compliance' },
+    { domain: 'BIOTECH_PHARMA', name: 'Drug Discovery & Clinical Pipeline', key: 'drug pipeline|pipeline compound|preclinical pipeline|clinical trial pipeline' },
+    { domain: 'BIOTECH_PHARMA', name: 'Clinical Trial Operations (Phase I-IV / CRO)', key: 'clinical trial|phase i|phase ii|phase iii|phase iv|cro management|trial protocol' },
+    { domain: 'BIOTECH_PHARMA', name: 'Cell & Tissue Culture (Aseptic Technique)', key: 'cell culture|tissue culture|primary cells|aseptic technique|mammalian cell' },
+    { domain: 'BIOTECH_PHARMA', name: 'Molecular Assays (PCR / ELISA / Western Blot)', key: 'pcr|qpcr|elisa|western blot|flow cytometry|bioassay|hplc' },
+    { domain: 'BIOTECH_PHARMA', name: 'In-Vivo / In-Vitro Disease Models', key: 'in-vivo|in vivo|in-vitro|in vitro|animal model|xenograft|pharmacokinetics' },
+    { domain: 'BIOTECH_PHARMA', name: 'Regulatory Submissions (FDA / IND / NDA)', key: 'fda|ind application|nda submission|regulatory affairs|ema|bla submission' },
+    { domain: 'BIOTECH_PHARMA', name: 'GMP / GLP Quality Assurance & Validation', key: 'gmp|glp|equipment validation|iq/oq/pq|cleanroom|qa/qc pharmaceutical' },
+    { domain: 'BIOTECH_PHARMA', name: 'Lead Compound Discovery & Medicinal Chemistry', key: 'lead compound|medicinal chemistry|hit-to-lead|structure-activity|hts screening' },
+    { domain: 'BIOTECH_PHARMA', name: 'Biostatistics & Clinical Data Analysis (SAS/R)', key: 'sas|biostatistics|clinical data analysis|survival analysis|meddra' },
 
-    // --- Frontend & Web ---
-    { name: 'React & Frontend Frameworks', key: 'react|vue|angular|next\\.js' },
-    { name: 'Node.js & Backend Services', key: 'node\\.js|nodejs|node\\s+js|expressjs|express\\.js' },
-    { name: 'APIs & Developer SDKs', key: 'developer-facing api|graphql|rest api|api design|restful' },
+    // ==========================================
+    // --- HEALTHCARE & CLINICAL MEDICINE ---
+    // ==========================================
+    { domain: 'HEALTHCARE_MEDICINE', name: 'Patient Care & Clinical Diagnosis', key: 'patient care|inpatient care|clinical diagnosis|patient triage|vital signs' },
+    { domain: 'HEALTHCARE_MEDICINE', name: 'Cardiovascular Care (Coronary Artery Disease - CAD)', key: 'coronary artery disease|cad patient|cardiology|congestive heart failure|ecg|ekg' },
+    { domain: 'HEALTHCARE_MEDICINE', name: 'Electronic Health Records (Epic / Cerner / EMR)', key: 'epic|cerner|electronic health record|emr system|ehr system|allscripts' },
+    { domain: 'HEALTHCARE_MEDICINE', name: 'HIPAA Compliance & Patient Privacy', key: 'hipaa|patient privacy|protected health information|phi compliance' },
+    { domain: 'HEALTHCARE_MEDICINE', name: 'Diagnostic & Treatment Protocols', key: 'diagnostic protocol|treatment plan|patient charting|infection control|bls|acls' },
 
-    // --- Finance / Accounting / Business ---
-    { name: 'Financial Modeling & Forecasting', key: 'financial model|financial modeling|financial forecasting' },
-    { name: 'Accounting & GAAP Standards', key: 'gaap|accounting principles|general ledger|us gaap' },
-    { name: 'Advanced Excel & Modeling', key: 'ms excel|microsoft excel|advanced excel|excel vba|excel modeling|pivot table' },
-    { name: 'Corporate FP&A & Budgeting', key: 'fp&a|annual budget|budget planning|budget management|budgeting & forecasting|capex|opex' },
-    { name: 'Data Visualization (Tableau/PowerBI)', key: 'tableau|powerbi|power bi' },
-    { name: 'ERP Systems (SAP/Oracle/Yardi)', key: 'sap erp|sap s\\/4hana|oracle erp|netsuite|yardi|argus' },
-    { name: 'Audit & Internal Controls', key: 'financial audit|internal audit|audit compliance|sox|sox compliance|internal controls' },
-    { name: 'Cross-Functional PMO & Leadership', key: 'cross-functional leadership|cross-functional team|stakeholder management|pmo|program management' }
+    // ==========================================
+    // --- CIVIL ENGINEERING & ARCHITECTURE ---
+    // ==========================================
+    { domain: 'CIVIL_ARCHITECTURE', name: 'Architectural CAD Drafting (AutoCAD / DWG)', key: 'autocad|cad drafting|cad drawings|dwg|microstation|drafting standards' },
+    { domain: 'CIVIL_ARCHITECTURE', name: 'Building Information Modeling (BIM & Revit)', key: 'revit|building information modeling|\\bbim\\b|navisworks|clash detection' },
+    { domain: 'CIVIL_ARCHITECTURE', name: 'Structural Engineering & Framing Analysis', key: 'structural engineering|structural framing|steel framework|concrete design|etabs|sap2000' },
+    { domain: 'CIVIL_ARCHITECTURE', name: 'MEP Systems & Piping/Plumbing Networks', key: 'mep|hvac design|piping design|plumbing engineering|drainage network' },
+    { domain: 'CIVIL_ARCHITECTURE', name: 'Construction Project Management & Site Safety (OSHA)', key: 'construction management|site superintendent|osha 30|osha 10|submittals|rfi process' },
+    { domain: 'CIVIL_ARCHITECTURE', name: 'Building Codes & Permitting (IBC / Local Codes)', key: 'building code|ibc|ada compliance|zoning|plan check|permitting' },
+
+    // ==========================================
+    // --- FINANCE, BANKING & ACCOUNTING ---
+    // ==========================================
+    { domain: 'FINANCE_BANKING', name: 'Financial Modeling & Valuation (DCF/LBO)', key: 'financial model|financial modeling|valuation model|dcf model|lbo model|comparable company' },
+    { domain: 'FINANCE_BANKING', name: 'Accounting & GAAP Standards', key: 'gaap|accounting principles|general ledger|us gaap|ifrs' },
+    { domain: 'FINANCE_BANKING', name: 'Advanced Financial Excel & Modeling', key: 'ms excel|microsoft excel|advanced excel|excel vba|excel modeling|pivot table' },
+    { domain: 'FINANCE_BANKING', name: 'Corporate FP&A & Capital Budgeting', key: 'fp&a|annual budget|budget planning|budget management|budgeting & forecasting|capex|opex' },
+    { domain: 'FINANCE_BANKING', name: 'Data Visualization (Tableau/PowerBI)', key: 'tableau|powerbi|power bi' },
+    { domain: 'FINANCE_BANKING', name: 'ERP Systems (SAP/Oracle/NetSuite)', key: 'sap erp|sap s\\/4hana|oracle erp|netsuite|yardi|argus' },
+    { domain: 'FINANCE_BANKING', name: 'Audit & Internal Controls (SOX)', key: 'financial audit|internal audit|audit compliance|sox|sox compliance|internal controls' },
+    { domain: 'FINANCE_BANKING', name: 'M&A Advisory & Due Diligence', key: 'mergers & acquisitions|m&a|due diligence|deal execution|pitch book' },
+    { domain: 'FINANCE_BANKING', name: 'Financial Risk Management (AML / KYC)', key: 'aml|anti-money laundering|kyc|risk assessment|regulatory compliance finance' },
+
+    // ==========================================
+    // --- COMMON PROFESSIONAL (ALL DOMAINS) ---
+    // ==========================================
+    { domain: 'COMMON', name: 'Agile & Project Methodologies', key: 'agile|scrum|kanban|pmp' },
+    { domain: 'COMMON', name: 'Cross-Functional Leadership & PMO', key: 'cross-functional leadership|cross-functional team|stakeholder management|pmo|program management' }
   ];
+
+  /**
+   * Domain Classifier: Determine the primary industry domain of a job description
+   */
+  function detectJobDomain(text) {
+    if (!text) return INDUSTRY_DOMAINS.TECH_SOFTWARE;
+
+    let highestScore = 0;
+    let selectedDomain = INDUSTRY_DOMAINS.TECH_SOFTWARE;
+
+    for (const [key, domain] of Object.entries(INDUSTRY_DOMAINS)) {
+      const matches = text.match(domain.signature);
+      const score = matches ? matches.length : 0;
+      if (score > highestScore) {
+        highestScore = score;
+        selectedDomain = domain;
+      }
+    }
+
+    // Default to Tech/Software if ambiguous or zero match
+    return selectedDomain;
+  }
 
   /**
    * Evaluate Job Match against Candidate Profile
@@ -497,7 +590,9 @@
         verifiedSkills: [],
         missingSkillGaps: [],
         detectedJdSkillsCount: 0,
-        isAwaitingJob: true
+        isAwaitingJob: true,
+        detectedDomain: 'All Industries (Cross-Domain Ready)',
+        detectedDomainCode: 'COMMON'
       };
     }
 
@@ -515,12 +610,20 @@
         missingSkillGaps: [],
         detectedJdSkillsCount: 0,
         isAwaitingJob: false,
-        isScanning: true
+        isScanning: true,
+        detectedDomain: 'Detecting Domain…',
+        detectedDomainCode: 'PENDING'
       };
     }
 
-    // Step 1: Detect skills explicitly mentioned in JD text using robust boundary regex
-    let detectedJdSkills = COMPREHENSIVE_SKILL_CATALOG.filter(item => {
+    // Step 1: Industry Domain Classification & Cross-Industry Disambiguation
+    // Guarantees zero cross-domain pollution: GCP (Clinical Trials vs Cloud), CAD (Cardiology vs AutoCAD), Pipeline, etc.
+    const jobDomain = detectJobDomain(combinedText);
+    const domainSpecificCatalog = COMPREHENSIVE_SKILL_CATALOG.filter(item => {
+      return item.domain === jobDomain.code || item.domain === 'COMMON';
+    });
+
+    let detectedJdSkills = domainSpecificCatalog.filter(item => {
       return testSkillKey(item.key, combinedText);
     });
 
@@ -547,8 +650,8 @@
         }) || reqSkill.name.toLowerCase().includes(sLower) || sLower.includes(reqSkill.name.toLowerCase());
       });
 
-      // Smart Equivalency Inference (industry standard matching):
-      // If Linux/Unix is required, having Docker, Kubernetes, DevOps or Linux in resume text satisfies it!
+      // Smart Equivalency Inference (industry standard matching across domains):
+      // 1. Tech & Systems: If Linux/Unix is required, having Docker, Kubernetes, DevOps or Linux in resume text satisfies it!
       if (!hasSkill && reqSkill.name === 'Linux / Unix Environments') {
         const hasLinuxEco = candSkills.some(s => {
           const sl = s.toLowerCase();
@@ -559,7 +662,7 @@
         }
       }
 
-      // If Machine Learning & AI is checked, also check resume text for ML/AI mentions
+      // 2. AI & Data: If Machine Learning & AI is checked, also check resume text for ML/AI mentions
       if (!hasSkill && reqSkill.name === 'Machine Learning & AI') {
         const hasMLInResume = cand.rawResumeText && /\b(machine learning|deep learning|artificial intelligence|pytorch|tensorflow|scikit)\b/i.test(cand.rawResumeText);
         if (hasMLInResume) {
@@ -567,10 +670,42 @@
         }
       }
 
-      // If Algorithms & Problem Solving is required, check CS background or leetcode/algorithms in resume
+      // 3. Algorithms & CS Background
       if (!hasSkill && reqSkill.name === 'Algorithms & Problem Solving') {
         const hasAlgoInResume = cand.rawResumeText && /\b(algorithm|algorithms|data structure|data structures|leetcode|hackerrank|computer science)\b/i.test(cand.rawResumeText);
         if (hasAlgoInResume) {
+          hasSkill = true;
+        }
+      }
+
+      // 4. Biotech & Pharma: GCP & Clinical Compliance
+      if (!hasSkill && reqSkill.name.includes('Good Clinical Practice')) {
+        const hasGcpInResume = cand.rawResumeText && /\b(gcp|good clinical practice|ich-gcp|clinical compliance|clinical research associate|cra|crc)\b/i.test(cand.rawResumeText);
+        if (hasGcpInResume) {
+          hasSkill = true;
+        }
+      }
+
+      // 5. Civil & Architecture: CAD / BIM Equivalency
+      if (!hasSkill && reqSkill.name.includes('Architectural CAD Drafting')) {
+        const hasCadInResume = cand.rawResumeText && /\b(autocad|revit|bim|cad drafting|microstation|dwg)\b/i.test(cand.rawResumeText);
+        if (hasCadInResume) {
+          hasSkill = true;
+        }
+      }
+
+      // 6. Finance: GAAP / Valuation Equivalency
+      if (!hasSkill && reqSkill.name.includes('Accounting & GAAP Standards')) {
+        const hasCpaInResume = cand.rawResumeText && /\b(cpa|gaap|us gaap|ifrs|general ledger|chartered accountant)\b/i.test(cand.rawResumeText);
+        if (hasCpaInResume) {
+          hasSkill = true;
+        }
+      }
+
+      // 7. Healthcare: Electronic Health Records (Epic / Cerner)
+      if (!hasSkill && reqSkill.name.includes('Electronic Health Records')) {
+        const hasEhrInResume = cand.rawResumeText && /\b(epic|cerner|ehr|emr|allscripts|meditech)\b/i.test(cand.rawResumeText);
+        if (hasEhrInResume) {
           hasSkill = true;
         }
       }
@@ -656,7 +791,9 @@
       missingSkillGaps,
       detectedJdSkillsCount: totalDetected,
       isAwaitingJob: false,
-      isScanning: false
+      isScanning: false,
+      detectedDomain: jobDomain.label,
+      detectedDomainCode: jobDomain.code
     };
   }
 
@@ -752,7 +889,35 @@
       { name: 'Argus', regex: /\bArgus\b/i },
       { name: 'Yardi', regex: /\bYardi\b/i },
       { name: 'Auditing', regex: /\b(Auditing|Internal\s+Audit|Financial\s+Audit)\b/i },
-      { name: 'Financial Analysis', regex: /\bFinancial\s+Analysis\b/i }
+      { name: 'Financial Analysis', regex: /\bFinancial\s+Analysis\b/i },
+      { name: 'M&A Advisory', regex: /\b(Mergers\s+(&|and)\s+Acquisitions|M&A\b|Due\s+Diligence)\b/i },
+      { name: 'Valuation Modeling', regex: /\b(Valuation\s+Model|DCF|LBO|Discounted\s+Cash\s+Flow)\b/i },
+      { name: 'Risk Management (AML/KYC)', regex: /\b(AML|Anti-Money\s+Laundering|KYC|Risk\s+Management)\b/i },
+
+      // --- Biotech & Pharma ---
+      { name: 'Good Clinical Practice (GCP)', regex: /\b(GCP|Good\s+Clinical\s+Practice|ICH-GCP)\b/i },
+      { name: 'Clinical Trials', regex: /\b(Clinical\s+Trial|Clinical\s+Study|Phase\s+I|Phase\s+II|Phase\s+III|CRO\b)/i },
+      { name: 'Cell Culture', regex: /\b(Cell\s+Culture|Tissue\s+Culture|Primary\s+Cells)\b/i },
+      { name: 'Molecular Assays (PCR/ELISA)', regex: /\b(PCR|qPCR|ELISA|Western\s+Blot|Flow\s+Cytometry)\b/i },
+      { name: 'Regulatory Affairs (FDA)', regex: /\b(FDA\b|IND\s+Application|NDA\s+Submission|Regulatory\s+Affairs)\b/i },
+      { name: 'GMP / GLP', regex: /\b(GMP|GLP|Cleanroom|IQ\/OQ\/PQ|Quality\s+Control\s+Pharma)\b/i },
+      { name: 'In-Vivo Models', regex: /\b(In-Vivo|In\s+Vivo|Animal\s+Model|Preclinical|Pharmacokinetics)\b/i },
+      { name: 'Biostatistics (SAS)', regex: /\b(SAS\b|Biostatistics|Clinical\s+Data\s+Analysis)\b/i },
+
+      // --- Healthcare & Medicine ---
+      { name: 'Patient Care', regex: /\b(Patient\s+Care|Inpatient|Outpatient|Clinical\s+Workflow)\b/i },
+      { name: 'Clinical Diagnosis', regex: /\b(Clinical\s+Diagnosis|Diagnostic\s+Protocol|Patient\s+Triage)\b/i },
+      { name: 'Cardiology', regex: /\b(Cardiology|Coronary|Cardiovascular|ECG|EKG)\b/i },
+      { name: 'Electronic Health Records (EHR)', regex: /\b(Epic\b|Cerner\b|Electronic\s+Health\s+Record|EHR|EMR)\b/i },
+      { name: 'HIPAA Compliance', regex: /\b(HIPAA|Protected\s+Health\s+Information|PHI\b)\b/i },
+
+      // --- Civil & Architecture ---
+      { name: 'AutoCAD', regex: /\b(AutoCAD|CAD\s+Drafting|DWG\b|Microstation)\b/i },
+      { name: 'Revit / BIM', regex: /\b(Revit|Building\s+Information\s+Modeling|\bBIM\b|Navisworks)\b/i },
+      { name: 'Structural Engineering', regex: /\b(Structural\s+Engineering|Structural\s+Framing|Steel\s+Framework|ETABS|SAP2000)\b/i },
+      { name: 'MEP Systems', regex: /\b(MEP\b|HVAC\s+Design|Plumbing\s+Engineering|Piping\s+Design)\b/i },
+      { name: 'Construction Management', regex: /\b(Construction\s+Management|Site\s+Superintendent|OSHA\s+30|OSHA\s+10)\b/i },
+      { name: 'Building Codes (IBC)', regex: /\b(Building\s+Code|IBC\b|Permitting|Plan\s+Check)\b/i }
     ];
 
     const found = [];
@@ -1584,6 +1749,11 @@
               <div class="sjg-job-sub">
                 <span class="sjg-job-company">🏢 ${escapeHtml(job.company)}</span> • 
                 <span>${escapeHtml(job.location)}</span>
+              </div>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                  🌐 ${escapeHtml(evaluation.detectedDomain || 'Cross-Domain Ready')}
+                </span>
               </div>
             </div>
 
