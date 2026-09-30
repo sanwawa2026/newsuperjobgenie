@@ -22,7 +22,7 @@
     targetRole: 'Senior Software Engineer / Tech Lead',
     yearsOfExperience: 10,
     skills: [
-      'Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C++', 'SQL',
+      'Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Node.js', 'C++', 'SQL',
       'Spring Boot', 'React', 'Docker', 'Kubernetes', 'AWS', 'CI/CD',
       'Microservices', 'Distributed Systems', 'Redis', 'MySQL', 'PostgreSQL',
       'High Concurrency', 'System Design', 'Unit Testing', 'Agile'
@@ -442,13 +442,15 @@
     const source = (fullBodyText || combinedText);
 
     // Administrative & non-skill stop patterns (salary, travel, email, legal disclaimers)
-    const ADMIN_NOISE_REGEX = /\b(salary|hourly|\$\d+|send res|send resume|email to|hr@|jobs@|travel|relocate|unanticipated|equal opportunity|eeo|benefits|401k|dental|vision|health insurance|full time|part time|on-site|remote|hybrid|irvine|los angeles|california|applicant must|all qualified applicants|background check|drug test)\b/i;
+    const ADMIN_NOISE_REGEX = /\b(salary|hourly|\$\d+|send res|send resume|email to|hr@|jobs@|travel|relocate|unanticipated|equal opportunity|eeo|benefits|401k|dental|vision|health insurance|full time|part time|on-site|remote|hybrid|irvine|los angeles|california|applicant must|all qualified applicants|background check|drug test|equal opportunity employer)\b/i;
 
     const extracted = [];
     const seenLabels = new Set();
 
     // 1. Split text by common duty / requirement delimiters (bullet points, semicolons, numbered lists, newlines)
     const rawClauses = source
+      .replace(/Basic Qualifications:?/gi, '\n')
+      .replace(/Preferred Qualifications:?/gi, '\n')
       .replace(/Job duties:?/gi, '\n')
       .replace(/Required qualifications:?/gi, '\n')
       .replace(/Responsibilities:?/gi, '\n')
@@ -458,24 +460,23 @@
 
     for (let raw of rawClauses) {
       let clause = raw.trim();
-      if (clause.length < 8 || clause.length > 120) continue;
+      if (clause.length < 8 || clause.length > 130) continue;
       if (ADMIN_NOISE_REGEX.test(clause)) continue;
 
-      // Clean leading/trailing punctuation & words like "Must have", "Ability to"
+      // Clean leading/trailing punctuation & words like "Must have", "Ability to", "Experience with"
       clause = clause
-        .replace(/^(?:must have|ability to|responsible for|experience in|proficient in|including|knowledge of|proven track record in)\s+/i, '')
+        .replace(/^(?:must have|ability to|responsible for|experience with|experience in|expertise in|proficient in|including|knowledge of|proven track record in|familiarity with|strong understanding of|understanding of|demonstrated|solid)\s+/i, '')
         .replace(/[.,;:]+$/, '')
         .trim();
 
-      if (clause.length < 6) continue;
+      if (clause.length < 5) continue;
 
-      // Check if clause has technical / functional substance (contains at least one functional keyword)
-      const hasSubstance = /\b(design|dvlp|develop|architecture|system|data|model|interface|api|code|program|test|manage|analysis|clinical|patient|cad|gaap|model|audit|pipeline|gcp|bim|circuit|hardware|network|security|cloud|database|sql)\b/i.test(clause);
+      // Check if clause has technical / functional substance
+      const hasSubstance = /\b(node|next\.js|express|react|javascript|typescript|python|java|golang|vue|angular|c\+\+|c#|tailwind|scss|css|html|jest|mocha|vitest|design|dvlp|develop|architecture|system|data|model|interface|api|code|program|test|manage|analysis|clinical|patient|cad|gaap|audit|pipeline|gcp|bim|circuit|hardware|network|security|cloud|database|sql|agile|scrum|lean)\b/i.test(clause);
       if (!hasSubstance) continue;
 
       // Synthesize clean display title
       let cleanTitle = clause.charAt(0).toUpperCase() + clause.slice(1);
-      // Truncate cleanly if too long
       if (cleanTitle.length > 55) {
         cleanTitle = cleanTitle.substring(0, 52).trim() + '…';
       }
@@ -485,12 +486,12 @@
         seenLabels.add(dedupeKey);
         extracted.push({
           name: cleanTitle,
-          key: clause.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 3).join('|'),
+          key: clause.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2).join('|'),
           isDynamic: true
         });
       }
 
-      if (extracted.length >= 4) break;
+      if (extracted.length >= 6) break;
     }
 
     return extracted;
@@ -529,6 +530,23 @@
     }
 
     // 3. Domain & Functional Equivalency Maps
+    // Node.js, Next.js, Express, JavaScript/React fullstack ecosystem
+    if (/\b(node|next(\.js)?|express(\.js)?)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(node|next|express)\b/i.test(s))) return true;
+      if (candSkills.some(s => /javascript/i.test(s)) && candSkills.some(s => /react/i.test(s))) return true;
+      if (rawResume && /\b(node|next\.js|express)\b/i.test(rawResume)) return true;
+    }
+
+    // Testing frameworks (Jest, Mocha, Vitest, Unit Testing)
+    if (/\b(jest|mocha|vitest|unit test|testing framework)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(unit test|testing|qa)\b/i.test(s))) return true;
+    }
+
+    // Tailwind, CSS, SCSS, Frontend Styling
+    if (/\b(tailwind|scss|css|styling)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(react|frontend|javascript|typescript|tailwind|css)\b/i.test(s))) return true;
+    }
+
     // A: Software Architecture & System Design
     if (/\b(system|architecture|design|component|module|interface)\b/i.test(reqNameLower)) {
       if (candSkills.some(s => /\b(system design|microservices|distributed|software architecture|backend)\b/i.test(s))) {
@@ -560,7 +578,7 @@
     // E: Cross-Functional Teamwork & Coordination
     if (/\b(business|coordinate|clarify|team|cross-functional|stakeholder|communication)\b/i.test(reqNameLower)) {
       if (candSkills.some(s => /\b(agile|scrum|cross-functional|pmo|leadership|management)\b/i.test(s)) || cand.yearsOfExperience >= 3) {
-        return true; // Experienced candidates inherently possess team & stakeholder coordination
+        return true;
       }
     }
 
@@ -587,37 +605,38 @@
 
     return false;
   }
+
   const COMPREHENSIVE_SKILL_CATALOG = [
     // ==========================================
     // --- TECH & SOFTWARE ENGINEERING ---
     // ==========================================
-    { domain: 'TECH_SOFTWARE', name: 'Java & Spring Ecosystem', key: 'java(?!script)|spring boot|spring cloud|jvm|quarkus' },
-    { domain: 'TECH_SOFTWARE', name: 'C++ & Systems Programming', key: 'c\\+\\+|modern c\\+\\+|cpp' },
-    { domain: 'TECH_SOFTWARE', name: 'C# & .NET Platform', key: 'c#|\\.net|dotnet' },
-    { domain: 'TECH_SOFTWARE', name: 'Python & Scripting', key: 'python|fastapi|django|flask' },
+    { domain: 'TECH_SOFTWARE', name: 'Java / Spring Boot', key: '\\bjava\\b(?!\\s*script)|spring boot|spring cloud|jvm|quarkus' },
+    { domain: 'TECH_SOFTWARE', name: 'C++', key: 'c\\+\\+|modern c\\+\\+|cpp' },
+    { domain: 'TECH_SOFTWARE', name: 'C# / .NET', key: 'c#|\\.net|dotnet' },
+    { domain: 'TECH_SOFTWARE', name: 'Python', key: 'python|fastapi|django|flask' },
     { domain: 'TECH_SOFTWARE', name: 'Go (Golang)', key: 'golang|go language|go programming|go backend|go developer' },
-    { domain: 'TECH_SOFTWARE', name: 'TypeScript & Modern JS', key: 'typescript|javascript' },
-    { domain: 'TECH_SOFTWARE', name: 'Linux / Unix Environments', key: 'linux|unix|bash|shell scripting' },
+    { domain: 'TECH_SOFTWARE', name: 'TypeScript / JavaScript', key: 'typescript|javascript' },
+    { domain: 'TECH_SOFTWARE', name: 'Linux / Unix', key: 'linux|unix|bash|shell scripting' },
     { domain: 'TECH_SOFTWARE', name: 'Distributed Systems & Microservices', key: 'microservice|distributed system|distributed systems' },
     { domain: 'TECH_SOFTWARE', name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread|high throughput' },
     { domain: 'TECH_SOFTWARE', name: 'Software Development & Engineering', key: 'software develop|software dev|dvlp app|dvlp apps|application develop|software developer|software engineer|software program' },
     { domain: 'TECH_SOFTWARE', name: 'System Architecture & Design', key: 'system architecture|software architecture|softw architecture|system design|distributed architecture|system component' },
-    { domain: 'TECH_SOFTWARE', name: 'SQL & Relational Databases', key: 'sql|mysql|postgresql|postgres|database design|data model|data relationship|relational database' },
-    { domain: 'TECH_SOFTWARE', name: 'NoSQL & Cache (Redis/Mongo)', key: 'redis|mongodb|nosql|elasticsearch' },
+    { domain: 'TECH_SOFTWARE', name: 'SQL / Relational Databases', key: 'sql|mysql|postgresql|postgres|database design|data model|data relationship|relational database' },
+    { domain: 'TECH_SOFTWARE', name: 'Redis / MongoDB / NoSQL', key: 'redis|mongodb|nosql|elasticsearch' },
     { domain: 'TECH_SOFTWARE', name: 'Docker & Kubernetes', key: 'docker|kubernetes|k8s' },
-    { domain: 'TECH_SOFTWARE', name: 'Cloud Infrastructure (AWS/GCP/Azure)', key: 'aws|azure|google cloud|cloud computing|gcp cloud' },
-    { domain: 'TECH_SOFTWARE', name: 'CI/CD & DevOps Automation', key: 'ci/cd|jenkins|devops|deployment pipeline|ci\\/cd pipeline|automated pipeline' },
-    { domain: 'TECH_SOFTWARE', name: 'Unit Testing & QA Validation', key: 'unit test|integration test|automated test|qa test|e2e test|tdd|software testing' },
+    { domain: 'TECH_SOFTWARE', name: 'Cloud Infrastructure (AWS/GCP)', key: 'aws|azure|google cloud|cloud computing|gcp cloud' },
+    { domain: 'TECH_SOFTWARE', name: 'CI/CD & DevOps', key: 'ci/cd|jenkins|devops|deployment pipeline|ci\\/cd pipeline|automated pipeline' },
+    { domain: 'TECH_SOFTWARE', name: 'Unit Testing', key: 'unit test|integration test|automated test|qa test|e2e test|tdd|software testing|jest|mocha|vitest' },
     { domain: 'TECH_SOFTWARE', name: 'Security Clearance (DoD)', key: 'secret clearance|dod clearance|top secret|security clearance|ts\\/sci' },
-    { domain: 'TECH_SOFTWARE', name: 'Algorithms & Problem Solving', key: 'algorithm|algorithms|data structure|data structures|leetcode' },
+    { domain: 'TECH_SOFTWARE', name: 'Algorithms & Data Structures', key: 'algorithm|algorithms|data structure|data structures|leetcode' },
     { domain: 'TECH_SOFTWARE', name: 'Machine Learning & AI', key: 'machine learning|deep learning|artificial intelligence|pytorch|tensorflow' },
     { domain: 'TECH_SOFTWARE', name: 'Computer Vision', key: 'computer vision|opencv' },
     { domain: 'TECH_SOFTWARE', name: 'Natural Language Processing (NLP)', key: 'natural language processing|\\bnlp\\b|information retrieval' },
-    { domain: 'TECH_SOFTWARE', name: '3D Graphics & Rendering (OpenGL/Vulkan/DirectX)', key: 'opengl|vulkan|directx|metal api|apple metal|glsl|hlsl|shader|3d rendering|rendering engine|3d graphics' },
-    { domain: 'TECH_SOFTWARE', name: 'Game Engines & AR/VR (Unity/Unreal/Lens Studio)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine|virtual reality' },
-    { domain: 'TECH_SOFTWARE', name: 'React & Frontend Frameworks', key: 'react|vue|angular|next\\.js' },
-    { domain: 'TECH_SOFTWARE', name: 'Node.js & Backend Services', key: 'node\\.js|nodejs|node\\s+js|expressjs|express\\.js' },
-    { domain: 'TECH_SOFTWARE', name: 'APIs & Component Interfaces', key: 'developer-facing api|graphql|rest api|api design|restful|app interface|interface|api' },
+    { domain: 'TECH_SOFTWARE', name: '3D Graphics & Rendering (OpenGL/Vulkan)', key: 'opengl|vulkan|directx|metal api|apple metal|glsl|hlsl|shader|3d rendering|rendering engine|3d graphics' },
+    { domain: 'TECH_SOFTWARE', name: 'Game Engines & AR/VR (Unity/Unreal)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine|virtual reality' },
+    { domain: 'TECH_SOFTWARE', name: 'React', key: 'react|vue|angular' },
+    { domain: 'TECH_SOFTWARE', name: 'Node.js / Express / Next.js', key: 'node\\.js|nodejs|node\\s+js|expressjs|express\\.js|next\\.js' },
+    { domain: 'TECH_SOFTWARE', name: 'REST APIs / GraphQL', key: 'developer-facing api|graphql|rest api|api design|restful|app interface|interface|api' },
 
     // ==========================================
     // --- BIOTECH & PHARMACEUTICAL ---
@@ -701,11 +720,20 @@
   function evaluateJobMatch(jobData, cand) {
     const isUnselected = !jobData || !jobData.title || jobData.title === 'Select a Job on Indeed';
     const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 80);
-    // Step 0: Normalize combinedText to separate glued words (e.g., 'orJavaScript' -> 'or javascript')
+    // Step 0: Normalize combinedText to separate glued words without breaking compound tech names (JavaScript, TypeScript, PostgreSQL, GraphQL)
     const rawCombined = ((jobData?.title || '') + ' ' + (jobData?.company || '') + ' ' + (jobData?.fullBodyText || ''));
-    const combinedText = rawCombined
+    const safeCombined = rawCombined
+      .replace(/\bJavaScript\b/gi, '@@JAVASCRIPT@@')
+      .replace(/\bTypeScript\b/gi, '@@TYPESCRIPT@@')
+      .replace(/\bPostgreSQL\b/gi, '@@POSTGRESQL@@')
+      .replace(/\bGraphQL\b/gi, '@@GRAPHQL@@');
+    const combinedText = safeCombined
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/([0-9])([a-zA-Z])/g, '$1 $2')
+      .replace(/@@JAVASCRIPT@@/gi, 'javascript')
+      .replace(/@@TYPESCRIPT@@/gi, 'typescript')
+      .replace(/@@POSTGRESQL@@/gi, 'postgresql')
+      .replace(/@@GRAPHQL@@/gi, 'graphql')
       .toLowerCase();
     const candSkills = cand.skills || [];
 
@@ -776,22 +804,29 @@
       return item.domain === jobDomain.code || item.domain === 'COMMON';
     });
 
-    let detectedJdSkills = domainSpecificCatalog.filter(item => {
+    // Step 1.1: Extract authentic in-situ requirements directly from the JD's bullets & clauses
+    const dynamicReqs = extractDynamicJdRequirements(combinedText, jobData?.fullBodyText, jobDomain);
+
+    let detectedJdSkills = [];
+
+    // Prioritize authentic dynamic requirements extracted from the employer's actual text
+    for (const dReq of dynamicReqs) {
+      detectedJdSkills.push(dReq);
+    }
+
+    // Supplement with catalog items that matched in text and aren't already represented
+    const matchedCatalogSkills = domainSpecificCatalog.filter(item => {
       return testSkillKey(item.key, combinedText);
     });
 
-    // Step 1.5: Universal Dynamic Phrase Extractor (Directly mines actual duties & requirements from the employer's JD text)
-    const dynamicReqs = extractDynamicJdRequirements(combinedText, jobData?.fullBodyText, jobDomain);
-    
-    // Merge dynamic requirements to provide 100% authentic in-situ representation
-    for (const dReq of dynamicReqs) {
-      const alreadyCovered = detectedJdSkills.some(catSkill => {
+    for (const catSkill of matchedCatalogSkills) {
+      const alreadyCovered = detectedJdSkills.some(d => {
+        const dLower = d.name.toLowerCase();
         const catLower = catSkill.name.toLowerCase();
-        const dLower = dReq.name.toLowerCase();
-        return catLower.includes(dLower) || dLower.includes(catLower);
+        return dLower.includes(catLower) || catLower.includes(dLower) || testSkillKey(catSkill.key, d.name.toLowerCase());
       });
       if (!alreadyCovered && detectedJdSkills.length < 6) {
-        detectedJdSkills.push(dReq);
+        detectedJdSkills.push(catSkill);
       }
     }
 
