@@ -463,6 +463,10 @@
       if (clause.length < 8 || clause.length > 130) continue;
       if (ADMIN_NOISE_REGEX.test(clause)) continue;
 
+      // Filter out explicit negation phrases ("not required", "no experience needed", etc.)
+      const isNegated = /\b(not\s+required|not\s+necessary|no\s+prior\s+(?:experience|knowledge)\s+(?:needed|required)|optional|is\s+a\s+plus(?:\s+only)?)\b/i.test(clause);
+      if (isNegated) continue;
+
       // Clean leading/trailing punctuation & words like "Must have", "Ability to", "Experience with"
       clause = clause
         .replace(/^(?:must have|ability to|responsible for|experience with|experience in|expertise in|proficient in|including|knowledge of|proven track record in|familiarity with|strong understanding of|understanding of|demonstrated|solid)\s+/i, '')
@@ -744,7 +748,10 @@
         k = k.trim();
         if (!k) return false;
         try {
-          if (k.includes('+') || k.includes('#') || k.startsWith('\\.') || k.startsWith('.')) {
+          if (k.includes('(?') || k.includes('\\b')) {
+            const customRegex = new RegExp(k, 'i');
+            return customRegex.test(text);
+          } else if (k.includes('+') || k.includes('#') || k.startsWith('\\.') || k.startsWith('.')) {
             const symRegex = new RegExp(`(?:^|[^a-z0-9_#])(${k})(?:$|[^a-z0-9_#])`, 'i');
             return symRegex.test(text);
           } else {
