@@ -407,10 +407,12 @@
   const COMPREHENSIVE_SKILL_CATALOG = [
     // --- Software Engineering & Backend ---
     { name: 'Java & Spring Ecosystem', key: 'java' },
-    { name: 'C++ & Systems Programming', key: 'c\\+\\+' },
+    { name: 'C++ & Systems Programming', key: 'c\\+\\+|modern c\\+\\+|cpp' },
+    { name: 'C# & .NET Platform', key: 'c#|\\.net|dotnet' },
     { name: 'Python & Scripting', key: 'python' },
     { name: 'Go (Golang)', key: 'go|golang' },
     { name: 'TypeScript & Modern JS', key: 'typescript|javascript' },
+    { name: 'Linux / Unix & Shell Tools', key: 'linux|unix|bash|shell' },
     { name: 'Distributed Systems & Microservices', key: 'microservice|distributed system' },
     { name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread' },
     { name: 'System Architecture & Design', key: 'architecture|system design' },
@@ -424,10 +426,15 @@
     { name: 'Security Clearance (DoD)', key: 'secret clearance|dod clearance|clearance' },
     { name: 'Algorithms & Problem Solving', key: 'algorithm|data structure' },
 
+    // --- AR / Graphics / Computer Vision ---
+    { name: '3D Graphics & Rendering (OpenGL/Vulkan/DirectX)', key: 'opengl|vulkan|directx|metal|shader|3d rendering|rendering engine' },
+    { name: 'Game Engines & AR/VR (Unity/Unreal/Lens Studio)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine' },
+    { name: 'Computer Vision & AI (OpenCV/ML)', key: 'computer vision|opencv|machine learning|pytorch|tensorflow' },
+
     // --- Frontend & Web ---
     { name: 'React & Frontend Frameworks', key: 'react|vue|angular' },
-    { name: 'Node.js & Backend Services', key: 'node|express' },
-    { name: 'GraphQL & API Design', key: 'graphql|rest api|api design' },
+    { name: 'Node.js & Backend Services', key: 'node\\.js|nodejs|node\\s+js|expressjs|express\\.js' },
+    { name: 'APIs & Developer SDKs', key: 'developer-facing api|graphql|rest api|api design|restful' },
 
     // --- Finance / Accounting / Business ---
     { name: 'Financial Modeling & Forecasting', key: 'financial model|financial modeling|forecasting' },
@@ -447,8 +454,33 @@
   function evaluateJobMatch(jobData, cand) {
     const isUnselected = !jobData || !jobData.title || jobData.title === 'Select a Job on Indeed';
     const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 80);
-    const combinedText = ((jobData?.title || '') + ' ' + (jobData?.company || '') + ' ' + (jobData?.fullBodyText || '')).toLowerCase();
+    // Step 0: Normalize combinedText to separate glued words (e.g., 'orJavaScript' -> 'or javascript')
+    const rawCombined = ((jobData?.title || '') + ' ' + (jobData?.company || '') + ' ' + (jobData?.fullBodyText || ''));
+    const combinedText = rawCombined
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/([0-9])([a-zA-Z])/g, '$1 $2')
+      .toLowerCase();
     const candSkills = cand.skills || [];
+
+    // Helper: Match skill keyword considering symbols like ++, #, .
+    function testSkillKey(pattern, text) {
+      const subkeys = pattern.split('|');
+      return subkeys.some(k => {
+        k = k.trim();
+        if (!k) return false;
+        try {
+          if (k.includes('+') || k.includes('#') || k.startsWith('\\.') || k.startsWith('.')) {
+            const symRegex = new RegExp(`(?:^|[^a-z0-9_#])(${k})(?:$|[^a-z0-9_#])`, 'i');
+            return symRegex.test(text);
+          } else {
+            const wordRegex = new RegExp(`(?:^|[^a-z0-9_])(${k})(?:$|[^a-z0-9_])`, 'i');
+            return wordRegex.test(text);
+          }
+        } catch (e) {
+          return text.includes(k.replace(/\\/g, '').toLowerCase());
+        }
+      });
+    }
 
     if (isUnselected) {
       return {
@@ -485,14 +517,9 @@
       };
     }
 
-    // Step 1: Detect skills explicitly mentioned in JD text using word-boundary regex
+    // Step 1: Detect skills explicitly mentioned in JD text using robust boundary regex
     let detectedJdSkills = COMPREHENSIVE_SKILL_CATALOG.filter(item => {
-      try {
-        const regex = new RegExp(`\\b(${item.key})\\b`, 'i');
-        return regex.test(combinedText);
-      } catch (e) {
-        return combinedText.includes(item.key.toLowerCase());
-      }
+      return testSkillKey(item.key, combinedText);
     });
 
     // Fallback baseline if JD is unstructured or brief
@@ -512,8 +539,10 @@
       const keys = reqSkill.key.split('|');
       const hasSkill = candSkills.some(s => {
         const sLower = s.toLowerCase();
-        return keys.some(k => sLower.includes(k.replace(/\\/g, ''))) ||
-               reqSkill.name.toLowerCase().includes(sLower);
+        return keys.some(k => {
+          const kClean = k.replace(/\\/g, '').trim().toLowerCase();
+          return sLower.includes(kClean) || kClean.includes(sLower);
+        }) || reqSkill.name.toLowerCase().includes(sLower) || sLower.includes(reqSkill.name.toLowerCase());
       });
 
       if (hasSkill) {
