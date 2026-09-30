@@ -412,7 +412,7 @@
     { name: 'Python & Scripting', key: 'python|fastapi|django|flask' },
     { name: 'Go (Golang)', key: 'golang|go language|go programming|go backend|go developer' },
     { name: 'TypeScript & Modern JS', key: 'typescript|javascript' },
-    { name: 'Linux / Unix & Shell Tools', key: 'linux|unix|bash|zsh|shell script|shell scripting|powershell' },
+    { name: 'Linux / Unix Environments', key: 'linux|unix|bash|shell scripting' },
     { name: 'Distributed Systems & Microservices', key: 'microservice|distributed system|distributed systems' },
     { name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread|high throughput' },
     { name: 'System Architecture & Design', key: 'system architecture|software architecture|system design|distributed architecture' },
@@ -426,10 +426,12 @@
     { name: 'Security Clearance (DoD)', key: 'secret clearance|dod clearance|top secret|security clearance|ts\\/sci' },
     { name: 'Algorithms & Problem Solving', key: 'algorithm|algorithms|data structure|data structures|leetcode' },
 
-    // --- AR / Graphics / Computer Vision ---
+    // --- AI, ML & Specialized Technologies (Clean, Unbundled) ---
+    { name: 'Machine Learning & AI', key: 'machine learning|deep learning|artificial intelligence|pytorch|tensorflow' },
+    { name: 'Computer Vision', key: 'computer vision|opencv' },
+    { name: 'Natural Language Processing (NLP)', key: 'natural language processing|\\bnlp\\b|information retrieval' },
     { name: '3D Graphics & Rendering (OpenGL/Vulkan/DirectX)', key: 'opengl|vulkan|directx|metal api|apple metal|glsl|hlsl|shader|3d rendering|rendering engine|3d graphics' },
     { name: 'Game Engines & AR/VR (Unity/Unreal/Lens Studio)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine|virtual reality' },
-    { name: 'Computer Vision & AI (OpenCV/ML)', key: 'computer vision|opencv|machine learning|deep learning|pytorch|tensorflow' },
 
     // --- Frontend & Web ---
     { name: 'React & Frontend Frameworks', key: 'react|vue|angular|next\\.js' },
@@ -537,13 +539,41 @@
 
     detectedJdSkills.forEach(reqSkill => {
       const keys = reqSkill.key.split('|');
-      const hasSkill = candSkills.some(s => {
+      let hasSkill = candSkills.some(s => {
         const sLower = s.toLowerCase();
         return keys.some(k => {
           const kClean = k.replace(/\\/g, '').trim().toLowerCase();
           return sLower.includes(kClean) || kClean.includes(sLower);
         }) || reqSkill.name.toLowerCase().includes(sLower) || sLower.includes(reqSkill.name.toLowerCase());
       });
+
+      // Smart Equivalency Inference (industry standard matching):
+      // If Linux/Unix is required, having Docker, Kubernetes, DevOps or Linux in resume text satisfies it!
+      if (!hasSkill && reqSkill.name === 'Linux / Unix Environments') {
+        const hasLinuxEco = candSkills.some(s => {
+          const sl = s.toLowerCase();
+          return sl.includes('docker') || sl.includes('kubernetes') || sl.includes('k8s') || sl.includes('linux') || sl.includes('unix') || sl.includes('devops');
+        }) || (cand.rawResumeText && /\b(linux|unix|ubuntu|centos|debian|redhat|bash|shell)\b/i.test(cand.rawResumeText));
+        if (hasLinuxEco) {
+          hasSkill = true;
+        }
+      }
+
+      // If Machine Learning & AI is checked, also check resume text for ML/AI mentions
+      if (!hasSkill && reqSkill.name === 'Machine Learning & AI') {
+        const hasMLInResume = cand.rawResumeText && /\b(machine learning|deep learning|artificial intelligence|pytorch|tensorflow|scikit)\b/i.test(cand.rawResumeText);
+        if (hasMLInResume) {
+          hasSkill = true;
+        }
+      }
+
+      // If Algorithms & Problem Solving is required, check CS background or leetcode/algorithms in resume
+      if (!hasSkill && reqSkill.name === 'Algorithms & Problem Solving') {
+        const hasAlgoInResume = cand.rawResumeText && /\b(algorithm|algorithms|data structure|data structures|leetcode|hackerrank|computer science)\b/i.test(cand.rawResumeText);
+        if (hasAlgoInResume) {
+          hasSkill = true;
+        }
+      }
 
       if (hasSkill) {
         verifiedSkills.push(reqSkill);
