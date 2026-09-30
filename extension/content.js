@@ -433,9 +433,160 @@
   };
 
   /**
-   * Helper: Multi-Domain Knowledge Base with Explicit Industry Tags
-   * Disambiguated across Tech, Pharma, Medicine, Civil/Architecture, and Finance
+   * Universal Dynamic JD Requirement Extractor (NLP Phrase Mining)
+   * Dissects arbitrary job postings to extract genuine functional requirements and duties
+   * Guarantees ZERO fake jargon fallbacks (never 'Core Domain Execution'!)
    */
+  function extractDynamicJdRequirements(combinedText, fullBodyText, domain) {
+    if (!fullBodyText && !combinedText) return [];
+    const source = (fullBodyText || combinedText);
+
+    // Administrative & non-skill stop patterns (salary, travel, email, legal disclaimers)
+    const ADMIN_NOISE_REGEX = /\b(salary|hourly|\$\d+|send res|send resume|email to|hr@|jobs@|travel|relocate|unanticipated|equal opportunity|eeo|benefits|401k|dental|vision|health insurance|full time|part time|on-site|remote|hybrid|irvine|los angeles|california|applicant must|all qualified applicants|background check|drug test)\b/i;
+
+    const extracted = [];
+    const seenLabels = new Set();
+
+    // 1. Split text by common duty / requirement delimiters (bullet points, semicolons, numbered lists, newlines)
+    const rawClauses = source
+      .replace(/Job duties:?/gi, '\n')
+      .replace(/Required qualifications:?/gi, '\n')
+      .replace(/Responsibilities:?/gi, '\n')
+      .replace(/Requirements:?/gi, '\n')
+      .replace(/What you'll do:?/gi, '\n')
+      .split(/(?:[;\n•\r·\*\t]|\d+\.\s+)/);
+
+    for (let raw of rawClauses) {
+      let clause = raw.trim();
+      if (clause.length < 8 || clause.length > 120) continue;
+      if (ADMIN_NOISE_REGEX.test(clause)) continue;
+
+      // Clean leading/trailing punctuation & words like "Must have", "Ability to"
+      clause = clause
+        .replace(/^(?:must have|ability to|responsible for|experience in|proficient in|including|knowledge of|proven track record in)\s+/i, '')
+        .replace(/[.,;:]+$/, '')
+        .trim();
+
+      if (clause.length < 6) continue;
+
+      // Check if clause has technical / functional substance (contains at least one functional keyword)
+      const hasSubstance = /\b(design|dvlp|develop|architecture|system|data|model|interface|api|code|program|test|manage|analysis|clinical|patient|cad|gaap|model|audit|pipeline|gcp|bim|circuit|hardware|network|security|cloud|database|sql)\b/i.test(clause);
+      if (!hasSubstance) continue;
+
+      // Synthesize clean display title
+      let cleanTitle = clause.charAt(0).toUpperCase() + clause.slice(1);
+      // Truncate cleanly if too long
+      if (cleanTitle.length > 55) {
+        cleanTitle = cleanTitle.substring(0, 52).trim() + '…';
+      }
+
+      const dedupeKey = cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!seenLabels.has(dedupeKey)) {
+        seenLabels.add(dedupeKey);
+        extracted.push({
+          name: cleanTitle,
+          key: clause.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 3).join('|'),
+          isDynamic: true
+        });
+      }
+
+      if (extracted.length >= 4) break;
+    }
+
+    return extracted;
+  }
+
+  /**
+   * Universal Semantic Matching: Determine if candidate satisfies a given requirement
+   * Checks explicit skills, resume text, synonyms, and engineering equivalents
+   */
+  function candidateSatisfiesRequirement(reqSkill, cand) {
+    const candSkills = cand.skills || [];
+    const rawResume = (cand.rawResumeText || '').toLowerCase();
+    const reqNameLower = reqSkill.name.toLowerCase();
+
+    // 1. Direct candidate skill list match
+    const keys = (reqSkill.key || '').split('|').map(k => k.replace(/\\/g, '').trim().toLowerCase()).filter(Boolean);
+    const directSkillMatch = candSkills.some(s => {
+      const sLower = s.toLowerCase();
+      if (reqNameLower.includes(sLower) || sLower.includes(reqNameLower)) return true;
+      return keys.some(k => k.length > 2 && (sLower.includes(k) || k.includes(sLower)));
+    });
+    if (directSkillMatch) return true;
+
+    // 2. Check full raw resume text for any of the key requirement tokens
+    if (rawResume) {
+      const resumeTokenMatch = keys.some(k => {
+        if (k.length <= 2) return false;
+        try {
+          const regex = new RegExp(`\\b${k}\\b`, 'i');
+          return regex.test(rawResume);
+        } catch (e) {
+          return rawResume.includes(k);
+        }
+      });
+      if (resumeTokenMatch) return true;
+    }
+
+    // 3. Domain & Functional Equivalency Maps
+    // A: Software Architecture & System Design
+    if (/\b(system|architecture|design|component|module|interface)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(system design|microservices|distributed|software architecture|backend)\b/i.test(s))) {
+        return true;
+      }
+    }
+
+    // B: Software Development & Coding
+    if (/\b(software|develop|dvlp|engineering|program|coding|application|app)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(java|python|c\+\+|go|javascript|typescript|c#|rust|software)\b/i.test(s))) {
+        return true;
+      }
+    }
+
+    // C: Databases, SQL, & Data Models
+    if (/\b(database|data model|relationship|sql|nosql|storage)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(sql|mysql|postgresql|postgres|database|redis|mongodb)\b/i.test(s))) {
+        return true;
+      }
+    }
+
+    // D: APIs & Microservices
+    if (/\b(api|interface|rest|graphql|microservice|endpoints)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(api|rest|microservices|spring boot|node|fastapi)\b/i.test(s))) {
+        return true;
+      }
+    }
+
+    // E: Cross-Functional Teamwork & Coordination
+    if (/\b(business|coordinate|clarify|team|cross-functional|stakeholder|communication)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(agile|scrum|cross-functional|pmo|leadership|management)\b/i.test(s)) || cand.yearsOfExperience >= 3) {
+        return true; // Experienced candidates inherently possess team & stakeholder coordination
+      }
+    }
+
+    // F: Biotech / Pharma (GCP, Clinical, Regulatory)
+    if (/\b(gcp|clinical|trial|protocol|fda|glp|gmp)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(gcp|clinical|trial|regulatory|cra|crc)\b/i.test(s)) || /\b(gcp|clinical trial|ich-gcp)\b/i.test(rawResume)) {
+        return true;
+      }
+    }
+
+    // G: Civil / Architecture (CAD, BIM, Revit)
+    if (/\b(cad|drafting|dwg|revit|bim)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(autocad|revit|bim|cad)\b/i.test(s)) || /\b(autocad|revit|bim)\b/i.test(rawResume)) {
+        return true;
+      }
+    }
+
+    // H: Finance / Banking (GAAP, Valuation, DCF)
+    if (/\b(gaap|valuation|financial model|dcf|lbo|accounting)\b/i.test(reqNameLower)) {
+      if (candSkills.some(s => /\b(gaap|financial model|valuation|cpa|accounting)\b/i.test(s)) || /\b(cpa|gaap|valuation)\b/i.test(rawResume)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
   const COMPREHENSIVE_SKILL_CATALOG = [
     // ==========================================
     // --- TECH & SOFTWARE ENGINEERING ---
@@ -449,8 +600,9 @@
     { domain: 'TECH_SOFTWARE', name: 'Linux / Unix Environments', key: 'linux|unix|bash|shell scripting' },
     { domain: 'TECH_SOFTWARE', name: 'Distributed Systems & Microservices', key: 'microservice|distributed system|distributed systems' },
     { domain: 'TECH_SOFTWARE', name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread|high throughput' },
-    { domain: 'TECH_SOFTWARE', name: 'System Architecture & Design', key: 'system architecture|software architecture|system design|distributed architecture' },
-    { domain: 'TECH_SOFTWARE', name: 'SQL & Relational Databases', key: 'sql|mysql|postgresql|postgres' },
+    { domain: 'TECH_SOFTWARE', name: 'Software Development & Engineering', key: 'software develop|software dev|dvlp app|dvlp apps|application develop|software developer|software engineer|software program' },
+    { domain: 'TECH_SOFTWARE', name: 'System Architecture & Design', key: 'system architecture|software architecture|softw architecture|system design|distributed architecture|system component' },
+    { domain: 'TECH_SOFTWARE', name: 'SQL & Relational Databases', key: 'sql|mysql|postgresql|postgres|database design|data model|data relationship|relational database' },
     { domain: 'TECH_SOFTWARE', name: 'NoSQL & Cache (Redis/Mongo)', key: 'redis|mongodb|nosql|elasticsearch' },
     { domain: 'TECH_SOFTWARE', name: 'Docker & Kubernetes', key: 'docker|kubernetes|k8s' },
     { domain: 'TECH_SOFTWARE', name: 'Cloud Infrastructure (AWS/GCP/Azure)', key: 'aws|azure|google cloud|cloud computing|gcp cloud' },
@@ -465,7 +617,7 @@
     { domain: 'TECH_SOFTWARE', name: 'Game Engines & AR/VR (Unity/Unreal/Lens Studio)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine|virtual reality' },
     { domain: 'TECH_SOFTWARE', name: 'React & Frontend Frameworks', key: 'react|vue|angular|next\\.js' },
     { domain: 'TECH_SOFTWARE', name: 'Node.js & Backend Services', key: 'node\\.js|nodejs|node\\s+js|expressjs|express\\.js' },
-    { domain: 'TECH_SOFTWARE', name: 'APIs & Developer SDKs', key: 'developer-facing api|graphql|rest api|api design|restful' },
+    { domain: 'TECH_SOFTWARE', name: 'APIs & Component Interfaces', key: 'developer-facing api|graphql|rest api|api design|restful|app interface|interface|api' },
 
     // ==========================================
     // --- BIOTECH & PHARMACEUTICAL ---
@@ -557,7 +709,7 @@
       .toLowerCase();
     const candSkills = cand.skills || [];
 
-    // Helper: Match skill keyword considering symbols like ++, #, .
+    // Helper: Match skill keyword considering symbols like ++, #, . and plural variants (s/es)
     function testSkillKey(pattern, text) {
       const subkeys = pattern.split('|');
       return subkeys.some(k => {
@@ -568,7 +720,8 @@
             const symRegex = new RegExp(`(?:^|[^a-z0-9_#])(${k})(?:$|[^a-z0-9_#])`, 'i');
             return symRegex.test(text);
           } else {
-            const wordRegex = new RegExp(`(?:^|[^a-z0-9_])(${k})(?:$|[^a-z0-9_])`, 'i');
+            // Support plurals and variations like "system designs", "data models", "interfaces"
+            const wordRegex = new RegExp(`(?:^|[^a-z0-9_])(${k})(?:s|es)?(?:$|[^a-z0-9_])`, 'i');
             return wordRegex.test(text);
           }
         } catch (e) {
@@ -627,89 +780,35 @@
       return testSkillKey(item.key, combinedText);
     });
 
-    // Fallback baseline if JD is unstructured or brief
+    // Step 1.5: Universal Dynamic Phrase Extractor (Directly mines actual duties & requirements from the employer's JD text)
+    const dynamicReqs = extractDynamicJdRequirements(combinedText, jobData?.fullBodyText, jobDomain);
+    
+    // Merge dynamic requirements to provide 100% authentic in-situ representation
+    for (const dReq of dynamicReqs) {
+      const alreadyCovered = detectedJdSkills.some(catSkill => {
+        const catLower = catSkill.name.toLowerCase();
+        const dLower = dReq.name.toLowerCase();
+        return catLower.includes(dLower) || dLower.includes(catLower);
+      });
+      if (!alreadyCovered && detectedJdSkills.length < 6) {
+        detectedJdSkills.push(dReq);
+      }
+    }
+
+    // Baseline fallback if JD is extremely short: extract from Job Title itself (NEVER invent fake jargon)
     if (detectedJdSkills.length === 0) {
+      const cleanTitle = (jobData?.title || 'Professional Role').trim();
       detectedJdSkills = [
-        { name: 'Core Domain Execution', key: 'domain' },
-        { name: 'System Design & Problem Solving', key: 'design' },
-        { name: 'Cross-Functional Teamwork', key: 'communication' }
+        { name: cleanTitle, key: cleanTitle.toLowerCase() }
       ];
     }
 
-    // Step 2: Compare candidate skills against JD requirements
+    // Step 2: Compare candidate skills against JD requirements using Universal Semantic Matcher
     let verifiedSkills = [];
     let missingSkillGaps = [];
 
     detectedJdSkills.forEach(reqSkill => {
-      const keys = reqSkill.key.split('|');
-      let hasSkill = candSkills.some(s => {
-        const sLower = s.toLowerCase();
-        return keys.some(k => {
-          const kClean = k.replace(/\\/g, '').trim().toLowerCase();
-          return sLower.includes(kClean) || kClean.includes(sLower);
-        }) || reqSkill.name.toLowerCase().includes(sLower) || sLower.includes(reqSkill.name.toLowerCase());
-      });
-
-      // Smart Equivalency Inference (industry standard matching across domains):
-      // 1. Tech & Systems: If Linux/Unix is required, having Docker, Kubernetes, DevOps or Linux in resume text satisfies it!
-      if (!hasSkill && reqSkill.name === 'Linux / Unix Environments') {
-        const hasLinuxEco = candSkills.some(s => {
-          const sl = s.toLowerCase();
-          return sl.includes('docker') || sl.includes('kubernetes') || sl.includes('k8s') || sl.includes('linux') || sl.includes('unix') || sl.includes('devops');
-        }) || (cand.rawResumeText && /\b(linux|unix|ubuntu|centos|debian|redhat|bash|shell)\b/i.test(cand.rawResumeText));
-        if (hasLinuxEco) {
-          hasSkill = true;
-        }
-      }
-
-      // 2. AI & Data: If Machine Learning & AI is checked, also check resume text for ML/AI mentions
-      if (!hasSkill && reqSkill.name === 'Machine Learning & AI') {
-        const hasMLInResume = cand.rawResumeText && /\b(machine learning|deep learning|artificial intelligence|pytorch|tensorflow|scikit)\b/i.test(cand.rawResumeText);
-        if (hasMLInResume) {
-          hasSkill = true;
-        }
-      }
-
-      // 3. Algorithms & CS Background
-      if (!hasSkill && reqSkill.name === 'Algorithms & Problem Solving') {
-        const hasAlgoInResume = cand.rawResumeText && /\b(algorithm|algorithms|data structure|data structures|leetcode|hackerrank|computer science)\b/i.test(cand.rawResumeText);
-        if (hasAlgoInResume) {
-          hasSkill = true;
-        }
-      }
-
-      // 4. Biotech & Pharma: GCP & Clinical Compliance
-      if (!hasSkill && reqSkill.name.includes('Good Clinical Practice')) {
-        const hasGcpInResume = cand.rawResumeText && /\b(gcp|good clinical practice|ich-gcp|clinical compliance|clinical research associate|cra|crc)\b/i.test(cand.rawResumeText);
-        if (hasGcpInResume) {
-          hasSkill = true;
-        }
-      }
-
-      // 5. Civil & Architecture: CAD / BIM Equivalency
-      if (!hasSkill && reqSkill.name.includes('Architectural CAD Drafting')) {
-        const hasCadInResume = cand.rawResumeText && /\b(autocad|revit|bim|cad drafting|microstation|dwg)\b/i.test(cand.rawResumeText);
-        if (hasCadInResume) {
-          hasSkill = true;
-        }
-      }
-
-      // 6. Finance: GAAP / Valuation Equivalency
-      if (!hasSkill && reqSkill.name.includes('Accounting & GAAP Standards')) {
-        const hasCpaInResume = cand.rawResumeText && /\b(cpa|gaap|us gaap|ifrs|general ledger|chartered accountant)\b/i.test(cand.rawResumeText);
-        if (hasCpaInResume) {
-          hasSkill = true;
-        }
-      }
-
-      // 7. Healthcare: Electronic Health Records (Epic / Cerner)
-      if (!hasSkill && reqSkill.name.includes('Electronic Health Records')) {
-        const hasEhrInResume = cand.rawResumeText && /\b(epic|cerner|ehr|emr|allscripts|meditech)\b/i.test(cand.rawResumeText);
-        if (hasEhrInResume) {
-          hasSkill = true;
-        }
-      }
-
+      const hasSkill = candidateSatisfiesRequirement(reqSkill, cand);
       if (hasSkill) {
         verifiedSkills.push(reqSkill);
       } else {
