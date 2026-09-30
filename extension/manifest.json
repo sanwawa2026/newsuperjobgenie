@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SuperJobGenie - Western Job Boards AI Career Assistant",
-  "version": "2.9.4",
-  "description": "Unabridged 3,000+ char deep JD extractor & instant AI skills match analyzer across Indeed, LinkedIn, Glassdoor & top ATS platforms.",
+  "version": "2.9.8",
+  "description": "Unabridged 3,000+ char deep JD extractor & instant AI skills match analyzer across Indeed, LinkedIn, Glassdoor, ZipRecruiter & top ATS platforms.",
   "permissions": [
     "storage",
     "activeTab"
@@ -20,12 +20,16 @@
     "https://*.glassdoor.com/*",
     "https://*.glassdoor.co.uk/*",
     "https://*.ziprecruiter.com/*",
+    "https://*.ziprecruiter.co.uk/*",
+    "https://*.ziprecruiter.ca/*",
+    "https://*.ziprecruiter.de/*",
     "https://*.dice.com/*",
     "https://*.greenhouse.io/*",
     "https://boards.greenhouse.io/*",
     "https://job-boards.greenhouse.io/*",
     "https://jobs.lever.co/*",
     "https://*.myworkdayjobs.com/*",
+    "https://myworkdayjobs.com/*",
     "https://*.wellfound.com/*"
   ],
   "action": {
@@ -54,12 +58,16 @@
         "https://*.glassdoor.com/*",
         "https://*.glassdoor.co.uk/*",
         "https://*.ziprecruiter.com/*",
+        "https://*.ziprecruiter.co.uk/*",
+        "https://*.ziprecruiter.ca/*",
+        "https://*.ziprecruiter.de/*",
         "https://*.dice.com/*",
         "https://*.greenhouse.io/*",
         "https://boards.greenhouse.io/*",
         "https://job-boards.greenhouse.io/*",
         "https://jobs.lever.co/*",
         "https://*.myworkdayjobs.com/*",
+        "https://myworkdayjobs.com/*",
         "https://*.wellfound.com/*"
       ],
       "js": [

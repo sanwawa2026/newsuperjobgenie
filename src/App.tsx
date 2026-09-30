@@ -54,6 +54,31 @@ export default function App() {
 
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState<boolean>(false);
 
+  // Auto-handle external deep-links from Chrome Extension (e.g. ?tab=pivot, ?tab=coverletter, ?title=...)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam) {
+        setDashboardTab(tabParam);
+        setIsDashboardOpen(true);
+      }
+      const titleParam = params.get('title');
+      const companyParam = params.get('company');
+      if (titleParam) {
+        const decodedTitle = decodeURIComponent(titleParam);
+        const decodedCompany = companyParam ? decodeURIComponent(companyParam) : 'Target Company';
+        setCurrentJob(prev => ({
+          ...prev,
+          title: decodedTitle,
+          company: decodedCompany
+        }));
+      }
+    } catch (e) {
+      console.warn('URL parameter parsing failed:', e);
+    }
+  }, []);
+
   // Match analysis state
   const [matchResult, setMatchResult] = useState<MatchAnalysisResult>({
     jobTitle: STRIPE_FRONTEND_ARCHITECT_JD.title,
