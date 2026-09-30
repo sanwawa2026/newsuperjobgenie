@@ -725,8 +725,8 @@
 
       // Synthesize clean display title
       let cleanTitle = clause.charAt(0).toUpperCase() + clause.slice(1);
-      if (cleanTitle.length > 55) {
-        cleanTitle = cleanTitle.substring(0, 52).trim() + '…';
+      if (cleanTitle.length > 35) {
+        cleanTitle = cleanTitle.substring(0, 32).trim() + '…';
       }
 
       const dedupeKey = cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
