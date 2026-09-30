@@ -1,0 +1,46 @@
+ELENA ROSTOVA (ANONYMOUS TEST PROFILE)
+Denver, CO | (555) 073-6219 | elena.rostova.devops@example.com | linkedin.com/in/elenarostova-sre
+
+================================================================================
+PROFESSIONAL SUMMARY
+================================================================================
+Senior Site Reliability Engineer (SRE) & DevOps Cloud Architect with 8+ years of experience engineering immutable infrastructure as code (IaC), zero-trust networking, and high-availability multi-region Kubernetes clusters. Champion of observability (SLOs, SLIs, SLAs) and gitops automation, maintaining 99.995% service availability across mission-critical fintech and healthcare platforms.
+
+================================================================================
+CORE DEVOPS & SRE SKILLS
+================================================================================
+• Cloud Providers: AWS (EC2, EKS, VPC, IAM, Route53, RDS, CloudFront), GCP (GKE, Cloud Build), Azure
+• Infrastructure as Code (IaC): Terraform, Terragrunt, CloudFormation, Ansible, Pulumi
+• Containers & Orchestration: Kubernetes, Docker, Helm, ArgoCD, Flux, Service Mesh (Istio)
+• CI/CD & Automation: GitHub Actions, GitLab CI, Jenkins, Spinnaker, Bash scripting, Python, Go
+• Observability & Monitoring: Prometheus, Grafana, Datadog, OpenTelemetry, ELK Stack, Jaeger, PagerDuty
+• Security & Reliability: Chaos Engineering, Chaos Mesh, Disaster Recovery, SOC2 Compliance, HashiCorp Vault
+
+================================================================================
+PROFESSIONAL EXPERIENCE
+================================================================================
+Lead SRE / Cloud Platform Engineer | GlobalFin Cloud Platforms | Denver, CO
+2022 – Present
+• Architected enterprise multi-region active-active AWS EKS clusters with Terraform and ArgoCD GitOps, reducing disaster recovery RTO from 4 hours to under 3 minutes.
+• Enforced SLO/SLI error-budget policies with Prometheus and Datadog, decreasing critical P1 production outages by 74% year-over-year.
+• Automated secure secret distribution and rotation using HashiCorp Vault and Kubernetes External Secrets operator across 400+ microservices.
+• Cut AWS enterprise monthly cloud bill by 29% ($68,000/month) via spot instance orchestration and intelligent auto-scaling with Karpenter.
+
+Senior DevOps Engineer | HealthPulse Digital Systems | Boulder, CO
+2019 – 2022
+• Designed and managed compliant, zero-downtime CI/CD deployment pipelines using GitHub Actions and Helm for HIPAA-regulated healthcare applications.
+• Migrated 60+ legacy physical servers and monolithic virtual machines into containerized Docker images deployed on AWS ECS and EKS.
+• Conducted periodic chaos engineering game-days simulating pod terminations and network partitions to validate cluster resilience.
+
+Linux Systems Administrator | MountainTech Infrastructure | Denver, CO
+2016 – 2019
+• Administered 250+ Red Hat Linux and Ubuntu production servers, performing kernel tuning, security patching, and automated configuration with Ansible.
+• Configured Nginx reverse proxies, SSL/TLS certificate automation with Let's Encrypt, and internal BIND DNS systems.
+
+================================================================================
+EDUCATION & CERTIFICATIONS
+================================================================================
+• B.S. in Computer Information Systems | Colorado State University
+• Certified Kubernetes Administrator (CKA)
+• AWS Certified DevOps Engineer – Professional
+• HashiCorp Certified: Terraform Associate

@@ -1,0 +1,44 @@
+JORDAN REID (ANONYMOUS TEST PROFILE)
+Austin, TX | (555) 039-4821 | jordan.reid.pm@example.com | linkedin.com/in/jordanreid-pm
+
+================================================================================
+PROFESSIONAL SUMMARY
+================================================================================
+Lead Technical Product Manager with 8+ years of experience steering high-growth B2B SaaS and developer platform products from 0 to 1 and scaling from $5M to $40M ARR. Expert at translating complex system architecture and user data analytics into clear product requirement documents (PRDs), managing high-velocity cross-functional engineering squads, and driving customer acquisition, retention, and PLG monetization.
+
+================================================================================
+CORE PRODUCT & LEADERSHIP SKILLS
+================================================================================
+• Product Strategy: 0-to-1 Product Discovery, Roadmap Prioritization (RICE/Kano), Market Validation, Go-to-Market (GTM)
+• Technical Fluency: RESTful APIs, Cloud Infrastructure, SQL, System Architecture, Webhook Integrations, Data Pipelines
+• Agile & Execution: Scrum Master, Sprint Planning, Jira, Confluence, Product Backlog Grooming, PRD Drafting, Release Management
+• Analytics & Growth: Product-Led Growth (PLG), A/B Experimentation, Mixpanel, Amplitude, Segment, Looker, Tableau, GA4
+• Stakeholder Alignment: Executive Presentations, Customer Interviews, Engineering Partnership, Sales Enablement
+
+================================================================================
+PROFESSIONAL EXPERIENCE
+================================================================================
+Lead Technical Product Manager | ScaleVelocity Cloud | Austin, TX
+2022 – Present
+• Spearheaded the developer platform API and integration ecosystem, growing weekly active developers by 140% and adding $14M in expansion ARR within 18 months.
+• Defined the multi-year technical roadmap and authored 35+ comprehensive PRDs with wireframes, acceptance criteria, and API schemas.
+• Championed an experimentation program running 50+ A/B tests across onboarding workflows, boosting free-to-paid conversion by 24.5%.
+• Partnered closely with VP of Engineering, Design Leads, and 3 agile engineering squads (22 engineers) across 2-week continuous delivery cycles.
+
+Senior Product Manager | Omnivue Data Systems | Austin, TX
+2019 – 2022
+• Owned the core enterprise reporting analytics product line generating $22M annual revenue with a 98% gross retention rate.
+• Conducted 100+ discovery interviews with Fortune 500 CISOs and VP of Eng to uncover critical workflow friction, leading to a revamped self-serve export module.
+• Automated customer telemetry and behavioral analytics with Amplitude and SQL, reducing customer churn by 18% through early warning trigger alerts.
+
+Technical Product Specialist / Business Analyst | NextGen Tech Labs | Dallas, TX
+2016 – 2019
+• Authored technical requirements, API contracts, and user stories for internal microservice refactoring projects.
+• Facilitated daily standups, retrospective meetings, and bi-weekly sprint reviews following Agile Scrum principles.
+
+================================================================================
+EDUCATION & CERTIFICATIONS
+================================================================================
+• B.S. in Management Information Systems & Computer Science | UT Austin
+• Certified Scrum Product Owner (CSPO)
+• Pragmatic Institute Certified (PMC-III)

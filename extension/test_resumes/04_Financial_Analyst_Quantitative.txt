@@ -1,0 +1,43 @@
+MARCUS VANCE, CFA (ANONYMOUS TEST PROFILE)
+New York, NY | (555) 082-1945 | marcus.vance.finance@example.com | linkedin.com/in/marcusvance-fin
+
+================================================================================
+PROFESSIONAL SUMMARY
+================================================================================
+Senior Financial Analyst & Quantitative Portfolio Specialist with 7+ years of experience conducting advanced financial modeling, valuation (DCF, LBO, Multiples), variance analysis, and algorithmic risk profiling across technology and asset management sectors. Fluent in Python and SQL for automating quantitative financial pipelines, analyzing multi-asset portfolios, and preparing executive board presentations.
+
+================================================================================
+CORE FINANCIAL & TECHNICAL SKILLS
+================================================================================
+• Financial Analysis: Three-Statement Financial Modeling, DCF (Discounted Cash Flow), LBO Modeling, M&A Valuation, Sensitivity Analysis
+• Reporting & Accounting: US GAAP, IFRS, Budgeting & Forecasting, Variance Analysis, Capital Allocation, Cap Table Management
+• Quantitative & Tech Tools: Python (Pandas, NumPy, Statsmodels), SQL (PostgreSQL, BigQuery), Advanced Excel (VBA/Macros), Bloomberg Terminal, FactSet, PitchBook
+• Data Visualization: Power BI, Tableau, Executive Deck Presentation, Strategic FP&A
+
+================================================================================
+PROFESSIONAL EXPERIENCE
+================================================================================
+Senior Strategic Financial Analyst | Apex Capital Partners | New York, NY
+2022 – Present
+• Developed and maintained dynamic three-statement financial forecasting models for 14 portfolio software companies generating $50M - $300M in ARR.
+• Automated weekly revenue and cash runway tracking using Python and Snowflake SQL, eliminating 15 hours of manual reporting work each week.
+• Conducted comprehensive valuation and scenario analyses (DCF, precedent transactions, trading comps) for 4 tech M&A transactions valued at over $850M.
+• Prepared quarterly board decks and investor reporting packages evaluating gross margins, CAC payback periods, net dollar retention (NDR), and EBITDA walk.
+
+Investment Banking Analyst | Sterling Global Securities | New York, NY
+2019 – 2022
+• Built complex leveraged buyout (LBO) and merger models evaluating debt capacity, IRR returns, and financing structures for private equity sponsors.
+• Drafted confidential information memorandums (CIMs), pitch books, and financial due diligence reports for tech sector advisory mandates.
+• Coordinated virtual data rooms (VDR) and audited financial historical statements during active buy-side due diligence workflows.
+
+Corporate FP&A Analyst | Vanguard Commerce Group | Boston, MA
+2017 – 2019
+• Supported annual budget planning and monthly rolling forecasts across 6 operational departments managing $80M in operating expenses (OpEx).
+• Identified $3.2M in supply chain cost redundancies through granular variance analysis and SQL inventory cohort tracking.
+
+================================================================================
+EDUCATION & CERTIFICATIONS
+================================================================================
+• B.S. in Finance & Statistics (Magna Cum Laude) | New York University (Stern School of Business)
+• Chartered Financial Analyst (CFA) Charterholder
+• FMVA (Financial Modeling & Valuation Analyst) Certified

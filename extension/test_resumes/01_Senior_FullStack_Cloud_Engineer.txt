@@ -1,0 +1,47 @@
+ALEX CHEN (ANONYMOUS TEST PROFILE)
+San Francisco, CA | (555) 019-2834 | alex.chen.candidate@example.com | linkedin.com/in/alexchen-demo
+
+================================================================================
+PROFESSIONAL SUMMARY
+================================================================================
+Principal Full-Stack & Cloud Software Engineer with 9+ years of experience designing and scaling fault-tolerant distributed systems, cloud-native microservices, and reactive web applications. Proven track record leading cross-functional squads, architecting sub-10ms high-throughput APIs serving 50M+ MAU, and optimizing multi-cloud infrastructure on AWS/GCP with Kubernetes and Terraform.
+
+================================================================================
+CORE TECHNICAL SKILLS
+================================================================================
+• Languages: Java (Spring Boot, Quarkus), Python (FastAPI, Django), Go (Golang), TypeScript, JavaScript, SQL, Bash
+• Frontend: React 18, Next.js, Redux Toolkit, Vue 3, Tailwind CSS, WebSockets, HTML5/CSS3
+• Backend & Distributed: Microservices, RESTful APIs, GraphQL, gRPC, Kafka, RabbitMQ, Redis, Celery
+• Databases & Storage: PostgreSQL, MySQL, MongoDB, DynamoDB, Elasticsearch, Cassandra
+• Cloud & DevOps: AWS (EC2, EKS, S3, RDS, Lambda), GCP, Docker, Kubernetes, Terraform, CI/CD (GitHub Actions, Jenkins)
+• Methodologies & Architecture: Domain-Driven Design (DDD), System Architecture, Event-Driven Architecture, High Concurrency, Agile/Scrum, TDD
+
+================================================================================
+PROFESSIONAL EXPERIENCE
+================================================================================
+Staff / Lead Software Engineer | CloudScale FinTech Solutions | San Francisco, CA
+2022 – Present
+• Architected and deployed an event-driven payment settlement microservice engine using Go, Kafka, and PostgreSQL, handling 25,000 TPS with 99.999% uptime.
+• Led migration from a legacy monolithic Java system to AWS EKS Kubernetes microservices, slashing annual AWS compute costs by 34% ($420K savings).
+• Spearheaded frontend revamp using Next.js, React, and TypeScript, improving web Core Web Vitals score by 45% and reducing p95 client load times to 780ms.
+• Mentored a team of 8 junior and mid-level engineers, establishing engineering best practices, CI/CD automated test gates, and trunk-based development.
+
+Senior Full Stack Software Engineer | Horizon Enterprise SaaS | San Jose, CA
+2019 – 2022
+• Designed and shipped enterprise real-time collaboration features with WebSockets, React, and Spring Boot, driving a 28% increase in daily user engagement.
+• Engineered distributed multi-region caching layer with Redis Cluster, decreasing database query latency by 68%.
+• Built automated CI/CD deployment pipelines using Docker, GitHub Actions, and Terraform, enabling daily zero-downtime canary deployments.
+• Implemented comprehensive observability stack using Prometheus, Grafana, and OpenTelemetry to resolve distributed transaction bottlenecks.
+
+Software Engineer | Apex Digital Labs | Seattle, WA
+2016 – 2019
+• Developed scalable RESTful backend services using Python (Django/FastAPI) and MySQL for high-volume consumer e-commerce platforms.
+• Built modular, reusable UI component libraries in React and TypeScript with 90%+ unit test coverage using Jest and React Testing Library.
+• Participated in sprint planning, code reviews, and on-call rotation resolving critical production P0/P1 incidents.
+
+================================================================================
+EDUCATION & CERTIFICATIONS
+================================================================================
+• B.S. in Computer Science | University of Washington
+• AWS Certified Solutions Architect – Professional
+• Certified Kubernetes Administrator (CKA)

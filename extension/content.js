@@ -1662,47 +1662,75 @@
         }
       });
 
-      fileInput?.addEventListener('change', (e) => {
+      fileInput?.addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = (loadEvent) => {
-          const text = loadEvent.target?.result;
-          if (typeof text === 'string') {
-            const fileNameClean = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-            candidateProfile.name = fileNameClean;
-            candidateProfile.title = fileNameClean;
-            candidateProfile.targetRole = fileNameClean;
-            
-            // Full unabridged raw text ingestion (up to 100,000 chars)
-            candidateProfile.rawResumeText = text.slice(0, 100000);
+        if (uploadBtn) {
+          uploadBtn.innerHTML = `⏳ Parsing ${file.name}...`;
+        }
 
-            // Comprehensive skill extraction across all technical & finance domains
-            const extractedSkills = extractSkillsFromResumeText(text);
-            if (extractedSkills.length > 0) {
-              candidateProfile.skills = extractedSkills;
-            }
+        try {
+          let text = '';
+          let formatName = file.name.split('.').pop()?.toUpperCase() || 'FILE';
 
-            // Estimate years of experience if mentioned in text (e.g., "15+ years")
-            const expMatch = text.match(/(\d+)\+?\s*years?\s*(?:of)?\s*(?:experience|comprehensive)/i);
-            if (expMatch && expMatch[1]) {
-              candidateProfile.yearsOfExperience = parseInt(expMatch[1], 10);
-            }
-
-            saveProfileToStorage();
-
-            if (uploadBtn) {
-              uploadBtn.innerHTML = `✅ Ingested (${extractedSkills.length} skills)!`;
-              setTimeout(() => {
-                renderShadowUI();
-              }, 1200);
-            } else {
-              renderShadowUI();
-            }
+          if (typeof SuperJobResumeParser !== 'undefined' && SuperJobResumeParser.parseResumeFile) {
+            const parsed = await SuperJobResumeParser.parseResumeFile(file);
+            text = parsed.text;
+            formatName = parsed.format;
+          } else {
+            // Fallback plain text reader
+            text = await new Promise((res, rej) => {
+              const r = new FileReader();
+              r.onload = () => res(r.result || '');
+              r.onerror = rej;
+              r.readAsText(file, 'utf-8');
+            });
           }
-        };
-        reader.readAsText(file);
+
+          if (!text || text.trim().length < 40) {
+            alert(`⚠️ Notice: We could not extract readable text from "${file.name}".\n\nThis usually happens if the PDF is a scanned image without a text layer or password-protected.\n\nTip: You can upload a .txt / .docx version, or paste your resume text directly into the "Edit Profile" box!`);
+            isEditCandidateOpen = true;
+            renderShadowUI();
+            return;
+          }
+
+          const fileNameClean = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+          candidateProfile.name = fileNameClean;
+          candidateProfile.title = fileNameClean;
+          candidateProfile.targetRole = fileNameClean;
+          
+          // Full unabridged raw text ingestion (up to 100,000 chars)
+          candidateProfile.rawResumeText = text.slice(0, 100000);
+
+          // Comprehensive skill extraction across all technical & finance domains
+          const extractedSkills = extractSkillsFromResumeText(text);
+          if (extractedSkills.length > 0) {
+            candidateProfile.skills = extractedSkills;
+          }
+
+          // Estimate years of experience if mentioned in text (e.g., "15+ years")
+          const expMatch = text.match(/(\d+)\+?\s*years?\s*(?:of)?\s*(?:experience|comprehensive)/i);
+          if (expMatch && expMatch[1]) {
+            candidateProfile.yearsOfExperience = parseInt(expMatch[1], 10);
+          }
+
+          saveProfileToStorage();
+
+          if (uploadBtn) {
+            uploadBtn.innerHTML = `✅ Ingested ${formatName} (${extractedSkills.length} skills)!`;
+            setTimeout(() => {
+              renderShadowUI();
+            }, 1200);
+          } else {
+            renderShadowUI();
+          }
+        } catch (err) {
+          console.error('[SuperJobGenie] Resume parse error:', err);
+          alert(`⚠️ Upload Notice: Could not parse "${file.name}".\n\nReason: ${err.message || 'Scanned image or binary format'}.\n\nTip: You can use .txt, .docx, or paste your text directly in "Edit Profile".`);
+          isEditCandidateOpen = true;
+          renderShadowUI();
+        }
       });
 
       wrapper.querySelector('#sjg-quick-save-btn')?.addEventListener('click', () => {

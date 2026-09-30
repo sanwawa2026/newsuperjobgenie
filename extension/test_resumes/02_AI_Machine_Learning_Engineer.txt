@@ -1,0 +1,45 @@
+DR. MAYA PATEL (ANONYMOUS TEST PROFILE)
+Seattle, WA | (555) 048-9123 | maya.patel.ai@example.com | linkedin.com/in/mayapatel-ai
+
+================================================================================
+PROFESSIONAL SUMMARY
+================================================================================
+Senior AI / Machine Learning Engineer & Applied Research Scientist with 6+ years of expertise in Generative AI, Large Language Models (LLMs), Retrieval-Augmented Generation (RAG), and Computer Vision. Deep background in training and fine-tuning transformer models with PyTorch, scaling vector search retrieval systems, and deploying enterprise-grade inference pipelines on AWS/GCP with TensorRT and Triton Inference Server.
+
+================================================================================
+CORE TECHNICAL SKILLS
+================================================================================
+• AI / ML Frameworks: PyTorch, TensorFlow, Hugging Face Transformers, JAX, Scikit-learn, Ray, vLLM, DeepSpeed
+• Generative AI & LLMs: Fine-Tuning (LoRA, QLoRA), Prompt Engineering, RAG Systems, LangChain, LlamaIndex, Agentic Workflows
+• Vector Search & Databases: Milvus, Pinecone, Qdrant, ChromaDB, FAISS, PostgreSQL (pgvector)
+• Languages: Python (Expert), C++, SQL, Bash, R
+• MLOps & Cloud: AWS SageMaker, GCP Vertex AI, Docker, Kubernetes, Kubeflow, MLflow, Weights & Biases, Triton
+• Data Engineering: Spark, PySpark, Pandas, NumPy, Kafka, Airflow, Snowflake
+
+================================================================================
+PROFESSIONAL EXPERIENCE
+================================================================================
+Senior Generative AI / ML Engineer | Cognition Intelligence Labs | Seattle, WA
+2023 – Present
+• Designed and productionized an enterprise RAG copilot utilizing LangChain, vLLM, and Pinecone, serving 120,000 internal enterprise queries daily with 94.2% factual grounding accuracy.
+• Fine-tuned open-source 7B & 70B parameter LLMs (Llama 3, Mistral) using QLoRA and DeepSpeed on multi-node A100 GPU clusters, beating baseline closed API performance on domain-specific benchmarks while reducing inference costs by 62%.
+• Built automated evaluation pipelines measuring hallucination rate, semantic similarity (BERTScore, ROUGE), and latency SLA adherence.
+• Architected dynamic context-caching and vector search re-ranking modules with Cohere and Cross-Encoders, boosting retrieval recall@k by 31%.
+
+Machine Learning Engineer | Apex Data Systems | Redmond, WA
+2020 – 2023
+• Developed end-to-end computer vision and NLP classification models processing 10TB+ daily unstructured multimodal data using PyTorch and Hugging Face.
+• Deployed real-time inference microservices with FastAPI and NVIDIA Triton on Kubernetes, reducing p99 response time from 350ms to 45ms.
+• Managed feature engineering and model registry workflows using MLflow and Airflow, reducing model iteration deployment cycles from 3 weeks to 2 days.
+
+Data Scientist & ML Researcher | Pacific AI Research | Bellevue, WA
+2018 – 2020
+• Researched semi-supervised representation learning and anomaly detection algorithms for high-frequency time-series datasets.
+• Published 2 research papers in top-tier machine learning workshops on efficient attention mechanisms and model quantization.
+
+================================================================================
+EDUCATION & PUBLICATIONS
+================================================================================
+• Ph.D. in Computer Science (Machine Learning & NLP) | University of California, Berkeley
+• B.S. in Electrical Engineering & Computer Science | UCLA
+• AWS Certified Machine Learning – Specialty

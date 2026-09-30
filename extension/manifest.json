@@ -1,12 +1,11 @@
 {
   "manifest_version": 3,
   "name": "SuperJobGenie - Western Job Boards AI Career Assistant",
-  "version": "2.9.0",
-  "description": "Unabridged 3,000+ character deep extractor & AI career match analyzer across Indeed, LinkedIn, Glassdoor, ZipRecruiter, Greenhouse, Lever & Workday.",
+  "version": "2.9.2",
+  "description": "Unabridged 3,000+ char deep JD extractor & instant AI skills match analyzer across Indeed, LinkedIn, Glassdoor & top ATS platforms.",
   "permissions": [
     "storage",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "host_permissions": [
     "https://*.indeed.com/*",
@@ -27,9 +26,7 @@
     "https://job-boards.greenhouse.io/*",
     "https://jobs.lever.co/*",
     "https://*.myworkdayjobs.com/*",
-    "https://*.wellfound.com/*",
-    "http://localhost:3000/*",
-    "*://*/*"
+    "https://*.wellfound.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -63,10 +60,10 @@
         "https://job-boards.greenhouse.io/*",
         "https://jobs.lever.co/*",
         "https://*.myworkdayjobs.com/*",
-        "https://*.wellfound.com/*",
-        "<all_urls>"
+        "https://*.wellfound.com/*"
       ],
       "js": [
+        "resume-parser.js",
         "content.js"
       ],
       "all_frames": false,
