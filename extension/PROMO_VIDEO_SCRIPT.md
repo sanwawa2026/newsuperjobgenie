@@ -83,7 +83,7 @@ You don't need a professional video editing studio! Here is the exact stack top 
 
 ---
 
-## 🌐 Where to Publish for Maximum "利他利己" Traffic:
+## 🌐 Where to Publish for Maximum Global Traffic:
 
 - **Chrome Web Store**: Add the YouTube link in the Web Store listing (Google features extensions with videos in category highlights!).
 - **LinkedIn**: Post the video with a brief founder story: *"I built an open tactical HUD to help job seekers stop getting ghosted by ATS black holes..."* (Extremely high viral potential among job seekers).
