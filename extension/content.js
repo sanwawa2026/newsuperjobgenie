@@ -1,5 +1,5 @@
 /**
- * SuperJobGenie Chrome Extension - Content Script (v2.9.2 Pro)
+ * SuperJobGenie Chrome Extension - Content Script (v2.9.3 Pro)
  * Industrial-grade Shadow DOM Isolation + Floating Executive HUD + Full Resume Ingestion Engine
  * Zero Center Blocking · Single Instance · Accurate Domain Skill Alignment
  */
@@ -13,7 +13,7 @@
   }
   window.__SUPER_JOB_GENIE_INITIALIZED__ = true;
 
-  console.log('[SuperJobGenie v2.9.2 Pro] Executive HUD initialized on:', window.location.href);
+  console.log('[SuperJobGenie v2.9.3 Pro] Executive HUD initialized on:', window.location.href);
 
   // Candidate Profile State (Default starts neutral/fresh, hydrated from storage)
   let candidateProfile = {
@@ -175,6 +175,7 @@
     let salary = '';
     let fullBodyText = '';
     let extractionSource = `${platform} Dynamic Engine`;
+    let isSchemaOrg = false;
     let jk = '';
     let foundJdEl = null;
 
