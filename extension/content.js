@@ -406,45 +406,45 @@
    */
   const COMPREHENSIVE_SKILL_CATALOG = [
     // --- Software Engineering & Backend ---
-    { name: 'Java & Spring Ecosystem', key: 'java' },
+    { name: 'Java & Spring Ecosystem', key: 'java(?!script)|spring boot|spring cloud|jvm|quarkus' },
     { name: 'C++ & Systems Programming', key: 'c\\+\\+|modern c\\+\\+|cpp' },
     { name: 'C# & .NET Platform', key: 'c#|\\.net|dotnet' },
-    { name: 'Python & Scripting', key: 'python' },
-    { name: 'Go (Golang)', key: 'go|golang' },
+    { name: 'Python & Scripting', key: 'python|fastapi|django|flask' },
+    { name: 'Go (Golang)', key: 'golang|go language|go programming|go backend|go developer' },
     { name: 'TypeScript & Modern JS', key: 'typescript|javascript' },
-    { name: 'Linux / Unix & Shell Tools', key: 'linux|unix|bash|shell' },
-    { name: 'Distributed Systems & Microservices', key: 'microservice|distributed system' },
-    { name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread' },
-    { name: 'System Architecture & Design', key: 'architecture|system design' },
-    { name: 'SQL & Relational Databases', key: 'sql|mysql|postgresql' },
+    { name: 'Linux / Unix & Shell Tools', key: 'linux|unix|bash|zsh|shell script|shell scripting|powershell' },
+    { name: 'Distributed Systems & Microservices', key: 'microservice|distributed system|distributed systems' },
+    { name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread|high throughput' },
+    { name: 'System Architecture & Design', key: 'system architecture|software architecture|system design|distributed architecture' },
+    { name: 'SQL & Relational Databases', key: 'sql|mysql|postgresql|postgres' },
     { name: 'NoSQL & Cache (Redis/Mongo)', key: 'redis|mongodb|nosql|elasticsearch' },
     { name: 'Docker & Kubernetes', key: 'docker|kubernetes|k8s' },
-    { name: 'Cloud Infrastructure (AWS/GCP/Azure)', key: 'aws|azure|google cloud|cloud computing' },
-    { name: 'CI/CD & DevOps Automation', key: 'ci/cd|jenkins|devops|pipeline' },
-    { name: 'Unit Testing & QA Validation', key: 'unit test|integration test|testing' },
+    { name: 'Cloud Infrastructure (AWS/GCP/Azure)', key: 'aws|azure|google cloud|cloud computing|gcp' },
+    { name: 'CI/CD & DevOps Automation', key: 'ci/cd|jenkins|devops|deployment pipeline|ci\\/cd pipeline|automated pipeline' },
+    { name: 'Unit Testing & QA Validation', key: 'unit test|integration test|automated test|qa test|e2e test|tdd|software testing' },
     { name: 'Agile & Scrum Methodologies', key: 'agile|scrum' },
-    { name: 'Security Clearance (DoD)', key: 'secret clearance|dod clearance|clearance' },
-    { name: 'Algorithms & Problem Solving', key: 'algorithm|data structure' },
+    { name: 'Security Clearance (DoD)', key: 'secret clearance|dod clearance|top secret|security clearance|ts\\/sci' },
+    { name: 'Algorithms & Problem Solving', key: 'algorithm|algorithms|data structure|data structures|leetcode' },
 
     // --- AR / Graphics / Computer Vision ---
-    { name: '3D Graphics & Rendering (OpenGL/Vulkan/DirectX)', key: 'opengl|vulkan|directx|metal|shader|3d rendering|rendering engine' },
-    { name: 'Game Engines & AR/VR (Unity/Unreal/Lens Studio)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine' },
-    { name: 'Computer Vision & AI (OpenCV/ML)', key: 'computer vision|opencv|machine learning|pytorch|tensorflow' },
+    { name: '3D Graphics & Rendering (OpenGL/Vulkan/DirectX)', key: 'opengl|vulkan|directx|metal api|apple metal|glsl|hlsl|shader|3d rendering|rendering engine|3d graphics' },
+    { name: 'Game Engines & AR/VR (Unity/Unreal/Lens Studio)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine|virtual reality' },
+    { name: 'Computer Vision & AI (OpenCV/ML)', key: 'computer vision|opencv|machine learning|deep learning|pytorch|tensorflow' },
 
     // --- Frontend & Web ---
-    { name: 'React & Frontend Frameworks', key: 'react|vue|angular' },
+    { name: 'React & Frontend Frameworks', key: 'react|vue|angular|next\\.js' },
     { name: 'Node.js & Backend Services', key: 'node\\.js|nodejs|node\\s+js|expressjs|express\\.js' },
     { name: 'APIs & Developer SDKs', key: 'developer-facing api|graphql|rest api|api design|restful' },
 
     // --- Finance / Accounting / Business ---
-    { name: 'Financial Modeling & Forecasting', key: 'financial model|financial modeling|forecasting' },
-    { name: 'Accounting & GAAP Standards', key: 'gaap|accounting principles|general ledger' },
-    { name: 'Advanced Excel & Modeling', key: 'excel|vba|pivot table' },
-    { name: 'Corporate FP&A & Budgeting', key: 'fp&a|budget|budgeting' },
+    { name: 'Financial Modeling & Forecasting', key: 'financial model|financial modeling|financial forecasting' },
+    { name: 'Accounting & GAAP Standards', key: 'gaap|accounting principles|general ledger|us gaap' },
+    { name: 'Advanced Excel & Modeling', key: 'ms excel|microsoft excel|advanced excel|excel vba|excel modeling|pivot table' },
+    { name: 'Corporate FP&A & Budgeting', key: 'fp&a|annual budget|budget planning|budget management|budgeting & forecasting|capex|opex' },
     { name: 'Data Visualization (Tableau/PowerBI)', key: 'tableau|powerbi|power bi' },
-    { name: 'ERP Systems (SAP/Oracle/Yardi)', key: 'sap|oracle|yardi|argus' },
-    { name: 'Audit & Internal Controls', key: 'audit|internal control|sox' },
-    { name: 'Cross-Functional PMO & Leadership', key: 'cross-functional|stakeholder|pmo' }
+    { name: 'ERP Systems (SAP/Oracle/Yardi)', key: 'sap erp|sap s\\/4hana|oracle erp|netsuite|yardi|argus' },
+    { name: 'Audit & Internal Controls', key: 'financial audit|internal audit|audit compliance|sox|sox compliance|internal controls' },
+    { name: 'Cross-Functional PMO & Leadership', key: 'cross-functional leadership|cross-functional team|stakeholder management|pmo|program management' }
   ];
 
   /**
@@ -640,32 +640,99 @@
    */
   function extractSkillsFromResumeText(text) {
     if (!text) return [];
-    const keywords = [
-      'Java', 'Python', 'Go', 'Golang', 'JavaScript', 'TypeScript', 'C++', 'C#', 'Rust', 'Ruby', 'PHP',
-      'SQL', 'MySQL', 'PostgreSQL', 'Oracle', 'MongoDB', 'Redis', 'Elasticsearch', 'Cassandra',
-      'Spring Boot', 'Spring Cloud', 'MyBatis', 'Django', 'Flask', 'FastAPI', 'Node.js', 'Express',
-      'React', 'Vue', 'Angular', 'Next.js', 'Tailwind', 'GraphQL', 'REST API',
-      'Docker', 'Kubernetes', 'K8s', 'Jenkins', 'CI/CD', 'Git', 'Linux', 'DevOps',
-      'AWS', 'AliCloud', 'Azure', 'Google Cloud', 'GCP',
-      'Microservices', 'Distributed Systems', 'High Concurrency', 'System Architecture', 'System Design', 'System Refactoring',
-      'Unit Testing', 'Integration Testing', 'Automated Testing', 'Swagger', 'Postman',
-      'Agile', 'Scrum', 'Jira', 'Technical Leadership', 'Team Management',
-      'Financial Software', 'IoT Platform', 'SaaS Platform', 'Data Analysis',
-      'Financial Modeling', 'DCF', 'LBO', 'Accounting', 'GAAP', 'FP&A', 'Excel', 'VBA', 'Tableau', 'PowerBI',
-      'SAP', 'Argus', 'Yardi', 'Auditing', 'Financial Analysis'
+    
+    // Explicit definitions with custom matchers to eliminate common word false positives
+    const skillRules = [
+      { name: 'Java', regex: /\bJava\b(?!script)/i },
+      { name: 'Python', regex: /\bPython\b/i },
+      { name: 'Go', regex: /\b(Golang|Go\s*(?:\(Golang\)|developer|engineer|backend|programming|language))\b|\bGo\/(?:Python|Rust|Java|C\+\+)\b/i },
+      { name: 'Golang', regex: /\bGolang\b/i },
+      { name: 'JavaScript', regex: /\bJavaScript\b/i },
+      { name: 'TypeScript', regex: /\bTypeScript\b/i },
+      { name: 'C++', regex: /(?:^|[^a-zA-Z0-9_#])(C\+\+|modern\s+C\+\+|CPP)(?:$|[^a-zA-Z0-9_#])/i },
+      { name: 'C#', regex: /(?:^|[^a-zA-Z0-9_#])(C#|\.NET|DotNet)(?:$|[^a-zA-Z0-9_#])/i },
+      { name: 'Rust', regex: /\bRust\b/i },
+      { name: 'Ruby', regex: /\bRuby\b(?:\s+on\s+Rails|\s+Rails|\b)/i },
+      { name: 'PHP', regex: /\bPHP\b/i },
+      { name: 'SQL', regex: /\bSQL\b/i },
+      { name: 'MySQL', regex: /\bMySQL\b/i },
+      { name: 'PostgreSQL', regex: /\b(PostgreSQL|Postgres)\b/i },
+      { name: 'Oracle', regex: /\b(Oracle\s+DB|Oracle\s+Database|Oracle\s+ERP|Oracle\s+Cloud)\b/i },
+      { name: 'MongoDB', regex: /\bMongoDB\b/i },
+      { name: 'Redis', regex: /\bRedis\b/i },
+      { name: 'Elasticsearch', regex: /\bElasticsearch\b/i },
+      { name: 'Cassandra', regex: /\bCassandra\b/i },
+      { name: 'Spring Boot', regex: /\bSpring\s+Boot\b/i },
+      { name: 'Spring Cloud', regex: /\bSpring\s+Cloud\b/i },
+      { name: 'MyBatis', regex: /\bMyBatis\b/i },
+      { name: 'Django', regex: /\bDjango\b/i },
+      { name: 'Flask', regex: /\bFlask\b/i },
+      { name: 'FastAPI', regex: /\bFastAPI\b/i },
+      { name: 'Node.js', regex: /\b(Node\.js|NodeJS|Node\s+js)\b/i },
+      { name: 'Express', regex: /\b(Express\.js|ExpressJS)\b/i },
+      { name: 'React', regex: /\bReact(?:\.js|JS)?\b/i },
+      { name: 'Vue', regex: /\bVue(?:\.js|JS)?\b/i },
+      { name: 'Angular', regex: /\bAngular(?:\.js|JS)?\b/i },
+      { name: 'Next.js', regex: /\bNext\.js\b/i },
+      { name: 'Tailwind', regex: /\bTailwind(?:\s+CSS)?\b/i },
+      { name: 'GraphQL', regex: /\bGraphQL\b/i },
+      { name: 'REST API', regex: /\b(RESTful|REST\s+API|REST\s+APIs)\b/i },
+      { name: 'Docker', regex: /\bDocker\b/i },
+      { name: 'Kubernetes', regex: /\b(Kubernetes|K8s)\b/i },
+      { name: 'Jenkins', regex: /\bJenkins\b/i },
+      { name: 'CI/CD', regex: /\bCI\/CD\b/i },
+      { name: 'Git', regex: /\bGit\b(?!ted)/i },
+      { name: 'Linux', regex: /\bLinux\b/i },
+      { name: 'DevOps', regex: /\bDevOps\b/i },
+      { name: 'AWS', regex: /\bAWS\b|Amazon\s+Web\s+Services/i },
+      { name: 'AliCloud', regex: /\b(AliCloud|Alibaba\s+Cloud)\b/i },
+      { name: 'Azure', regex: /\b(Microsoft\s+Azure|Azure\s+Cloud|Azure)\b/i },
+      { name: 'Google Cloud', regex: /\b(Google\s+Cloud|GCP)\b/i },
+      { name: 'Microservices', regex: /\b(Microservices?|Micro-services?)\b/i },
+      { name: 'Distributed Systems', regex: /\bDistributed\s+Systems?\b/i },
+      { name: 'High Concurrency', regex: /\b(High\s+Concurrency|High\s+Throughput|Multithread(?:ing)?)\b/i },
+      { name: 'System Architecture', regex: /\b(System\s+Architecture|Software\s+Architecture)\b/i },
+      { name: 'System Design', regex: /\bSystem\s+Design\b/i },
+      { name: 'System Refactoring', regex: /\b(?:Code|System)\s+Refactoring\b/i },
+      { name: 'Unit Testing', regex: /\bUnit\s+Test(?:ing|s)?\b/i },
+      { name: 'Integration Testing', regex: /\bIntegration\s+Test(?:ing|s)?\b/i },
+      { name: 'Automated Testing', regex: /\bAutomated\s+Test(?:ing|s)?\b/i },
+      { name: 'Swagger', regex: /\bSwagger\b/i },
+      { name: 'Postman', regex: /\bPostman\b/i },
+      { name: 'Agile', regex: /\bAgile\b/i },
+      { name: 'Scrum', regex: /\bScrum\b/i },
+      { name: 'Jira', regex: /\bJira\b/i },
+      { name: 'Technical Leadership', regex: /\bTechnical\s+Leadership\b/i },
+      { name: 'Team Management', regex: /\b(Team\s+Management|Engineering\s+Management)\b/i },
+      { name: 'Financial Software', regex: /\bFinancial\s+Software\b/i },
+      { name: 'IoT Platform', regex: /\bIoT(?:\s+Platform)?\b/i },
+      { name: 'SaaS Platform', regex: /\bSaaS(?:\s+Platform)?\b/i },
+      { name: 'Data Analysis', regex: /\bData\s+Analysis\b/i },
+      { name: 'Financial Modeling', regex: /\bFinancial\s+Model(?:ing)?\b/i },
+      { name: 'DCF', regex: /\bDCF\b|Discounted\s+Cash\s+Flow/i },
+      { name: 'LBO', regex: /\bLBO\b|Leveraged\s+Buyout/i },
+      { name: 'Accounting', regex: /\bAccounting\b/i },
+      { name: 'GAAP', regex: /\b(?:US\s+)?GAAP\b/i },
+      { name: 'FP&A', regex: /\bFP&A\b|Financial\s+Planning\s+and\s+Analysis/i },
+      { name: 'Excel', regex: /(?:MS\s+|Microsoft\s+|Advanced\s+)?Excel(?:\s+VBA|\s+Modeling|\s+Formulas)?\b(?!\s+(?:in|at)\b)/i },
+      { name: 'VBA', regex: /\bVBA\b/i },
+      { name: 'Tableau', regex: /\bTableau\b/i },
+      { name: 'PowerBI', regex: /\bPower\s*BI\b/i },
+      { name: 'SAP', regex: /\bSAP(?:\s+ERP|\s+S\/4HANA)?\b/i },
+      { name: 'Argus', regex: /\bArgus\b/i },
+      { name: 'Yardi', regex: /\bYardi\b/i },
+      { name: 'Auditing', regex: /\b(Auditing|Internal\s+Audit|Financial\s+Audit)\b/i },
+      { name: 'Financial Analysis', regex: /\bFinancial\s+Analysis\b/i }
     ];
 
     const found = [];
-    keywords.forEach(kw => {
+    skillRules.forEach(rule => {
       try {
-        const regex = new RegExp(`\\b${kw.replace('+', '\\+')}\\b`, 'i');
-        if (regex.test(text)) {
-          found.push(kw);
+        if (rule.regex.test(text)) {
+          found.push(rule.name);
         }
       } catch (e) {
-        if (text.toLowerCase().includes(kw.toLowerCase())) {
-          found.push(kw);
-        }
+        // Safe fallback
       }
     });
 
