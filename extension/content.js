@@ -250,48 +250,33 @@
       }
     }
 
-    // 5. Extract Title
+    // 5. Extract Title & Company with strict Active Right-Pane Scoping (Prevents picking up first card from search list)
+    const rightPane = 
+      (foundJdEl ? foundJdEl.closest('.jobsearch-JobComponent, [data-testid="jobsearch-JobComponent"], .jobsearch-RightPane, #jobsearch-ViewjobPaneWrapper, [data-testid="jobsearch-ViewJobLayout"], #vjs-container, div[role="main"]') : null) ||
+      document.querySelector('.jobsearch-JobComponent') ||
+      document.querySelector('[data-testid="jobsearch-JobComponent"]') ||
+      document.querySelector('.jobsearch-RightPane') ||
+      document.querySelector('#jobsearch-ViewjobPaneWrapper') ||
+      document.querySelector('[data-testid="jobsearch-ViewJobLayout"]') ||
+      document.querySelector('#vjs-container') ||
+      document.querySelector('div[role="main"]');
+
     const titleSelectors = [
       '[data-testid="jobsearch-JobInfoHeader-title"]',
       'h1.jobsearch-JobInfoHeader-title',
       'h2.jobsearch-JobInfoHeader-title',
       '.jobsearch-JobInfoHeader-title',
       'h1[data-cy="jobTitle"]',
-      '[data-testid="simpler-job-title"]',
-      '#vjs-jobtitle',
-      '.job-details-jobs-unified-top-card__job-title',
-      '[data-test="job-title"]'
+      'h1',
+      'h2'
     ];
 
-    if (foundJdEl) {
-      const container = foundJdEl.closest('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob, #vjs-container, #jobsearch-ViewjobPaneWrapper, div[role="main"]') || foundJdEl.parentElement?.parentElement;
-      if (container) {
-        for (const sel of titleSelectors) {
-          const el = container.querySelector(sel);
-          if (el && el.innerText.trim()) {
-            const clean = el.innerText.replace(/^new\s+/i, '').trim();
-            if (!isSearchHeader(clean)) {
-              title = clean;
-              break;
-            }
-          }
-        }
-        if (!title) {
-          const h = container.querySelector('h1, h2');
-          if (h && h.innerText.trim()) {
-            const clean = h.innerText.replace(/^new\s+/i, '').trim();
-            if (!isSearchHeader(clean)) title = clean;
-          }
-        }
-      }
-    }
-
-    if (!title) {
+    if (rightPane) {
       for (const sel of titleSelectors) {
-        const el = document.querySelector(sel);
+        const el = rightPane.querySelector(sel);
         if (el && el.innerText.trim()) {
           const clean = el.innerText.replace(/^new\s+/i, '').trim();
-          if (!isSearchHeader(clean)) {
+          if (!isSearchHeader(clean) && clean.length > 2) {
             title = clean;
             break;
           }
@@ -299,16 +284,25 @@
       }
     }
 
-    if (!title && lastClickedCard?.title) {
-      title = lastClickedCard.title;
+    if (!title) {
+      // Document fallback that strictly ignores the left search results list
+      const allHeaders = document.querySelectorAll('h1, h2, [data-testid="jobsearch-JobInfoHeader-title"]');
+      for (const el of allHeaders) {
+        if (el.closest('#mosaic-provider-jobcards, .jobsearch-ResultsList, #mosaic-jobResults, ul[role="list"]')) continue;
+        const clean = (el.innerText || '').replace(/^new\s+/i, '').trim();
+        if (clean && !isSearchHeader(clean) && clean.length > 2) {
+          title = clean;
+          break;
+        }
+      }
     }
 
     // 6. Extract Company
     const compSelectors = [
       '[data-testid="inlineHeader-companyName"]',
+      '[data-company-name="true"]',
       '.jobsearch-InlineCompanyRating-companyHeader a',
       '.jobsearch-InlineCompanyRating-companyHeader',
-      '[data-company-name="true"]',
       'a[data-cy="companyName"]',
       '.company-name',
       '#vjs-cn',
@@ -316,22 +310,9 @@
       '[data-test="employer-name"]'
     ];
 
-    if (foundJdEl) {
-      const container = foundJdEl.closest('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob, #vjs-container, #jobsearch-ViewjobPaneWrapper, div[role="main"]') || foundJdEl.parentElement?.parentElement;
-      if (container) {
-        for (const sel of compSelectors) {
-          const el = container.querySelector(sel);
-          if (el && el.innerText.trim()) {
-            company = el.innerText.trim();
-            break;
-          }
-        }
-      }
-    }
-
-    if (!company) {
+    if (rightPane) {
       for (const sel of compSelectors) {
-        const el = document.querySelector(sel);
+        const el = rightPane.querySelector(sel);
         if (el && el.innerText.trim()) {
           company = el.innerText.trim();
           break;
@@ -339,19 +320,24 @@
       }
     }
 
-    if (!company && lastClickedCard?.company) {
-      company = lastClickedCard.company;
+    if (!company) {
+      const allComps = document.querySelectorAll('[data-testid="inlineHeader-companyName"], [data-company-name="true"], .company-name');
+      for (const el of allComps) {
+        if (el.closest('#mosaic-provider-jobcards, .jobsearch-ResultsList, #mosaic-jobResults, ul[role="list"]')) continue;
+        const clean = (el.innerText || '').trim();
+        if (clean && clean.length > 1) {
+          company = clean;
+          break;
+        }
+      }
     }
 
     // 7. Location & Salary
-    if (foundJdEl) {
-      const container = foundJdEl.closest('div.jobsearch-RightPane, div.jobsearch-ViewJobLayout, div[aria-label="Job details"], div.fastviewjob, #vjs-container') || foundJdEl.parentElement?.parentElement;
-      if (container) {
-        const locEl = container.querySelector('[data-testid="jobsearch-JobInfoHeader-companyLocation"], .jobsearch-JobInfoHeader-companyLocation');
-        if (locEl && locEl.innerText.trim()) location = locEl.innerText.trim();
-        const salEl = container.querySelector('#salaryInfoAndJobType, [data-testid="jobsearch-JobDescriptionSection-section--salary"]');
-        if (salEl && salEl.innerText.trim()) salary = salEl.innerText.trim();
-      }
+    if (rightPane) {
+      const locEl = rightPane.querySelector('[data-testid="jobsearch-JobInfoHeader-companyLocation"], .jobsearch-JobInfoHeader-companyLocation');
+      if (locEl && locEl.innerText.trim()) location = locEl.innerText.trim();
+      const salEl = rightPane.querySelector('#salaryInfoAndJobType, [data-testid="jobsearch-JobDescriptionSection-section--salary"], [data-testid="attribute_snippets_test_title"]');
+      if (salEl && salEl.innerText.trim()) salary = salEl.innerText.trim();
     }
 
     if (!jk) {
