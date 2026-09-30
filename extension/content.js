@@ -2255,7 +2255,7 @@
               ${evaluation.verifiedSkills.length > 0 ? evaluation.verifiedSkills.map(skill => `
                 <div class="sjg-chip verified">
                   <span>•</span>
-                  <span>${escapeHtml(skill.name)}</span>
+                  <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;" title="${escapeHtml(skill.name)}">${escapeHtml(skill.name)}</span>
                 </div>
               `).join('') : '<div style="color:#64748b; font-size:11px; padding:4px 0;">No overlapping skills identified in target JD.</div>'}
             </div>
@@ -2271,7 +2271,7 @@
               ${evaluation.missingSkillGaps.length > 0 ? evaluation.missingSkillGaps.map(gap => `
                 <div class="sjg-chip gap">
                   <span>•</span>
-                  <span>${escapeHtml(gap.name)}</span>
+                  <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;" title="${escapeHtml(gap.name)}">${escapeHtml(gap.name)}</span>
                 </div>
               `).join('') : '<div style="color:#34d399; font-size:11px; padding:4px 0;">🎉 All core JD requirements covered! Zero skill gaps.</div>'}
             </div>
