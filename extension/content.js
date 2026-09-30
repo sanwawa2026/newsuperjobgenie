@@ -1,5 +1,5 @@
 /**
- * SuperJobGenie Chrome Extension - Content Script (v2.9.3 Pro)
+ * SuperJobGenie Chrome Extension - Content Script (v2.9.4 Pro)
  * Industrial-grade Shadow DOM Isolation + Floating Executive HUD + Full Resume Ingestion Engine
  * Zero Center Blocking · Single Instance · Accurate Domain Skill Alignment
  */
@@ -13,7 +13,7 @@
   }
   window.__SUPER_JOB_GENIE_INITIALIZED__ = true;
 
-  console.log('[SuperJobGenie v2.9.3 Pro] Executive HUD initialized on:', window.location.href);
+  console.log('[SuperJobGenie v2.9.4 Pro] Executive HUD initialized on:', window.location.href);
 
   // Candidate Profile State (Default starts neutral/fresh, hydrated from storage)
   let candidateProfile = {
@@ -481,16 +481,16 @@
     const extracted = [];
     const seenLabels = new Set();
 
-    // 1. Split text by common duty / requirement delimiters (bullet points, semicolons, numbered lists, newlines)
-    const rawClauses = source
-      .replace(/Basic Qualifications:?/gi, '\n')
-      .replace(/Preferred Qualifications:?/gi, '\n')
-      .replace(/Job duties:?/gi, '\n')
-      .replace(/Required qualifications:?/gi, '\n')
-      .replace(/Responsibilities:?/gi, '\n')
-      .replace(/Requirements:?/gi, '\n')
-      .replace(/What you'll do:?/gi, '\n')
-      .split(/(?:[;\n•\r·\*\t]|\d+\.\s+)/);
+    // 1. Clean explicit section headers (only when they act as section headings, NEVER plain nouns in sentences)
+    const cleanSource = source
+      .replace(/(?:^|\n)\s*(?:Basic|Preferred|Minimum|Required)?\s*Qualifications\s*:?/gim, '\n')
+      .replace(/(?:^|\n)\s*(?:Job\s+duties|Key\s+Responsibilities|Core\s+Responsibilities|Responsibilities)\s*:?/gim, '\n')
+      .replace(/(?:^|\n)\s*(?:Requirements|Role\s+Requirements|Job\s+Requirements)\s*:\s*/gim, '\n')
+      .replace(/(?:^|\n)\s*What\s+you(?:'ll| will)\s+do\s*:?/gim, '\n');
+
+    const rawClauses = cleanSource.split(/(?:[;\n•\r·\*\t]|\d+\.\s+)/);
+
+    const STOPWORDS = new Set(['and', 'the', 'for', 'with', 'from', 'that', 'this', 'have', 'has', 'had', 'our', 'you', 'your', 'will', 'all', 'such', 'making', 'writing', 'using', 'into', 'well', 'across', 'including', 'key', 'etc', 'able', 'per', 'their', 'must']);
 
     for (let raw of rawClauses) {
       let clause = raw.trim();
@@ -501,9 +501,12 @@
       const isNegated = /\b(not\s+required|not\s+necessary|no\s+prior\s+(?:experience|knowledge)\s+(?:needed|required)|optional|is\s+a\s+plus(?:\s+only)?)\b/i.test(clause);
       if (isNegated) continue;
 
-      // Clean leading/trailing punctuation & words like "Must have", "Ability to", "Experience with"
+      // Clean leading/trailing punctuation, bullet markers, conjunctions & boilerplates
       clause = clause
-        .replace(/^(?:must have|ability to|responsible for|experience with|experience in|expertise in|proficient in|including|knowledge of|proven track record in|familiarity with|strong understanding of|understanding of|demonstrated|solid)\s+/i, '')
+        .replace(/^[\s\-–—•*·>]+\s*/, '')
+        .replace(/^(?:and|or|&|\+|as well as)\s+/i, '')
+        .replace(/^(?:must have|ability to|responsible for|experience with|experience in|expertise in|proficient in|proficient with|proficiency in|including|knowledge of|proven track record in|familiarity with|strong understanding of|understanding of|demonstrated|solid)\s+/i, '')
+        .replace(/^(?:and|or|&|\+|as well as)\s+/i, '')
         .replace(/[.,;:]+$/, '')
         .trim();
 
@@ -522,9 +525,14 @@
       const dedupeKey = cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
       if (!seenLabels.has(dedupeKey)) {
         seenLabels.add(dedupeKey);
+        const meaningfulWords = clause.toLowerCase()
+          .replace(/[^a-z0-9\s]/g, ' ')
+          .split(/\s+/)
+          .filter(w => w.length > 2 && !STOPWORDS.has(w));
+
         extracted.push({
           name: cleanTitle,
-          key: clause.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2).join('|'),
+          key: (meaningfulWords.length > 0 ? meaningfulWords.join('|') : clause.toLowerCase()),
           isDynamic: true
         });
       }
