@@ -260,8 +260,11 @@
       // LinkedIn
       '.jobs-description-content',
       '.jobs-description-content__text',
+      '.jobs-description',
       'div#job-details',
+      '#job-details',
       '.jobs-box__html-content',
+      '.jobs-unified-description__content',
       '[data-testid="job-details"]'
     ];
 
@@ -2405,10 +2408,19 @@
             return;
           }
 
+          // Improve title/role extraction from file content
+          const textLines = text.split('\n').filter(l => l.trim().length > 0);
+          const firstLine = textLines[0].trim();
+          
           const fileNameClean = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
           candidateProfile.name = fileNameClean;
-          candidateProfile.title = fileNameClean;
-          candidateProfile.targetRole = fileNameClean;
+          
+          // Try to find a role in the first few lines
+          const roleMatch = firstLine.match(/(Software Engineer|Finance Analyst|Data Scientist|Product Manager|Developer)/i) || 
+                            textLines.find(l => l.match(/(Software Engineer|Finance Analyst|Data Scientist|Product Manager|Developer)/i));
+                            
+          candidateProfile.title = roleMatch ? roleMatch[0] : fileNameClean;
+          candidateProfile.targetRole = roleMatch ? roleMatch[0] : 'Software Engineer';
           
           // Full unabridged raw text ingestion (up to 100,000 chars)
           candidateProfile.rawResumeText = text.slice(0, 100000);
