@@ -258,8 +258,9 @@
       '.job-description-content',
       '.job_details',
       // LinkedIn
-      '.jobs-description__content',
-      '#job-details',
+      '.jobs-description-content',
+      '.jobs-description-content__text',
+      'div#job-details',
       '.jobs-box__html-content',
       '[data-testid="job-details"]'
     ];
