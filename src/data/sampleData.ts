@@ -234,10 +234,10 @@ Qualifications:
   rawTruncatedSnippet153: `At Stripe, we build the financial infrastructure of the internet. Millions of companies rely on our tools to accept payments, send payouts, and manage their business`
 };
 
-// Tang Candidate Profile (Matching the exact video screenshot with Anonymous Mode Active)
+// Staff Frontend Architect Candidate Profile (Fully Anonymized & PII-Clean)
 export const TANG_CANDIDATE_PROFILE: CandidateProfile = {
-  id: 'cand-tang-frontend-lead',
-  name: 'Candidate (PII Scrubbed: Tang / Krishna / AI Technician)',
+  id: 'cand-frontend-lead',
+  name: 'Senior Frontend Architect (Verified Profile)',
   title: 'Senior / Lead Frontend Engineer',
   location: 'San Francisco, CA / London / Remote',
   targetRole: 'Senior / Lead Frontend Engineer',
@@ -245,8 +245,8 @@ export const TANG_CANDIDATE_PROFILE: CandidateProfile = {
   education: 'Bachelor of Computer Science and Technology',
   certifications: ['AWS Certified Solutions Architect', 'Kubernetes Administrator (CKA)'],
   isAnonymousMode: true,
-  anonymizedLabel: 'Anonymous Mode Active (PII Scrubbed: Tang / Krishna / AI Technician)',
-  uploadedFileName: 'tang-resume-eng-lead.pdf',
+  anonymizedLabel: 'Anonymous Mode Active (Local Storage Only)',
+  uploadedFileName: 'resume-lead-architect.pdf',
   uploadedFileSize: '84 KB',
   rawResumeText: `15+ years experience architecting high-performance web systems and frontend infrastructures. Built scalable microfrontends, performance-critical React/TypeScript applications with 99.99% availability, and mentored 15+ engineers. Successfully drove bundle size reduction by 42% and Core Web Vitals LCP to <1.2s across global e-commerce and financial platforms. Solid backend foundations in Node.js, Python, SQL, and AWS cloud architectures.`,
   skills: [

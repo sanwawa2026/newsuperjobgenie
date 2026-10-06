@@ -28,6 +28,8 @@ import { ExportExtensionButton } from './components/ExportExtensionButton';
 import { InPageModalDialog } from './components/InPageModalDialog';
 import { ResumeJobIngestionView } from './components/ResumeJobIngestionView';
 import { TelemetryDashboardModal } from './components/TelemetryDashboardModal';
+import { LandingPage } from './components/LandingPage';
+import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { TelemetryManager } from './services/telemetry';
 import { 
   DEFAULT_CANDIDATE, 
@@ -42,26 +44,37 @@ import { analyzeJobMatch, extractJobContent } from './services/api';
 export default function App() {
   const [candidate, setCandidate] = useState<CandidateProfile>(TANG_CANDIDATE_PROFILE);
   const [currentJob, setCurrentJob] = useState<ExtractedJobData>(STRIPE_FRONTEND_ARCHITECT_JD);
-  const [activeViewMode, setActiveViewMode] = useState<'ingestion' | 'simulator'>('ingestion');
+  const [activeViewMode, setActiveViewMode] = useState<'landing' | 'ingestion' | 'simulator'>('landing');
   const [isBuggyMode, setIsBuggyMode] = useState<boolean>(false); // default to fixed 3000+ chars
   const [isDashboardOpen, setIsDashboardOpen] = useState<boolean>(false);
   const [dashboardTab, setDashboardTab] = useState<string>('diagnostics');
   const [isCandidateModalOpen, setIsCandidateModalOpen] = useState<boolean>(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isInPageModalOpen, setIsInPageModalOpen] = useState<boolean>(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showHud, setShowHud] = useState<boolean>(true);
 
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState<boolean>(false);
 
-  // Auto-handle external deep-links from Chrome Extension (e.g. ?tab=pivot, ?tab=coverletter, ?title=...)
+  // Auto-handle external deep-links from Chrome Extension (e.g. ?tab=pivot, ?tab=coverletter, ?title=..., ?view=workstation)
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
+      const viewParam = params.get('view');
+      if (viewParam === 'workstation' || viewParam === 'ingestion') {
+        setActiveViewMode('ingestion');
+      } else if (viewParam === 'simulator') {
+        setActiveViewMode('simulator');
+      } else if (viewParam === 'privacy') {
+        setIsPrivacyModalOpen(true);
+      }
+
       const tabParam = params.get('tab');
       if (tabParam) {
         setDashboardTab(tabParam);
         setIsDashboardOpen(true);
+        setActiveViewMode('ingestion');
       }
       const titleParam = params.get('title');
       const companyParam = params.get('company');
@@ -209,8 +222,8 @@ export default function App() {
       }
     ],
     coverLetters: {
-      tier3Free: `Dear Stripe Hiring Team,\n\nI am writing to express my strong enthusiasm for the Staff Frontend Architect position at Stripe. With over 15 years of engineering experience architecting scalable frontend systems and resilient web infrastructures, I have dedicated my career to building high-performance, developer-friendly interfaces that process millions of critical transactions daily.\n\nThroughout my career, I have spearheaded the evolution of decoupled microfrontends, reduced bundle sizes by 42%, and driven Core Web Vitals (LCP < 1.2s) across large-scale commercial platforms. What excites me most about Stripe is your relentless commitment to developer ergonomics and rock-solid payment reliability.\n\nI look forward to discussing how my experience scaling design systems across dozens of squads and enforcing type-safe client-server contracts can contribute to Stripe's ongoing mission.\n\nSincerely,\nCandidate (PII Scrubbed)`,
-      tier4Pro: `Dear Stripe Engineering Leadership Team,\n\nI am thrilled to apply for the Staff Frontend Architect role at Stripe. Having spent 15+ years architecting mission-critical web applications and frontend infrastructure, I resonate deeply with Stripe's craft-driven approach to developer tools, payment elements, and global financial infrastructure.\n\nKey alignments with your requirements include:\n• Performance-Critical Architecture: Proven track record driving web vitals and sub-100ms interaction latencies across high-concurrency transaction flows, slashing bundle overhead by 42%.\n• Scale & System Governance: Successfully unified design systems and UI component pipelines across 40+ squads with TypeScript strict typing and robust Jest/Playwright coverage.\n• End-to-End Type Safety: Deep expertise bridging distributed backend services with client applications via schema-first architectures.\n\nI would welcome the opportunity to connect and share detailed architectural case studies on building scalable frontend platforms at Stripe.\n\nSincerely,\nCandidate (PII Scrubbed: Tang / Krishna / AI Technician)`
+      tier3Free: `Dear Stripe Hiring Team,\n\nI am writing to express my strong enthusiasm for the Staff Frontend Architect position at Stripe. With over 15 years of engineering experience architecting scalable frontend systems and resilient web infrastructures, I have dedicated my career to building high-performance, developer-friendly interfaces that process millions of critical transactions daily.\n\nThroughout my career, I have spearheaded the evolution of decoupled microfrontends, reduced bundle sizes by 42%, and driven Core Web Vitals (LCP < 1.2s) across large-scale commercial platforms. What excites me most about Stripe is your relentless commitment to developer ergonomics and rock-solid payment reliability.\n\nI look forward to discussing how my experience scaling design systems across dozens of squads and enforcing type-safe client-server contracts can contribute to Stripe's ongoing mission.\n\nSincerely,\nSenior Software Engineer`,
+      tier4Pro: `Dear Stripe Engineering Leadership Team,\n\nI am thrilled to apply for the Staff Frontend Architect role at Stripe. Having spent 15+ years architecting mission-critical web applications and frontend infrastructure, I resonate deeply with Stripe's craft-driven approach to developer tools, payment elements, and global financial infrastructure.\n\nKey alignments with your requirements include:\n• Performance-Critical Architecture: Proven track record driving web vitals and sub-100ms interaction latencies across high-concurrency transaction flows, slashing bundle overhead by 42%.\n• Scale & System Governance: Successfully unified design systems and UI component pipelines across 40+ squads with TypeScript strict typing and robust Jest/Playwright coverage.\n• End-to-End Type Safety: Deep expertise bridging distributed backend services with client applications via schema-first architectures.\n\nI would welcome the opportunity to connect and share detailed architectural case studies on building scalable frontend platforms at Stripe.\n\nSincerely,\nSenior Frontend Architect`
     }
   });
 
@@ -323,6 +336,21 @@ export default function App() {
     setIsDashboardOpen(true);
   };
 
+  if (activeViewMode === 'landing') {
+    return (
+      <>
+        <LandingPage 
+          onEnterApp={() => setActiveViewMode('ingestion')}
+          onOpenPrivacy={() => setIsPrivacyModalOpen(true)}
+        />
+        <PrivacyPolicyModal
+          isOpen={isPrivacyModalOpen}
+          onClose={() => setIsPrivacyModalOpen(false)}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white pb-20">
       
@@ -391,8 +419,20 @@ export default function App() {
               <span>3/3 Available Credits</span>
             </div>
 
-            {/* View Switcher: Ingestion Studio vs Live Simulator */}
+            {/* View Switcher: Landing vs Ingestion Studio vs Live Simulator */}
             <div className="flex items-center bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs">
+              <button
+                onClick={() => setActiveViewMode('landing')}
+                className={`px-2.5 py-1 rounded-md font-semibold transition flex items-center gap-1 ${
+                  activeViewMode === 'landing'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="View Official Landing Page"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Landing</span>
+              </button>
               <button
                 onClick={() => setActiveViewMode('ingestion')}
                 className={`px-2.5 py-1 rounded-md font-semibold transition flex items-center gap-1 ${
@@ -415,7 +455,7 @@ export default function App() {
                 title="Switch to Indeed Job Simulator"
               >
                 <Globe className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Indeed Simulator</span>
+                <span className="hidden md:inline">Simulator</span>
               </button>
             </div>
 
@@ -589,6 +629,12 @@ export default function App() {
       <TelemetryDashboardModal
         isOpen={isTelemetryModalOpen}
         onClose={() => setIsTelemetryModalOpen(false)}
+      />
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
       />
     </div>
   );
