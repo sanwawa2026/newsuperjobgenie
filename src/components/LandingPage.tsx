@@ -32,16 +32,39 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPrivacy }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  const [activePlatformTab, setActivePlatformTab] = useState<'linkedin' | 'glassdoor' | 'indeed'>('linkedin');
+  const [activePlatformTab, setActivePlatformTab] = useState<'indeed' | 'linkedin' | 'glassdoor'>('indeed');
 
   const platforms = [
-    { name: 'LinkedIn', desc: '6,500+ Chars Full Job Body Verified', color: 'from-blue-500/20 to-blue-600/10', border: 'border-blue-500/30' },
     { name: 'Indeed', desc: 'SpaceX, Anduril 10,980+ Chars Depth Parsed', color: 'from-indigo-500/20 to-indigo-600/10', border: 'border-indigo-500/30' },
+    { name: 'LinkedIn', desc: '6,500+ Chars Full Job Body Verified', color: 'from-blue-500/20 to-blue-600/10', border: 'border-blue-500/30' },
     { name: 'Glassdoor', desc: 'Base Salary Range + Deep Requirements', color: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/30' }
   ];
 
   // Authentic battle-tested showcase presets extracted from real user videos & sessions
   const showcaseData = {
+    indeed: {
+      platformLabel: 'Indeed Unabridged Deep Scanner',
+      tabUrl: 'indeed.com/jobs?q=software+engineer&l=Los+Angeles%2C+CA',
+      jobTitle: 'Sr. Software Engineer (Platform Team)',
+      company: 'SpaceX',
+      location: 'Hawthorne, CA • On-site / Hybrid',
+      salary: '$160,000 - $220,000 a year',
+      charsCaptured: '10,982',
+      summary: 'SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting. The Platform Team is responsible for building foundational tooling for Starship & Starlink.',
+      score: 85,
+      scoreTier: 'Competitive Strong Match',
+      tierSub: '5 matched core requirements · 1 gap to bridge',
+      skillsMatched: [
+        'Lead design, architecture & development of distributed tools',
+        'Develop and scale internal developer platform tooling',
+        'Strong background in high-concurrency systems (Go/Python)',
+        'Python & robust experience with Linux environments',
+        'Infrastructure-as-code, Docker, Kubernetes & CI/CD'
+      ],
+      skillGaps: [
+        'Cross-squad flight software hardware-in-the-loop influence'
+      ]
+    },
     linkedin: {
       platformLabel: 'LinkedIn Real-Time Scanner',
       tabUrl: 'linkedin.com/jobs/search/?keywords=software+engineer',
@@ -86,29 +109,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
       ],
       skillGaps: [
         'Capital Markets & fixed-income settlement workflow'
-      ]
-    },
-    indeed: {
-      platformLabel: 'Indeed Unabridged Deep Scanner',
-      tabUrl: 'indeed.com/jobs?q=software+engineer&l=Los+Angeles%2C+CA',
-      jobTitle: 'Sr. Software Engineer (Platform Team)',
-      company: 'SpaceX',
-      location: 'Hawthorne, CA • On-site / Hybrid',
-      salary: '$160,000 - $220,000 a year',
-      charsCaptured: '10,982',
-      summary: 'SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting. The Platform Team is responsible for building foundational tooling for Starship & Starlink.',
-      score: 85,
-      scoreTier: 'Competitive Strong Match',
-      tierSub: '5 matched core requirements · 1 gap to bridge',
-      skillsMatched: [
-        'Lead design, architecture & development of distributed tools',
-        'Develop and scale internal developer platform tooling',
-        'Strong background in high-concurrency systems (Go/Python)',
-        'Python & robust experience with Linux environments',
-        'Infrastructure-as-code, Docker, Kubernetes & CI/CD'
-      ],
-      skillGaps: [
-        'Cross-squad flight software hardware-in-the-loop influence'
       ]
     }
   };
@@ -275,8 +275,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
               </h3>
             </div>
             
-            {/* Interactive Switcher between LinkedIn, Glassdoor & Indeed */}
+            {/* Interactive Switcher between Indeed, LinkedIn & Glassdoor */}
             <div className="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold shadow-lg">
+              <button
+                onClick={() => setActivePlatformTab('indeed')}
+                className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
+                  activePlatformTab === 'indeed' 
+                    ? 'bg-indigo-600 text-white shadow-sm' 
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-indigo-400" />
+                <span>Indeed Demo</span>
+              </button>
               <button
                 onClick={() => setActivePlatformTab('linkedin')}
                 className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
@@ -298,17 +309,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 <span>Glassdoor Demo</span>
-              </button>
-              <button
-                onClick={() => setActivePlatformTab('indeed')}
-                className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
-                  activePlatformTab === 'indeed' 
-                    ? 'bg-indigo-600 text-white shadow-sm' 
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-indigo-400" />
-                <span>Indeed Demo (SpaceX)</span>
               </button>
             </div>
           </div>

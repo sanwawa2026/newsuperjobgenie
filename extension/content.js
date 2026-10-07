@@ -2607,6 +2607,9 @@
             if (job?.title && job.title !== 'Select a Job on Indeed') {
               url.searchParams.set('title', job.title);
               url.searchParams.set('company', job.company || '');
+              // Sync score and tier for consistent UI across devices
+              url.searchParams.set('score', evaluation.overallMatchScore.toString());
+              url.searchParams.set('tier', evaluation.matchTier);
             }
             window.open(url.toString(), '_blank');
           } catch (e) {
