@@ -2625,15 +2625,19 @@
           ? evaluation.verifiedSkills.map(s => s.fullName || s.name).map(n => n.replace('…', ''))
           : candidateProfile.skills.slice(0, 4);
 
-        // Robustly detect job source
-        const hostname = window.location.hostname.toLowerCase();
+        // Robustly detect job source using full URL and set display label
+        const url = window.location.href.toLowerCase();
         let jobSource = 'our platform';
-        if (hostname.includes('indeed')) {
+        let portfolioLabel = 'Portfolio';
+        if (url.includes('indeed.com')) {
           jobSource = 'Indeed';
-        } else if (hostname.includes('linkedin')) {
+          portfolioLabel = 'Indeed Profile/Portfolio';
+        } else if (url.includes('linkedin.com')) {
           jobSource = 'LinkedIn';
-        } else if (hostname.includes('glassdoor')) {
+          portfolioLabel = 'LinkedIn Profile';
+        } else if (url.includes('glassdoor.com')) {
           jobSource = 'Glassdoor';
+          portfolioLabel = 'Glassdoor Profile';
         }
         
         const candidateDisplayName = (candidateProfile.name && !candidateProfile.name.includes('PII Scrubbed') && candidateProfile.name !== 'Candidate Profile') 
@@ -2641,7 +2645,7 @@
           : '[Your Name]';
 
         const cl = `[Your Name]
-[Your Phone Number] | [Your Email] | [Your LinkedIn/Portfolio URL]
+[Your Phone Number]  •  [Your Email]  •  [Your ${portfolioLabel} URL]
 
 Dear Hiring Team at ${job.company || 'your organization'},
 
