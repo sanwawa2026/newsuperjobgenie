@@ -2625,9 +2625,12 @@
         
         const candidateDisplayName = (candidateProfile.name && !candidateProfile.name.includes('PII Scrubbed') && candidateProfile.name !== 'Candidate Profile') 
           ? candidateProfile.name 
-          : 'Candidate';
+          : '[Your Name]';
 
-        const cl = `Dear Hiring Team at ${job.company || 'your organization'},
+        const cl = `[Your Name]
+[Your Phone Number] | [Your Email] | [Your LinkedIn/Portfolio URL]
+
+Dear Hiring Team at ${job.company || 'your organization'},
 
 I am writing to express my strong enthusiasm for the ${job.title || 'engineering'} position. Having tracked ${job.company || 'your team'}'s technical innovations, I am eager to contribute my background in architecting scalable systems and resilient software infrastructure to your initiatives.
 
@@ -2642,6 +2645,7 @@ Throughout my career, I have specialized in turning ambiguous product goals into
 Thank you for your time and consideration.
 
 Sincerely,
+
 ${candidateDisplayName}`;
 
         navigator.clipboard.writeText(cl);
