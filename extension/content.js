@@ -807,6 +807,7 @@
 
         extracted.push({
           name: cleanTitle,
+          fullName: clause,
           key: (meaningfulWords.length > 0 ? meaningfulWords.join('|') : clause.toLowerCase()),
           isDynamic: true
         });
@@ -2619,9 +2620,13 @@
       });
 
       wrapper.querySelector('#sjg-cl-free-btn')?.addEventListener('click', () => {
+        // Ensure we use the full name without ellipsis
         const topSkills = evaluation.verifiedSkills.length > 0
-          ? evaluation.verifiedSkills.map(s => s.name).slice(0, 4)
+          ? evaluation.verifiedSkills.map(s => s.fullName || s.name).map(n => n.replace('…', ''))
           : candidateProfile.skills.slice(0, 4);
+
+        // Detect job source
+        const jobSource = window.location.hostname.split('.')[1] || 'our platform';
         
         const candidateDisplayName = (candidateProfile.name && !candidateProfile.name.includes('PII Scrubbed') && candidateProfile.name !== 'Candidate Profile') 
           ? candidateProfile.name 
@@ -2632,7 +2637,7 @@
 
 Dear Hiring Team at ${job.company || 'your organization'},
 
-I am writing to express my strong enthusiasm for the ${job.title || 'engineering'} position. Having tracked ${job.company || 'your team'}'s technical innovations, I am eager to contribute my background in architecting scalable systems and resilient software infrastructure to your initiatives.
+I am writing to express my strong enthusiasm for the ${job.title || 'engineering'} position, which I discovered through ${jobSource}. Having tracked ${job.company || 'your team'}'s technical innovations, I am eager to contribute my background in architecting scalable systems and resilient software infrastructure to your initiatives.
 
 With over ${candidateProfile.yearsOfExperience || 10} years of hands-on engineering experience, I bring deep domain mastery aligned directly with your core technical requirements:
 • ${topSkills[0] || 'High-performance backend systems & microservices'}
