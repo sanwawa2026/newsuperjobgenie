@@ -44,26 +44,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
   const showcaseData = {
     indeed: {
       platformLabel: 'Indeed Unabridged Deep Scanner',
-      tabUrl: 'indeed.com/jobs?q=software+engineer&l=Los+Angeles%2C+CA',
-      jobTitle: 'Sr. Software Engineer (Platform Team)',
+      tabUrl: 'indeed.com/jobs?q=software+engineer&l=Hawthorne%2C+CA',
+      jobTitle: 'Full Stack Software Engineer (Build Reliability)',
       company: 'SpaceX',
       location: 'Hawthorne, CA • On-site / Hybrid',
-      salary: '$160,000 - $220,000 a year',
-      charsCaptured: '10,982',
-      summary: 'SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting. The Platform Team is responsible for building foundational tooling for Starship & Starlink.',
-      score: 85,
-      scoreTier: 'Competitive Strong Match',
-      tierSub: '5 matched core requirements · 1 gap to bridge',
+      salary: '$125,000 - $175,000 a year',
+      charsCaptured: '5,523',
+      summary: 'SpaceX was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting. Today SpaceX is actively developing the technologies to make this possible.',
+      score: 97,
+      scoreTier: 'Top 1% Exceptional Match',
+      tierSub: '4 matched core requirements · 0 gaps',
       skillsMatched: [
-        'Lead design, architecture & development of distributed tools',
-        'Develop and scale internal developer platform tooling',
-        'Strong background in high-concurrency systems (Go/Python)',
-        'Python & robust experience with Linux environments',
-        'Infrastructure-as-code, Docker, Kubernetes & CI/CD'
+        'C#, .NET, SQL, HTML, CSS, Angular',
+        'Python, PostgreSQL',
+        'Deep understanding of object-oriented design',
+        'Understanding of UI/UX design patterns'
       ],
-      skillGaps: [
-        'Cross-squad flight software hardware-in-the-loop influence'
-      ]
+      skillGaps: []
     },
     linkedin: {
       platformLabel: 'LinkedIn Real-Time Scanner',
