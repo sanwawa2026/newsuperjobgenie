@@ -2616,7 +2616,31 @@
       });
 
       wrapper.querySelector('#sjg-cl-free-btn')?.addEventListener('click', () => {
-        const cl = `Dear Hiring Team at ${job.company},\n\nI am writing to express my strong enthusiasm for the ${job.title} position.\n\nWith over ${candidateProfile.yearsOfExperience} years of experience and deep expertise across ${candidateProfile.skills.slice(0, 5).join(', ')}, I am confident in my ability to deliver immediate value.\n\nSincerely,\n${candidateProfile.name}`;
+        const topSkills = evaluation.verifiedSkills.length > 0
+          ? evaluation.verifiedSkills.map(s => s.name).slice(0, 4)
+          : candidateProfile.skills.slice(0, 4);
+        
+        const candidateDisplayName = (candidateProfile.name && !candidateProfile.name.includes('PII Scrubbed') && candidateProfile.name !== 'Candidate Profile') 
+          ? candidateProfile.name 
+          : 'Candidate';
+
+        const cl = `Dear Hiring Team at ${job.company || 'your organization'},
+
+I am writing to express my strong enthusiasm for the ${job.title || 'engineering'} position. Having tracked ${job.company || 'your team'}'s technical innovations, I am eager to contribute my background in architecting scalable systems and resilient software infrastructure to your initiatives.
+
+With over ${candidateProfile.yearsOfExperience || 10} years of hands-on engineering experience, I bring deep domain mastery aligned directly with your core technical requirements:
+• ${topSkills[0] || 'High-performance backend systems & microservices'}
+• ${topSkills[1] || 'Distributed architecture, data modeling & low-latency execution'}
+• ${topSkills[2] || 'End-to-end testing, CI/CD automation & resilient cloud operations'}
+${topSkills[3] ? `• ${topSkills[3]}` : ''}
+
+Throughout my career, I have specialized in turning ambiguous product goals into robust, maintainable technical reality while championing clean code and team mentoring. I am particularly excited about ${job.company || 'your team'}'s scale and look forward to discussing how my experience can deliver immediate impact.
+
+Thank you for your time and consideration.
+
+Sincerely,
+${candidateDisplayName}`;
+
         navigator.clipboard.writeText(cl);
         const btn = wrapper.querySelector('#sjg-cl-free-btn');
         if (btn) {
