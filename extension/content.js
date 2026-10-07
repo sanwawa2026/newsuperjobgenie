@@ -2625,8 +2625,16 @@
           ? evaluation.verifiedSkills.map(s => s.fullName || s.name).map(n => n.replace('…', ''))
           : candidateProfile.skills.slice(0, 4);
 
-        // Detect job source
-        const jobSource = window.location.hostname.split('.')[1] || 'our platform';
+        // Robustly detect job source
+        const hostname = window.location.hostname.toLowerCase();
+        let jobSource = 'our platform';
+        if (hostname.includes('indeed')) {
+          jobSource = 'Indeed';
+        } else if (hostname.includes('linkedin')) {
+          jobSource = 'LinkedIn';
+        } else if (hostname.includes('glassdoor')) {
+          jobSource = 'Glassdoor';
+        }
         
         const candidateDisplayName = (candidateProfile.name && !candidateProfile.name.includes('PII Scrubbed') && candidateProfile.name !== 'Candidate Profile') 
           ? candidateProfile.name 
