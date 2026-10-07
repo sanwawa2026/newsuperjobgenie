@@ -78,6 +78,9 @@ export default function App() {
       }
       const titleParam = params.get('title');
       const companyParam = params.get('company');
+      const scoreParam = params.get('score');
+      const tierParam = params.get('tier');
+
       if (titleParam) {
         const decodedTitle = decodeURIComponent(titleParam);
         const decodedCompany = companyParam ? decodeURIComponent(companyParam) : 'Target Company';
@@ -85,6 +88,14 @@ export default function App() {
           ...prev,
           title: decodedTitle,
           company: decodedCompany
+        }));
+      }
+
+      if (scoreParam && tierParam) {
+        setMatchResult(prev => ({
+          ...prev,
+          overallMatchScore: parseInt(scoreParam, 10),
+          matchTier: tierParam
         }));
       }
     } catch (e) {
