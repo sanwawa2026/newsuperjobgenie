@@ -2627,29 +2627,35 @@
 
         // Robustly detect job source using full URL and set display label
         const url = window.location.href.toLowerCase();
-        let jobSource = 'our platform';
+        let jobSource = '';
         let portfolioLabel = 'Portfolio';
         if (url.includes('indeed.com')) {
-          jobSource = 'Indeed';
+          jobSource = ' Indeed';
           portfolioLabel = 'Indeed Profile/Portfolio';
         } else if (url.includes('linkedin.com')) {
-          jobSource = 'LinkedIn';
+          jobSource = ' LinkedIn';
           portfolioLabel = 'LinkedIn Profile';
-        } else if (url.includes('glassdoor.com')) {
-          jobSource = 'Glassdoor';
+        } else if (url.includes('glassdoor')) {
+          jobSource = ' Glassdoor';
           portfolioLabel = 'Glassdoor Profile';
         }
+        
+        // Clean company name: remove stray ratings like "4.1" or "4.1★"
+        const cleanCompany = (job.company || 'your organization').replace(/\s?\d+(\.\d+)?★?$/, '');
         
         const candidateDisplayName = (candidateProfile.name && !candidateProfile.name.includes('PII Scrubbed') && candidateProfile.name !== 'Candidate Profile') 
           ? candidateProfile.name 
           : '[Your Name]';
 
+        const isUK = window.location.href.toLowerCase().includes('.co.uk') || window.location.href.toLowerCase().includes('london') || window.location.href.toLowerCase().includes('england');
+        const specialised = isUK ? 'specialised' : 'specialized';
+
         const cl = `[Your Name]
 [Your Phone Number]  •  [Your Email]  •  [Your ${portfolioLabel} URL]
 
-Dear Hiring Team at ${job.company || 'your organization'},
+Dear Hiring Team at ${cleanCompany},
 
-I am writing to express my strong enthusiasm for the ${job.title || 'engineering'} position, which I discovered through ${jobSource}. Having tracked ${job.company || 'your team'}'s technical innovations, I am eager to contribute my background in architecting scalable systems and resilient software infrastructure to your initiatives.
+I am writing to express my strong enthusiasm for the ${job.title || 'engineering'} position${jobSource ? `, which I discovered through${jobSource}` : ''}. Having tracked ${cleanCompany}'s technical innovations, I am eager to contribute my background in architecting scalable systems and resilient software infrastructure to your initiatives.
 
 With over ${candidateProfile.yearsOfExperience || 10} years of hands-on engineering experience, I bring deep domain mastery aligned directly with your core technical requirements:
 • ${topSkills[0] || 'High-performance backend systems & microservices'}
@@ -2657,7 +2663,7 @@ With over ${candidateProfile.yearsOfExperience || 10} years of hands-on engineer
 • ${topSkills[2] || 'End-to-end testing, CI/CD automation & resilient cloud operations'}
 ${topSkills[3] ? `• ${topSkills[3]}` : ''}
 
-Throughout my career, I have specialized in turning ambiguous product goals into robust, maintainable technical reality while championing clean code and team mentoring. I am particularly excited about ${job.company || 'your team'}'s scale and look forward to discussing how my experience can deliver immediate impact.
+Throughout my career, I have ${specialised} in turning ambiguous product goals into robust, maintainable technical reality while championing clean code and team mentoring. I am particularly excited about ${job.company || 'your team'}'s scale and look forward to discussing how my experience can deliver immediate impact.
 
 Thank you for your time and consideration.
 
