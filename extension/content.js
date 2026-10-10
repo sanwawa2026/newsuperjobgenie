@@ -2646,6 +2646,12 @@
         } else if (url.includes('glassdoor')) {
           jobSource = ' Glassdoor';
           portfolioLabel = 'Glassdoor Profile';
+        } else if (url.includes('ziprecruiter')) {
+          jobSource = ' ZipRecruiter';
+          portfolioLabel = 'ZipRecruiter Profile';
+        } else if (url.includes('greenhouse.io') || url.includes('lever.co') || url.includes('myworkdayjobs')) {
+          jobSource = ' the company career site';
+          portfolioLabel = 'Professional Portfolio';
         }
         
         // Dynamic spelling
