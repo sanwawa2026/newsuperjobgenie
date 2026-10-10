@@ -2930,9 +2930,13 @@ ${candidateDisplayName}`;
     bodyObserver.observe(document.body, { childList: true, subtree: true });
   }
 
-  // Heartbeat fallback
+  // Heartbeat fallback (faster frequency for responsive scanning)
   setInterval(() => {
-    checkAndAutoRescan();
-  }, 1000);
+    try {
+      checkAndAutoRescan();
+    } catch (e) {
+      console.warn('[SuperJobGenie] Heartbeat error:', e);
+    }
+  }, 500);
 
 })();
