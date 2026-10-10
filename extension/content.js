@@ -2118,6 +2118,7 @@
    * Render or Update HUD UI inside Shadow DOM
    */
   function renderShadowUI() {
+    console.log('[SuperJobGenie] renderShadowUI triggered, isModalOpen:', isModalOpen);
     try {
       const sRoot = getOrCreateShadowRoot();
       if (!sRoot) {
@@ -2401,7 +2402,9 @@
       `;
 
       // Event Listeners
+      console.log('[SuperJobGenie] Attaching pill trigger listener');
       wrapper.querySelector('#sjg-pill-trigger')?.addEventListener('click', (e) => {
+        console.log('[SuperJobGenie] Pill trigger clicked');
         e.stopPropagation();
         isModalOpen = !isModalOpen;
         renderShadowUI();
