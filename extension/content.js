@@ -2625,8 +2625,13 @@
           ? evaluation.verifiedSkills.map(s => s.fullName || s.name).map(n => n.replace('…', ''))
           : candidateProfile.skills.slice(0, 4);
 
-        // Robustly detect job source using full URL and set display label
+        // Robustly detect UK location and job source
         const url = window.location.href.toLowerCase();
+        const locationText = (job.location || '').toLowerCase();
+        const isUK = locationText.includes('uk') || locationText.includes('england') || 
+                     locationText.includes('london') || locationText.includes('cambridge') || 
+                     locationText.includes('edinburgh') || url.includes('.co.uk');
+
         let jobSource = '';
         let portfolioLabel = 'Portfolio';
         if (url.includes('indeed.com')) {
@@ -2639,6 +2644,9 @@
           jobSource = ' Glassdoor';
           portfolioLabel = 'Glassdoor Profile';
         }
+        
+        // Dynamic spelling
+        const specialised = isUK ? 'specialised' : 'specialized';
         
         // Clean company name: remove stray ratings like "4.1" or "4.1★"
         const cleanCompany = (job.company || 'your organization').replace(/\s?\d+(\.\d+)?★?$/, '');
