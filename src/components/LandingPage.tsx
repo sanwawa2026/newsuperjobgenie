@@ -21,9 +21,11 @@ import {
   Award,
   AlertTriangle,
   Building2,
-  CheckCheck
+  CheckCheck,
+  Volume2
 } from 'lucide-react';
 import { ExportExtensionButton } from './ExportExtensionButton';
+import { VoiceoverStudioModal } from './VoiceoverStudioModal';
 
 interface LandingPageProps {
   onEnterApp: () => void;
@@ -33,6 +35,7 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPrivacy }) => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activePlatformTab, setActivePlatformTab] = useState<'indeed' | 'linkedin' | 'glassdoor'>('indeed');
+  const [isVoiceoverModalOpen, setIsVoiceoverModalOpen] = useState<boolean>(false);
 
   const platforms = [
     { name: 'Indeed', desc: 'SpaceX, Anduril 10,980+ Chars Depth Parsed', color: 'from-indigo-500/20 to-indigo-600/10', border: 'border-indigo-500/30' },
@@ -180,6 +183,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setIsVoiceoverModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-cyan-300 bg-cyan-950/50 border border-cyan-500/40 hover:bg-cyan-900/60 rounded-lg transition shadow-sm"
+            title="Preview time-aligned 60s voiceover audio tracks"
+          >
+            <Volume2 className="w-4 h-4 text-cyan-400" />
+            <span>Studio Voiceover</span>
+          </button>
+          <button
             onClick={onEnterApp}
             className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 rounded-lg transition"
           >
@@ -220,17 +231,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
         </p>
 
         {/* Hero CTAs */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 justify-center w-full max-w-md mb-12">
+        <div className="flex flex-col sm:flex-row items-center gap-4 justify-center w-full max-w-xl mb-12">
           <ExportExtensionButton
             variant="gradient"
             label="Add to Chrome for Free (.zip)"
             extensionName="SuperJobGenie"
           />
           <button
-            onClick={onEnterApp}
-            className="w-full sm:w-auto px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 shadow-sm"
+            onClick={() => setIsVoiceoverModalOpen(true)}
+            className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-cyan-950/60 to-indigo-950/60 hover:from-cyan-900/70 hover:to-indigo-900/70 text-cyan-200 border border-cyan-500/40 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 shadow-sm"
           >
-            <span>Live Web Simulator</span>
+            <Volume2 className="w-4 h-4 text-cyan-400" />
+            <span>Listen to 60s Trailer Audio</span>
+          </button>
+          <button
+            onClick={onEnterApp}
+            className="w-full sm:w-auto px-5 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 shadow-sm"
+          >
+            <span>Live Simulator</span>
             <ArrowRight className="w-4 h-4 text-slate-400" />
           </button>
         </div>
@@ -601,6 +619,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
           </a>
         </div>
       </footer>
+
+      {/* Voiceover Studio Modal */}
+      <VoiceoverStudioModal
+        isOpen={isVoiceoverModalOpen}
+        onClose={() => setIsVoiceoverModalOpen(false)}
+      />
     </div>
   );
 };

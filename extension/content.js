@@ -14,7 +14,7 @@
   }
   window.__SUPER_JOB_GENIE_INITIALIZED__ = true;
 
-  console.log('[SuperJobGenie v2.9.8 Pro] Executive HUD initialized on:', window.location.href);
+  console.log('[SuperJobGenie v2.9.8 Pro] Executive HUD initialized.');
 
   // Candidate Profile State (Default starts neutral/fresh, hydrated from storage)
   let candidateProfile = {
@@ -2118,7 +2118,6 @@
    * Render or Update HUD UI inside Shadow DOM
    */
   function renderShadowUI() {
-    console.log('[SuperJobGenie] renderShadowUI triggered, isModalOpen:', isModalOpen);
     try {
       const sRoot = getOrCreateShadowRoot();
       if (!sRoot) {
@@ -2402,9 +2401,7 @@
       `;
 
       // Event Listeners
-      console.log('[SuperJobGenie] Attaching pill trigger listener');
       wrapper.querySelector('#sjg-pill-trigger')?.addEventListener('click', (e) => {
-        console.log('[SuperJobGenie] Pill trigger clicked');
         e.stopPropagation();
         isModalOpen = !isModalOpen;
         renderShadowUI();
@@ -2431,7 +2428,7 @@
         renderShadowUI();
       });
 
-      // Resume Upload Logic - NO TRUNCATION (Up to 100,000 characters)
+  // Resume Upload Logic - NO TRUNCATION (Up to 100,000 characters)
       const fileInput = wrapper.querySelector('#sjg-resume-file-input');
       const uploadBtn = wrapper.querySelector('#sjg-upload-resume-btn');
 
@@ -2447,7 +2444,7 @@
         if (!file) return;
 
         if (uploadBtn) {
-          uploadBtn.innerHTML = `⏳ Parsing ${file.name}...`;
+          uploadBtn.innerHTML = `⏳ Parsing...`;
         }
 
         try {
@@ -2459,7 +2456,6 @@
             text = parsed.text;
             formatName = parsed.format;
           } else {
-            // Fallback plain text reader
             text = await new Promise((res, rej) => {
               const r = new FileReader();
               r.onload = () => res(r.result || '');
@@ -2469,36 +2465,30 @@
           }
 
           if (!text || text.trim().length < 40) {
-            alert(`⚠️ Notice: We could not extract readable text from "${file.name}".\n\nThis usually happens if the PDF is a scanned image without a text layer or password-protected.\n\nTip: You can upload a .txt / .docx version, or paste your resume text directly into the "Edit Profile" box!`);
             isEditCandidateOpen = true;
             renderShadowUI();
             return;
           }
 
-          // Improve title/role extraction from file content
           const textLines = text.split('\n').filter(l => l.trim().length > 0);
           const firstLine = textLines[0].trim();
           
           const fileNameClean = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
           candidateProfile.name = fileNameClean;
           
-          // Try to find a role in the first few lines
           const roleMatch = firstLine.match(/(Software Engineer|Finance Analyst|Data Scientist|Product Manager|Developer)/i) || 
                             textLines.find(l => l.match(/(Software Engineer|Finance Analyst|Data Scientist|Product Manager|Developer)/i));
                             
           candidateProfile.title = roleMatch ? roleMatch[0] : fileNameClean;
           candidateProfile.targetRole = roleMatch ? roleMatch[0] : 'Software Engineer';
           
-          // Full unabridged raw text ingestion (up to 100,000 chars)
           candidateProfile.rawResumeText = text.slice(0, 100000);
 
-          // Comprehensive skill extraction across all technical & finance domains
           const extractedSkills = extractSkillsFromResumeText(text);
           if (extractedSkills.length > 0) {
             candidateProfile.skills = extractedSkills;
           }
 
-          // Estimate years of experience if mentioned in text (e.g., "15+ years")
           const expMatch = text.match(/(\d+)\+?\s*years?\s*(?:of)?\s*(?:experience|comprehensive)/i);
           if (expMatch && expMatch[1]) {
             candidateProfile.yearsOfExperience = parseInt(expMatch[1], 10);
@@ -2507,7 +2497,7 @@
           saveProfileToStorage();
 
           if (uploadBtn) {
-            uploadBtn.innerHTML = `✅ Ingested ${formatName} (${extractedSkills.length} skills)!`;
+            uploadBtn.innerHTML = `✅ Ingested!`;
             setTimeout(() => {
               renderShadowUI();
             }, 1200);
@@ -2515,8 +2505,6 @@
             renderShadowUI();
           }
         } catch (err) {
-          console.error('[SuperJobGenie] Resume parse error:', err);
-          alert(`⚠️ Upload Notice: Could not parse "${file.name}".\n\nReason: ${err.message || 'Scanned image or binary format'}.\n\nTip: You can use .txt, .docx, or paste your text directly in "Edit Profile".`);
           isEditCandidateOpen = true;
           renderShadowUI();
         }
@@ -2663,9 +2651,6 @@
         const candidateDisplayName = (candidateProfile.name && !candidateProfile.name.includes('PII Scrubbed') && candidateProfile.name !== 'Candidate Profile') 
           ? candidateProfile.name 
           : '[Your Name]';
-
-        const isUK = window.location.href.toLowerCase().includes('.co.uk') || window.location.href.toLowerCase().includes('london') || window.location.href.toLowerCase().includes('england');
-        const specialised = isUK ? 'specialised' : 'specialized';
 
         const cl = `[Your Name]
 [Your Phone Number]  •  [Your Email]  •  [Your ${portfolioLabel} URL]
@@ -2869,16 +2854,22 @@ ${candidateDisplayName}`;
     });
   }
 
-  // Initialize
-  renderShadowUI();
-
-  try {
-    const initialJob = extractFullIndeedJob();
-    cachedJobData = initialJob;
-    renderShadowUI();
-  } catch (err) {
-    console.error('[SuperJobGenie] Initial scan error:', err);
+  // Robust Initialization
+  function initWhenReady() {
+    if (document.body) {
+      renderShadowUI();
+      try {
+        const initialJob = extractFullIndeedJob();
+        cachedJobData = initialJob;
+        renderShadowUI();
+      } catch (err) {
+        console.error('[SuperJobGenie] Initial scan error:', err);
+      }
+    } else {
+      setTimeout(initWhenReady, 50);
+    }
   }
+  initWhenReady();
 
   // SPA navigation events
   window.addEventListener('popstate', () => {

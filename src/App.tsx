@@ -95,7 +95,7 @@ export default function App() {
         setMatchResult(prev => ({
           ...prev,
           overallMatchScore: parseInt(scoreParam, 10),
-          matchTier: tierParam
+          matchTier: tierParam as any
         }));
       }
     } catch (e) {
@@ -435,7 +435,7 @@ export default function App() {
               <button
                 onClick={() => setActiveViewMode('landing')}
                 className={`px-2.5 py-1 rounded-md font-semibold transition flex items-center gap-1 ${
-                  activeViewMode === 'landing'
+                  (activeViewMode as string) === 'landing'
                     ? 'bg-indigo-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-white'
                 }`}
