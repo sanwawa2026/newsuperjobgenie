@@ -1031,12 +1031,12 @@
    * Domain Classifier: Determine the primary industry domain of a job description
    */
   function detectJobDomain(text) {
-    if (!text) return INDUSTRY_DOMAINS.TECH_SOFTWARE;
+    if (!text) return { code: 'GENERAL', label: 'General Professional' };
 
     let highestScore = 0;
-    let selectedDomain = INDUSTRY_DOMAINS.TECH_SOFTWARE;
+    let selectedDomain = { code: 'GENERAL', label: 'General Professional' };
 
-    for (const [key, domain] of Object.entries(INDUSTRY_DOMAINS)) {
+    for (const domain of Object.values(INDUSTRY_DOMAINS)) {
       const matches = text.match(domain.signature);
       const score = matches ? matches.length : 0;
       if (score > highestScore) {
@@ -1045,7 +1045,6 @@
       }
     }
 
-    // Default to Tech/Software if ambiguous or zero match
     return selectedDomain;
   }
 
