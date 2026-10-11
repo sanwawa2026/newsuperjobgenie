@@ -1027,19 +1027,34 @@
     { domain: 'COMMON', name: 'Cross-Functional Leadership & PMO', key: 'cross-functional leadership|cross-functional team|stakeholder management|pmo|program management' }
   ];
 
-  /**
-   * Domain Classifier: Determine the primary industry domain of a job description
-   */
-  function detectJobDomain(text) {
-    if (!text) return { code: 'GENERAL', label: 'General Professional' };
+  function detectJobDomain(text, jobTitle = '') {
+    if (!text && !jobTitle) return { code: 'GENERAL', label: 'General Professional' };
 
+    const titleLower = (jobTitle || '').toLowerCase();
+    const textLower = (text || '').toLowerCase();
+
+    // 1. High-priority Title Check (Title is the strongest indicator of domain)
+    if (/\b(financial analyst|finance analyst|finance|accounting|accountant|auditor|audit|risk analyst|risk manager|portfolio manager|investment banking|equity research|credit analyst|treasury|tax analyst|underwriter)\b/i.test(titleLower)) {
+      return INDUSTRY_DOMAINS.FINANCE_BANKING;
+    }
+    if (/\b(clinical|nurse|physician|doctor|pharmacist|pharmacy|patient care|assessor|functional assessor|medical|healthcare|therapist|biomedical)\b/i.test(titleLower)) {
+      return INDUSTRY_DOMAINS.HEALTHCARE_MEDICINE;
+    }
+    if (/\b(civil engineer|architectural|architect(?!ure\s+(?:software|cloud|systems?))|construction|structural engineer|building)\b/i.test(titleLower)) {
+      return INDUSTRY_DOMAINS.CIVIL_ARCHITECTURE;
+    }
+    if (/\b(software engineer|software developer|backend developer|frontend developer|full stack|devops|cloud engineer|systems engineer|site reliability|qa engineer|firmware|embedded software)\b/i.test(titleLower)) {
+      return INDUSTRY_DOMAINS.TECH_SOFTWARE;
+    }
+
+    // 2. Frequency scoring across full text
     let highestScore = 0;
     let selectedDomain = { code: 'GENERAL', label: 'General Professional' };
 
     for (const domain of Object.values(INDUSTRY_DOMAINS)) {
-      const matches = text.match(domain.signature);
+      const matches = textLower.match(domain.signature);
       const score = matches ? matches.length : 0;
-      if (score > highestScore) {
+      if (score > highestScore && score >= 2) {
         highestScore = score;
         selectedDomain = domain;
       }
@@ -1138,7 +1153,7 @@
 
     // Step 1: Industry Domain Classification & Cross-Industry Disambiguation
     // Guarantees zero cross-domain pollution: GCP (Clinical Trials vs Cloud), CAD (Cardiology vs AutoCAD), Pipeline, etc.
-    const jobDomain = detectJobDomain(combinedText);
+    const jobDomain = detectJobDomain(combinedText, jobData?.title || '');
     const domainSpecificCatalog = COMPREHENSIVE_SKILL_CATALOG.filter(item => {
       return item.domain === jobDomain.code || item.domain === 'COMMON';
     });
