@@ -1,6 +1,6 @@
-# SuperJobGenie - AI求职匹配与跨赛道分析 (v2.1.0)
+# SuperJobGenie - AI Job Match & Career Pivot Intelligence (v2.9.9)
 
-> 解决 Indeed 抓取 153 字截断 Bug，全量提取 3,000+ 字职位描述，提供真实多维技能匹配与跨赛道职业转换分析。
+> Solves Indeed 153-character truncation bug, extracts full 3,000+ character job descriptions, provides real multi-dimensional skill matching and cross-track career pivot analysis.
 
 ---
 
