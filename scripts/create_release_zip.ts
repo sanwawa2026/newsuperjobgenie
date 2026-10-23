@@ -4,7 +4,7 @@ import JSZip from 'jszip';
 
 async function packageRelease() {
   const extDir = path.resolve(process.cwd(), 'extension');
-  const outPath = path.resolve(process.cwd(), 'public', 'superjobgenie-v2.9.9-chrome-webstore-release.zip');
+  const outPath = path.resolve(process.cwd(), 'public', 'superjobgenie-v3.0.0-chrome-webstore-release.zip');
   const zip = new JSZip();
 
   const filesToInclude = [

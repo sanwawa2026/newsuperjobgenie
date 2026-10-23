@@ -42,8 +42,8 @@ export function ExportExtensionButton({
   label = 'Export Extension',
   variant = 'gradient',
   className = '',
-  apiEndpoint = '/api/download-extension-zip',
-  extensionName = 'SuperJobGenie',
+  apiEndpoint = '/api/download-v3-zip',
+  extensionName = 'superjobgenie-v3.0.0-chrome-webstore-release',
   onExportSuccess
 }: ExportExtensionButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,7 +65,7 @@ export function ExportExtensionButton({
    */
   const executeDownload = async () => {
     setIsDownloading(true);
-    const filename = `${extensionName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-extension.zip`;
+    const filename = 'superjobgenie-v3.0.0-chrome-webstore-release.zip';
 
     try {
       let blob: Blob | null = null;

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SuperJobGenie - AI Career Intelligence & Deep JD Matcher",
-  "version": "2.9.9",
-  "description": "Unabridged 3,000+ char deep JD extractor & instant AI skills match analyzer across Indeed, LinkedIn, Glassdoor, ZipRecruiter & top ATS platforms.",
+  "version": "3.0.0",
+  "description": "Deep JD extractor and AI match analyzer across modern job boards and ATS application portals.",
   "permissions": [
     "storage",
     "activeTab"

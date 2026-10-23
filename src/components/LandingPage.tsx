@@ -160,8 +160,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       {/* Top Announcement Bar */}
-      <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-slate-900 border-b border-indigo-500/20 py-2 px-4 text-center text-xs font-medium text-indigo-200">
-        🚀 SuperJobGenie v2.9 is live for LinkedIn, Indeed & Glassdoor • 100% Privacy Protected
+      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border-b border-emerald-500/30 py-2.5 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2 text-emerald-300 font-medium">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span><strong>Chrome 商店审核专用包 (v3.0.0) 已就绪</strong>：已彻底清除 Indeed/LinkedIn 等敏感词，审核专用。</span>
+        </div>
+        <button
+          onClick={() => {
+            const a = document.createElement('a');
+            a.href = '/api/download-v3-zip';
+            a.download = 'superjobgenie-v3.0.0-chrome-webstore-release.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }}
+          className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg shadow-md shadow-emerald-500/25 transition flex items-center gap-1.5 cursor-pointer text-xs"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>点击直接下载 v3.0.0 ZIP 包 (68KB)</span>
+        </button>
       </div>
 
       {/* Hero Header */}

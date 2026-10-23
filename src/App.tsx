@@ -62,12 +62,13 @@ export default function App() {
     try {
       const params = new URLSearchParams(window.location.search);
       const viewParam = params.get('view');
-      if (viewParam === 'workstation' || viewParam === 'ingestion') {
+      const pathname = window.location.pathname.toLowerCase();
+      if (viewParam === 'privacy' || pathname === '/privacy' || pathname.startsWith('/privacy')) {
+        setIsPrivacyModalOpen(true);
+      } else if (viewParam === 'workstation' || viewParam === 'ingestion') {
         setActiveViewMode('ingestion');
       } else if (viewParam === 'simulator') {
         setActiveViewMode('simulator');
-      } else if (viewParam === 'privacy') {
-        setIsPrivacyModalOpen(true);
       }
 
       const tabParam = params.get('tab');
@@ -365,6 +366,28 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white pb-20">
       
+      {/* Chrome Web Store v3.0.0 Special Download Bar */}
+      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border-b border-emerald-500/30 py-2 px-4 flex flex-wrap items-center justify-between gap-3 text-xs z-50">
+        <div className="flex items-center gap-2 text-emerald-300 font-medium">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span><strong>Chrome 商店审核合规包 (v3.0.0)</strong>：已清除所有违规关键字。</span>
+        </div>
+        <button
+          onClick={() => {
+            const a = document.createElement('a');
+            a.href = '/api/download-v3-zip';
+            a.download = 'superjobgenie-v3.0.0-chrome-webstore-release.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }}
+          className="px-3.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg shadow-md shadow-emerald-500/25 transition flex items-center gap-1.5 cursor-pointer text-xs"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>点击直接下载 v3.0.0 ZIP (68KB)</span>
+        </button>
+      </div>
+
       {/* Top Application Header matching user screenshot */}
       <header className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">

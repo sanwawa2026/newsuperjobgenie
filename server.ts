@@ -382,16 +382,35 @@ function addDirectoryToZip(zip: JSZip, localDirPath: string, zipPrefix: string =
   }
 }
 
+// Direct download for v3.0.0 Chrome Web Store Release Zip
+app.get(['/superjobgenie-v3.0.0-chrome-webstore-release.zip', '/api/download-v3-zip', '/api/download-webstore-zip'], (_req: Request, res: Response) => {
+  const filePath = path.join(__dirname, 'public', 'superjobgenie-v3.0.0-chrome-webstore-release.zip');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/zip');
+    return res.download(filePath, 'superjobgenie-v3.0.0-chrome-webstore-release.zip');
+  }
+  return res.status(404).send('Release zip not found');
+});
+
 // GET /api/download-extension-zip: Download pre-built Chrome Extension
 app.get('/api/download-extension-zip', async (_req: Request, res: Response) => {
   try {
+    const prebuiltPath = path.join(__dirname, 'public', 'superjobgenie-v3.0.0-chrome-webstore-release.zip');
+    if (fs.existsSync(prebuiltPath)) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Content-Type', 'application/zip');
+      return res.download(prebuiltPath, 'superjobgenie-v3.0.0-chrome-webstore-release.zip');
+    }
+
     const zip = new JSZip();
     const extensionDir = path.join(__dirname, 'extension');
     addDirectoryToZip(zip, extensionDir, '');
 
     const content = await zip.generateAsync({ type: 'nodebuffer' });
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Disposition', 'attachment; filename="superjobgenie-chrome-extension.zip"');
+    res.setHeader('Content-Disposition', 'attachment; filename="superjobgenie-v3.0.0-chrome-webstore-release.zip"');
     return res.send(content);
   } catch (err: any) {
     console.error('Failed to create extension zip:', err);
@@ -440,6 +459,160 @@ app.get('/api/download-patch', (_req: Request, res: Response) => {
     return res.sendFile(patchPath);
   }
   return res.status(404).send('Patch not found');
+});
+
+// GET /privacy: Standalone HTML Privacy Policy for Chrome Web Store Compliance
+app.get('/privacy', (_req: Request, res: Response) => {
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SuperJobGenie - Privacy Policy</title>
+  <meta name="description" content="Privacy Policy for SuperJobGenie Chrome Extension and Web Application. Single-purpose compliance and zero data tracking.">
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      background: #090d16;
+      color: #cbd5e1;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 32px 24px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    h1 {
+      color: #ffffff;
+      font-size: 26px;
+      margin-top: 0;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 10px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      color: #f1f5f9;
+      font-size: 18px;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 8px;
+    }
+    p, li {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+    strong {
+      color: #f1f5f9;
+    }
+    ul {
+      padding-left: 20px;
+      margin: 12px 0;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .highlight-box {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 20px 0;
+    }
+    .highlight-box p {
+      color: #a7f3d0;
+      margin: 0;
+    }
+    .footer {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+    a {
+      color: #818cf8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🛡️ SuperJobGenie Privacy Policy</h1>
+    <div class="badge">Chrome Web Store & GDPR Compliance • Version 2.9</div>
+
+    <div class="highlight-box">
+      <p><strong>Zero-Tracking Commitment:</strong> SuperJobGenie is built with a client-first, privacy-respecting architecture. Your raw resumes, career history, contact details, and job browsing history remain stored solely on your local device. We never sell, rent, monetize, or transfer your personal information to third parties.</p>
+    </div>
+
+    <h2>1. Single Purpose Declaration</h2>
+    <p>The single purpose of the SuperJobGenie extension and web application is to assist job seekers by extracting job postings directly from recruitment pages (LinkedIn, Indeed, Glassdoor) and computing real-time skills alignment against the user's provided candidate profile.</p>
+
+    <h2>2. Data We Process & Storage Practices</h2>
+    <ul>
+      <li><strong>Resume & Candidate Profile:</strong> Kept in your local browser storage (<code>chrome.storage.local</code> or local memory). It is never sent to remote databases without your explicit interaction.</li>
+      <li><strong>Job Listing Content:</strong> Analyzed directly in active browser memory to evaluate skills match scores, identify missing keywords, and provide career recommendations.</li>
+      <li><strong>No Personally Identifiable Information (PII) Harvesting:</strong> We do not collect or log government IDs, financial credentials, health data, racial/ethnic data, or location tracking.</li>
+    </ul>
+
+    <h2>3. Chrome Extension Permissions</h2>
+    <ul>
+      <li><strong>storage:</strong> Used strictly to save your candidate profile preferences and job analysis history locally on your computer.</li>
+      <li><strong>activeTab:</strong> Used exclusively when you click the extension on an active job posting tab to read the job title and job requirements.</li>
+      <li><strong>Host Permissions:</strong> Used solely to support extraction on job board domains (e.g., indeed.com, linkedin.com, glassdoor.com).</li>
+    </ul>
+
+    <h2>4. Third-Party Disclosures & Non-Sale of Data</h2>
+    <p>SuperJobGenie complies with Google Chrome Web Store Developer Program Policies:</p>
+    <ul>
+      <li>We do not sell user data to any third parties.</li>
+      <li>We do not use or transfer user data for purposes unrelated to the extension's core single purpose.</li>
+      <li>We do not use or transfer user data for creditworthiness assessment or lending purposes.</li>
+      <li>We do not use user data for targeted advertising or marketing profiling.</li>
+    </ul>
+
+    <h2>5. User Data Control & Deletion</h2>
+    <p>You have full sovereignty over your data. You may delete all stored data at any time by clearing extension storage or uninstalling the extension from your browser.</p>
+
+    <h2>6. Developer Contact Information</h2>
+    <p>For questions or privacy audit requests, please contact the developer at: <a href="mailto:tanglailai@gmail.com">tanglailai@gmail.com</a></p>
+
+    <div class="footer">
+      <span>Effective Date: October 2026</span>
+      <a href="/">← Return to SuperJobGenie Web App</a>
+    </div>
+  </div>
+</body>
+</html>`;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.send(html);
 });
 
 // Deterministic semantic analysis fallback when offline or API key pending
