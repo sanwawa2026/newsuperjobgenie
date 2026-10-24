@@ -418,8 +418,19 @@ app.get('/api/download-extension-zip', async (_req: Request, res: Response) => {
   }
 });
 
-// GET /api/download-project-zip: Download full codebase package
-app.get('/api/download-project-zip', async (_req: Request, res: Response) => {
+// GET /api/download-cool-webpage-zip: Download standalone cool webpage desktop bundle
+app.get(['/api/download-cool-webpage-zip', '/api/download-webpage', '/SuperJobGenie_Cool_Webpage_Desktop.zip'], (_req: Request, res: Response) => {
+  const filePath = path.join(__dirname, 'public', 'SuperJobGenie_Cool_Webpage_Desktop.zip');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/zip');
+    return res.download(filePath, 'SuperJobGenie_Cool_Webpage_Desktop.zip');
+  }
+  return res.status(404).send('Webpage desktop bundle not found');
+});
+
+// GET /api/download-project-zip & /api/download-website-zip: Download full website & codebase package
+app.get(['/api/download-project-zip', '/api/download-website-zip', '/api/download-web-zip'], async (_req: Request, res: Response) => {
   try {
     const zip = new JSZip();
     
@@ -431,6 +442,10 @@ app.get('/api/download-project-zip', async (_req: Request, res: Response) => {
     if (fs.existsSync(path.join(__dirname, 'public'))) {
       addDirectoryToZip(zip, path.join(__dirname, 'public'), 'public');
     }
+    // Add dist folder if exists
+    if (fs.existsSync(path.join(__dirname, 'dist'))) {
+      addDirectoryToZip(zip, path.join(__dirname, 'dist'), 'dist');
+    }
     // Add root files
     const rootFiles = ['package.json', 'tsconfig.json', 'vite.config.ts', 'server.ts', 'index.html', '.env.example', 'README.md'];
     for (const f of rootFiles) {
@@ -441,8 +456,9 @@ app.get('/api/download-project-zip', async (_req: Request, res: Response) => {
     }
 
     const content = await zip.generateAsync({ type: 'nodebuffer' });
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Disposition', 'attachment; filename="superjobgenie-full-project.zip"');
+    res.setHeader('Content-Disposition', 'attachment; filename="superjobgenie-web-project.zip"');
     return res.send(content);
   } catch (err: any) {
     console.error('Failed to create full project zip:', err);
@@ -863,12 +879,22 @@ I am eager to apply this battle-tested engineering precision to train, benchmark
 }
 
 async function startServer() {
-  // Mount Vite dev server in middleware mode
-  const vite = await createViteServer({
-    server: { middlewareMode: true },
-    appType: 'spa',
-  });
-  app.use(vite.middlewares);
+  const isProd = process.env.NODE_ENV === 'production';
+  const distPath = path.join(__dirname, 'dist');
+
+  if (isProd && fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  } else {
+    // Mount Vite dev server in middleware mode
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  }
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[SuperJobGenie Server] Running on http://0.0.0.0:${PORT}`);

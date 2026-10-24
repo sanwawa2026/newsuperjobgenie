@@ -366,26 +366,21 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white pb-20">
       
-      {/* Chrome Web Store v3.0.0 Special Download Bar */}
+      {/* Official Chrome Web Store Announcement Bar */}
       <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border-b border-emerald-500/30 py-2 px-4 flex flex-wrap items-center justify-between gap-3 text-xs z-50">
         <div className="flex items-center gap-2 text-emerald-300 font-medium">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span><strong>Chrome 商店审核合规包 (v3.0.0)</strong>：已清除所有违规关键字。</span>
+          <span><strong>Official Chrome Web Store v3.0.0</strong>: Unabridged 11,000+ char deep JD parsing &amp; 100% local privacy shield.</span>
         </div>
-        <button
-          onClick={() => {
-            const a = document.createElement('a');
-            a.href = '/api/download-v3-zip';
-            a.download = 'superjobgenie-v3.0.0-chrome-webstore-release.zip';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }}
-          className="px-3.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg shadow-md shadow-emerald-500/25 transition flex items-center gap-1.5 cursor-pointer text-xs"
+        <a
+          href="https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-3.5 py-1 bg-[#ff4d15] hover:bg-[#e63e07] text-white font-bold rounded-lg shadow-md shadow-orange-500/25 transition flex items-center gap-1.5 cursor-pointer text-xs"
         >
-          <Download className="w-3.5 h-3.5" />
-          <span>点击直接下载 v3.0.0 ZIP (68KB)</span>
-        </button>
+          <span>Add to Chrome (Official Store)</span>
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
       </div>
 
       {/* Top Application Header matching user screenshot */}
@@ -522,12 +517,16 @@ export default function App() {
               <span className="hidden sm:inline">V1.0 Observatory</span>
             </button>
 
-            {/* Export & Download Extension (English with Standalone Workstation Patch) */}
-            <ExportExtensionButton
-              variant="gradient"
-              label="Export Extension"
-              extensionName="SuperJobGenie"
-            />
+            {/* Direct Official Chrome Web Store Link */}
+            <a
+              href="https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-1.5 bg-gradient-to-r from-[#ff4d15] to-orange-500 hover:from-[#e63e07] hover:to-orange-600 text-white rounded-lg text-xs font-bold shadow-md shadow-orange-500/20 transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>Chrome Store</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
       </header>

@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, 
   ShieldCheck, 
   CheckCircle2, 
   ArrowRight, 
   ExternalLink, 
-  Download, 
   Layers, 
   Compass, 
   FileText, 
@@ -22,10 +21,15 @@ import {
   AlertTriangle,
   Building2,
   CheckCheck,
-  Volume2
+  Volume2,
+  ArrowUpRight,
+  X
 } from 'lucide-react';
-import { ExportExtensionButton } from './ExportExtensionButton';
 import { VoiceoverStudioModal } from './VoiceoverStudioModal';
+import { IndustrialHero } from './IndustrialHero';
+
+const CHROME_STORE_URL =
+  'https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb';
 
 interface LandingPageProps {
   onEnterApp: () => void;
@@ -36,6 +40,97 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activePlatformTab, setActivePlatformTab] = useState<'indeed' | 'linkedin' | 'glassdoor'>('indeed');
   const [isVoiceoverModalOpen, setIsVoiceoverModalOpen] = useState<boolean>(false);
+  const [showStickyBar, setShowStickyBar] = useState<boolean>(true);
+  const [isBarDismissed, setIsBarDismissed] = useState<boolean>(false);
+  const [selectedCardPreview, setSelectedCardPreview] = useState<{
+    id: string;
+    num: string;
+    title: string;
+    subtitle: string;
+    tag: string;
+    tagColor: string;
+    borderHover: string;
+    img: string;
+    description: string;
+    keyPoints: string[];
+  } | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 200) {
+        setShowStickyBar(true);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const breakthroughCards = [
+    {
+      id: 'card1',
+      num: '01',
+      title: 'ATS Warning Radar',
+      subtitle: 'Low Match & Keyword Filter Detection',
+      tag: '01 · ATS TRAP',
+      tagColor: 'bg-red-950/80 text-red-300 border-red-500/40',
+      borderHover: 'hover:border-red-500/50',
+      img: '/assets/cards/card1_ats_38.jpg',
+      description: 'Exposes the 38% low-match bottleneck caused by Indeed/LinkedIn truncating job postings to 153 characters before sending to traditional ATS bots.',
+      keyPoints: [
+        '12 Missing critical keywords flagged immediately',
+        'Auto-rejection bot filter status warning',
+        'Side-by-side gap analysis vs target requirements'
+      ]
+    },
+    {
+      id: 'card2',
+      num: '02',
+      title: '97% Top 1% Match Ring',
+      subtitle: 'Career Pivot & Transferable Skill HUD',
+      tag: '02 · SMART PIVOT',
+      tagColor: 'bg-cyan-950/80 text-cyan-300 border-cyan-500/40',
+      borderHover: 'hover:border-cyan-500/50',
+      img: '/assets/cards/card2_smart_match_97.jpg',
+      description: 'Reads full 11,000+ char DOM directly in the browser to uncover high-impact transferable skills and match high-compensation adjacent tech roles.',
+      keyPoints: [
+        '97% Verified Role Fit across core competencies',
+        'Cross-industry transferable capability mapper',
+        'Top 1% candidate percentile benchmark'
+      ]
+    },
+    {
+      id: 'card3',
+      num: '03',
+      title: '4-Tier Executive Pitch',
+      subtitle: 'Interview-Approved Motivation Letter',
+      tag: '03 · COVER LETTER',
+      tagColor: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40',
+      borderHover: 'hover:border-emerald-500/50',
+      img: '/assets/cards/card3_cover_letter.jpg',
+      description: 'Generates structured 4-tier executive cover letters backed by quantifiable career metrics ($2.4M ARR impact) and zero generic template fluff.',
+      keyPoints: [
+        'Tier 1-4 thesis & high-impact hooks',
+        'Auto-infused with verified JD bullet requirements',
+        'Hiring manager approved direct interview tone'
+      ]
+    },
+    {
+      id: 'card4',
+      num: '04',
+      title: 'Official Chrome Store v3.0',
+      subtitle: '100% Client-Side Privacy Shield',
+      tag: '04 · VERIFIED STORE',
+      tagColor: 'bg-amber-950/80 text-amber-300 border-amber-500/40',
+      borderHover: 'hover:border-amber-500/50',
+      img: '/assets/cards/card4_brand_chrome.jpg',
+      description: 'Official Google Chrome Web Store approved extension. Runs 100% inside your local browser session — zero resume data or salary history ever leaves your machine.',
+      keyPoints: [
+        'Verified in US (67%), JP (22%), DE (11%)',
+        'Zero tracking / zero remote database storage',
+        'Instant 1-click install from Chrome Web Store'
+      ]
+    }
+  ];
 
   const platforms = [
     { name: 'Indeed', desc: 'SpaceX, Anduril 10,980+ Chars Depth Parsed', color: 'from-indigo-500/20 to-indigo-600/10', border: 'border-indigo-500/30' },
@@ -153,124 +248,100 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
     },
     {
       q: 'How do I install the extension in Google Chrome?',
-      a: 'Download the extension package (.zip), open chrome://extensions in Chrome, toggle "Developer mode" on in the top-right, and drag or unpack the extension folder. You are ready to go in 30 seconds.'
+      a: 'Simply click "Add to Chrome" to visit our official Google Chrome Web Store listing and install in 1 click. The extension updates automatically and requires zero manual zip unpacking or developer mode setup.'
     }
   ];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Top Announcement Bar */}
+      {/* Top Announcement Bar - Chrome Web Store Live Milestone */}
       <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border-b border-emerald-500/30 py-2.5 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2 text-emerald-300 font-medium">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span><strong>Chrome 商店审核专用包 (v3.0.0) 已就绪</strong>：已彻底清除 Indeed/LinkedIn 等敏感词，审核专用。</span>
+          <span><strong>Official Google Chrome Web Store Release (v3.0.0)</strong>: Verified by job seekers across US, Japan & Germany · 100% Local Privacy.</span>
         </div>
-        <button
-          onClick={() => {
-            const a = document.createElement('a');
-            a.href = '/api/download-v3-zip';
-            a.download = 'superjobgenie-v3.0.0-chrome-webstore-release.zip';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }}
-          className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg shadow-md shadow-emerald-500/25 transition flex items-center gap-1.5 cursor-pointer text-xs"
-        >
-          <Download className="w-3.5 h-3.5" />
-          <span>点击直接下载 v3.0.0 ZIP 包 (68KB)</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href={CHROME_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3.5 py-1.5 bg-[#ff4d15] hover:bg-[#e63e07] text-white font-black rounded-lg shadow-md shadow-orange-500/25 transition flex items-center gap-1.5 cursor-pointer text-xs font-mono"
+          >
+            <span>Add to Chrome · Free (v3.0.0)</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
       </div>
 
-      {/* Hero Header */}
-      <nav className="max-w-7xl w-full mx-auto px-6 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 p-[1.5px] shadow-lg shadow-indigo-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-cyan-400" />
-            </div>
+      {/* Industrial Dieter Rams / Teenage Engineering Hardware Hero */}
+      <IndustrialHero
+        onEnterApp={onEnterApp}
+        onOpenPrivacy={onOpenPrivacy}
+        onOpenVoiceover={() => setIsVoiceoverModalOpen(true)}
+      />
+
+      {/* ========================================================================= */}
+      {/* 4 High-Def Breakthrough Cards Showcase (Right Under Hardware Hero)       */}
+      {/* ========================================================================= */}
+      <section id="cards" className="py-12 bg-slate-950 border-y border-slate-800/80 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#ff4d15]/10 text-[#ff4d15] border border-[#ff4d15]/30 uppercase tracking-widest">
+              Visual Intelligence Suite · 4 Breakthrough Pillars
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight mt-3 mb-2 font-mono">
+              The 4 Pillars That Break the ATS Ceiling
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400">
+              Click any card to inspect full high-definition diagnostics, transferable skills, and executive generation.
+            </p>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-extrabold tracking-tight text-white">SuperJobGenie</span>
-              <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm">PRO</span>
-            </div>
-            <p className="text-[11px] text-slate-400">Career Pivot Intelligence & Deep JD Matcher</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {breakthroughCards.map((card) => (
+              <div 
+                key={card.id}
+                onClick={() => setSelectedCardPreview(card)}
+                className={`group rounded-2xl bg-slate-900/80 border border-slate-800 overflow-hidden ${card.borderHover} transition-all duration-300 flex flex-col cursor-pointer shadow-lg hover:shadow-2xl hover:-translate-y-1`}
+              >
+                <div className="relative aspect-[4/3] bg-black overflow-hidden">
+                  <img
+                    src={card.img}
+                    alt={card.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <span className={`absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold ${card.tagColor} border`}>
+                    {card.tag}
+                  </span>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="px-3 py-1.5 rounded-lg bg-black/80 text-white text-xs font-mono font-bold border border-white/20 flex items-center gap-1.5 backdrop-blur-sm">
+                      <Eye className="w-3.5 h-3.5 text-[#ff4d15]" />
+                      <span>Inspect 4K Card</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white mb-1 group-hover:text-[#ff4d15] transition-colors">
+                      {card.title}
+                    </h4>
+                    <p className="text-xs text-slate-400 leading-relaxed mb-3">
+                      {card.description}
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <span>{card.subtitle}</span>
+                    <span className="text-[#ff4d15] font-bold">Zoom ↗</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsVoiceoverModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-cyan-300 bg-cyan-950/50 border border-cyan-500/40 hover:bg-cyan-900/60 rounded-lg transition shadow-sm"
-            title="Preview time-aligned 60s voiceover audio tracks"
-          >
-            <Volume2 className="w-4 h-4 text-cyan-400" />
-            <span>Studio Voiceover</span>
-          </button>
-          <button
-            onClick={onEnterApp}
-            className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 rounded-lg transition"
-          >
-            Launch Workstation
-          </button>
-          <ExportExtensionButton
-            variant="gradient"
-            label="Download Extension"
-            extensionName="SuperJobGenie"
-          />
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-20 px-6 max-w-6xl mx-auto text-center flex-1 flex flex-col items-center justify-center">
-        {/* Background Glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs text-slate-300 mb-6 shadow-sm">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-          <span>Real-time Live Scraping Across Western Job Boards</span>
-          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-        </div>
-
-        {/* Main Title */}
-        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-tight max-w-4xl mb-6">
-          Stop Getting Rejected by{' '}
-          <span className="bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
-            Truncated Job Descriptions
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-8">
-          SuperJobGenie unlocks <strong className="text-slate-200">3,000 to 11,000+ characters of deep JD context</strong> directly on LinkedIn, Indeed, and Glassdoor. Get true AI match scoring, pinpoint missing skills, and discover cross-industry career pivots.
-        </p>
-
-        {/* Hero CTAs */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 justify-center w-full max-w-xl mb-12">
-          <ExportExtensionButton
-            variant="gradient"
-            label="Add to Chrome for Free (.zip)"
-            extensionName="SuperJobGenie"
-          />
-          <button
-            onClick={() => setIsVoiceoverModalOpen(true)}
-            className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-cyan-950/60 to-indigo-950/60 hover:from-cyan-900/70 hover:to-indigo-900/70 text-cyan-200 border border-cyan-500/40 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 shadow-sm"
-          >
-            <Volume2 className="w-4 h-4 text-cyan-400" />
-            <span>Listen to 60s Trailer Audio</span>
-          </button>
-          <button
-            onClick={onEnterApp}
-            className="w-full sm:w-auto px-5 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 shadow-sm"
-          >
-            <span>Live Simulator</span>
-            <ArrowRight className="w-4 h-4 text-slate-400" />
-          </button>
-        </div>
-
-        {/* Supported Job Boards Bar */}
+      {/* Supported Job Boards Bar */}
+      <section className="relative overflow-hidden pt-4 pb-16 px-6 max-w-6xl mx-auto text-center flex-1 flex flex-col items-center justify-center">
         <div className="w-full max-w-4xl pt-8 border-t border-slate-800/80 mb-12">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
             Battle-tested across primary Western job engines
@@ -480,29 +551,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
 
                 {/* HUD Footer Action: Compacted Buttons Fitting Cleanly */}
                 <div className="pt-3 border-t border-slate-800/80 space-y-1.5">
+                  <a
+                    href={CHROME_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2 bg-gradient-to-r from-[#ff4d15] to-orange-500 hover:from-[#e63e07] hover:to-orange-600 text-white rounded-lg text-xs font-black transition text-center shadow-md shadow-orange-600/25 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>⚡ Add to Chrome · Free (v3.0.0)</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
                   <div className="grid grid-cols-2 gap-2">
                     <button 
                       onClick={onEnterApp}
-                      className="py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10.5px] font-bold transition text-center border border-slate-700"
+                      className="py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10.5px] font-bold transition text-center border border-slate-700 cursor-pointer"
                     >
                       ✉️ 3-Tier Letter
                     </button>
                     <button 
                       onClick={onEnterApp}
-                      className="py-1.5 bg-purple-900/60 hover:bg-purple-800 text-purple-200 rounded-lg text-[10.5px] font-bold transition text-center border border-purple-700/50"
+                      className="py-1.5 bg-purple-900/60 hover:bg-purple-800 text-purple-200 rounded-lg text-[10.5px] font-bold transition text-center border border-purple-700/50 cursor-pointer"
                     >
                       👑 4-Tier Exec
                     </button>
                   </div>
                   <button 
                     onClick={onEnterApp}
-                    className="w-full py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-lg text-xs font-extrabold transition text-center shadow-md shadow-orange-600/20"
-                  >
-                    👑 Open in Executive Dashboard (PRO)
-                  </button>
-                  <button 
-                    onClick={onEnterApp}
-                    className="w-full py-1.5 bg-indigo-950/80 hover:bg-indigo-900/90 text-indigo-200 border border-indigo-700/50 rounded-lg text-[11px] font-bold transition text-center"
+                    className="w-full py-1.5 bg-indigo-950/80 hover:bg-indigo-900/90 text-indigo-200 border border-indigo-700/50 rounded-lg text-[11px] font-bold transition text-center cursor-pointer"
                   >
                     ✨ 🌟 Smart Career Pivot Discovery
                   </button>
@@ -513,6 +587,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
           </div>
         </div>
       </section>
+
+
 
       {/* Feature Value Pillars */}
       <section className="py-20 bg-slate-900/40 border-t border-slate-800 px-6">
@@ -592,18 +668,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
             Install the SuperJobGenie Chrome extension today and experience instant deep JD extraction with 100% privacy preservation.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            <ExportExtensionButton
-              variant="gradient"
-              label="Download SuperJobGenie (.zip)"
-              extensionName="SuperJobGenie"
-            />
+            <a
+              href={CHROME_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3.5 bg-gradient-to-r from-[#ff4d15] via-orange-500 to-amber-500 hover:from-[#e63e07] hover:to-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2.5 transition transform hover:scale-[1.02] active:scale-95 text-sm cursor-pointer"
+            >
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3.6a6.4 6.4 0 0 1 5.54 3.2h-7.14a4 4 0 0 0-2.4 1.4L6.16 6.8A6.38 6.38 0 0 1 12 5.6zm-6.4 6.4a6.4 6.4 0 0 1 .8-3.1l3.57 6.18a4 4 0 0 0 2.4 1.32l-3.37 5.84A6.4 6.4 0 0 1 5.6 12zm8.8 6.4a6.38 6.38 0 0 1-5.54-3.2h7.14a4 4 0 0 0 2.4-1.4l1.84 3.4A6.38 6.38 0 0 1 14.4 18.4zM12 14a2 2 0 1 1 2-2 2 2 0 0 1-2 2z"/>
+              </svg>
+              <span>Add to Chrome · Official Store</span>
+              <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+            </a>
+
             <button
               onClick={onEnterApp}
-              className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-sm font-bold transition flex items-center gap-2"
+              className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Explore Web Dashboard</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+          </div>
+
+          {/* Chrome Web Store Trust Pillar */}
+          <div className="pt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs text-slate-400">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Official Google Chrome Web Store Verified · Manifest V3 · 100% Client-Side Privacy</span>
+            </span>
           </div>
         </div>
       </section>
@@ -636,6 +728,134 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
           </a>
         </div>
       </footer>
+
+      {/* 4K Breakthrough Card Lightbox Modal */}
+      {selectedCardPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+          <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
+            
+            {/* Card High-Def Image View */}
+            <div className="md:w-3/5 bg-black flex items-center justify-center p-3 sm:p-6 overflow-hidden">
+              <img
+                src={selectedCardPreview.img}
+                alt={selectedCardPreview.title}
+                className="max-h-[50vh] md:max-h-[70vh] w-auto object-contain rounded-xl shadow-2xl"
+              />
+            </div>
+
+            {/* Card Intelligence Info & Rationale */}
+            <div className="md:w-2/5 p-6 flex flex-col justify-between bg-slate-950 border-t md:border-t-0 md:border-l border-slate-800">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-bold ${selectedCardPreview.tagColor} border`}>
+                    {selectedCardPreview.tag}
+                  </span>
+                  <button
+                    onClick={() => setSelectedCardPreview(null)}
+                    className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition text-xs font-mono"
+                  >
+                    CLOSE [ESC]
+                  </button>
+                </div>
+
+                <h3 className="text-xl font-black text-white tracking-tight mb-1">
+                  {selectedCardPreview.title}
+                </h3>
+                <p className="text-xs font-mono text-[#ff4d15] mb-4">
+                  {selectedCardPreview.subtitle}
+                </p>
+
+                <p className="text-xs text-slate-300 leading-relaxed mb-5">
+                  {selectedCardPreview.description}
+                </p>
+
+                <div className="space-y-2 mb-6">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+                    Key Architectural Capabilities:
+                  </span>
+                  {selectedCardPreview.keyPoints.map((pt, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-xs text-slate-200">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span>{pt}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-800 flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setSelectedCardPreview(null);
+                    onEnterApp();
+                  }}
+                  className="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-mono font-bold text-center border border-slate-700 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Try in Simulator</span>
+                </button>
+                <a
+                  href={CHROME_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2.5 px-3 bg-gradient-to-r from-[#ff4d15] to-orange-500 hover:from-[#e63e07] hover:to-orange-600 text-white rounded-xl text-xs font-mono font-bold text-center transition flex items-center justify-center gap-1.5 shadow-lg shadow-orange-500/25 cursor-pointer"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3.6a6.4 6.4 0 0 1 5.54 3.2h-7.14a4 4 0 0 0-2.4 1.4L6.16 6.8A6.38 6.38 0 0 1 12 5.6zm-6.4 6.4a6.4 6.4 0 0 1 .8-3.1l3.57 6.18a4 4 0 0 0 2.4 1.32l-3.37 5.84A6.4 6.4 0 0 1 5.6 12zm8.8 6.4a6.38 6.38 0 0 1-5.54-3.2h7.14a4 4 0 0 0 2.4-1.4l1.84 3.4A6.38 6.38 0 0 1 14.4 18.4zM12 14a2 2 0 1 1 2-2 2 2 0 0 1-2 2z"/>
+                  </svg>
+                  <span>Add to Chrome (Free)</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Floating Sticky Conversion Dock (Never let a visitor bounce without installing) */}
+      {showStickyBar && !isBarDismissed && (
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <div className="bg-slate-900/95 border-2 border-orange-500/40 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-[0_12px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(255,77,21,0.25)] backdrop-blur-xl flex items-center justify-between gap-3 sm:gap-5 text-xs text-white max-w-xl mx-auto">
+            {/* Left badge & rating */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ff4d15] to-amber-500 flex items-center justify-center shrink-0 shadow-md shadow-orange-500/25">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3.6a6.4 6.4 0 0 1 5.54 3.2h-7.14a4 4 0 0 0-2.4 1.4L6.16 6.8A6.38 6.38 0 0 1 12 5.6zm-6.4 6.4a6.4 6.4 0 0 1 .8-3.1l3.57 6.18a4 4 0 0 0 2.4 1.32l-3.37 5.84A6.4 6.4 0 0 1 5.6 12zm8.8 6.4a6.38 6.38 0 0 1-5.54-3.2h7.14a4 4 0 0 0 2.4-1.4l1.84 3.4A6.38 6.38 0 0 1 14.4 18.4zM12 14a2 2 0 1 1 2-2 2 2 0 0 1-2 2z"/>
+                </svg>
+              </div>
+              <div className="hidden sm:block">
+                <div className="flex items-center gap-1.5 font-bold tracking-tight">
+                  <span>SuperJobGenie v3.0.0</span>
+                  <span className="text-amber-400 font-mono text-[11px]">★★★★★ 5.0</span>
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  Official Chrome Web Store · 100% Local Privacy
+                </div>
+              </div>
+            </div>
+
+            {/* CTA Button & Dismiss */}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <a
+                href={CHROME_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 sm:flex-none px-4 py-2 bg-[#ff4d15] hover:bg-[#e63e07] text-white font-mono font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-orange-500/30 flex items-center justify-center gap-1.5 transition hover:scale-[1.03] active:scale-95 cursor-pointer"
+              >
+                <span>Add to Chrome · Free</span>
+                <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+              </a>
+              <button
+                onClick={() => setIsBarDismissed(true)}
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
+                title="Dismiss"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Voiceover Studio Modal */}
       <VoiceoverStudioModal
