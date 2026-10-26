@@ -35,4 +35,15 @@
 - `public/assets/cards/card9b_video_opener_cyber.jpg` (赛博深色微发光变体)
 - `public/assets/cards/card9_hardware_transparent.png` 🔥 **(免抠透明底 PNG + 柔和环境投射阴影，无缝贴入任何视频背景，零方框接缝！)**
 - `public/assets/cards/preview_opener_composite.jpg` (合成参考效果图)
+- `public/assets/cards/superjobgenie_opener_full_8s.mp4` 🎬 **(军师母带级 1080p 成片 - 8秒完整版，0.35s 机械继电器通电点亮 + 辉光管低频底噪 + 完美重心对齐)**
+- `public/assets/cards/superjobgenie_opener_hook_3.5s.mp4` ⚡ **(军师爆款短视频截取版 - 3.5秒黄金Hook版，直接用作短视频前 3.5 秒痛点引入)**
+
+---
+
+## 🎬 军师母带级成片参数 (Video Composite Specs)
+* **卡片尺寸**: 680×488px (垂直居中对齐电视人眼部中轴 `y=290`)
+* **安全边距**: 左侧边距 `x=120px`，完美避开短视频右侧互动图标 (点赞/评论/分享) 与底部标题区
+* **音效设计**: 0.35s 双重重型继电器闭合声 (`Relay Click`) + 528Hz 辉光管通电谐波振荡音 (`Nixie Glow`)
+* **视频编码**: H.264 High Profile, CRF=18, 1920×1080 @ 30fps, AAC 192kbps 立体声
+
 
