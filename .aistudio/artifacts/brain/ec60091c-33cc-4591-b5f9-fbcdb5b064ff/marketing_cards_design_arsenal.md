@@ -16,6 +16,7 @@
 | **Card 6 (新)** | **ATS 技能缺口矩阵雷达** | 铜色雷达线 + 紫罗兰夜光 | `98.4% KEYWORD COVERAGE` · `15 OF 15 HARD SKILLS DETECTED` | 技能精准匹配、免试过滤 |
 | **Card 7 (新)** | **顶级面试直通卡 (Top 1% Pass)** | 金色质感勋章 + 动态上升曲线 | `INTERVIEW FAST-TRACK PASS` · `STATUS: SHORTLISTED FOR VP` | 心理激励、终极求职目标 |
 | **Card 8 (新)** | **Dieter Rams 工业硬件实体台** | 亚光冷灰金属铝 + 橙光旋钮 | `SuperJobGenie · V3.0 HARDWARE ENGINE` · `97% FIT LOCKED` | 品牌独立格调、极客情怀转推 |
+| **Card 9 (片头王炸)** | **视频片头专属硬件控制台 (Video Opener HUD)** | 哑光暖灰背景 + 辉光管 + 模拟双模表盘 | `11,482 Chars Nixie` · `38% ➔ 97% Pivot Gauge` · `STOP GUESSING YOUR ODDS` | 视频片头右侧60%无缝贴合、一目了然看懂插件 |
 
 ---
 
@@ -30,3 +31,8 @@
 - `public/assets/cards/card6_skill_matrix.jpg` 🌟
 - `public/assets/cards/card7_interview_pass.jpg` 🌟
 - `public/assets/cards/card8_hardware_console.jpg` 🌟
+- `public/assets/cards/card9_video_opener_hud.jpg` 👑 **(视频片头专属神级卡片 - 全画幅)**
+- `public/assets/cards/card9b_video_opener_cyber.jpg` (赛博深色微发光变体)
+- `public/assets/cards/card9_hardware_transparent.png` 🔥 **(免抠透明底 PNG + 柔和环境投射阴影，无缝贴入任何视频背景，零方框接缝！)**
+- `public/assets/cards/preview_opener_composite.jpg` (合成参考效果图)
+
