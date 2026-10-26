@@ -213,6 +213,14 @@ app.post('/api/extract-jd', async (req: Request, res: Response) => {
   }
 });
 
+// All download paths strictly redirect to official Chrome Web Store to ensure 100% accurate install analytics
+const CHROME_STORE_OFFICIAL_URL =
+  'https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb';
+
+app.get(['/api/download-extension-zip', '/api/download-standalone-html', '/api/download-cool-webpage-zip'], (_req: Request, res: Response) => {
+  return res.redirect(302, CHROME_STORE_OFFICIAL_URL);
+});
+
 // POST /api/analyze-match: Gemini 3.8 Flash Multi-Dimensional Skill Match & Career Pivot Analysis
 app.post('/api/analyze-match', async (req: Request, res: Response) => {
   try {
@@ -422,11 +430,30 @@ app.get('/api/download-extension-zip', async (_req: Request, res: Response) => {
 app.get(['/api/download-cool-webpage-zip', '/api/download-webpage', '/SuperJobGenie_Cool_Webpage_Desktop.zip'], (_req: Request, res: Response) => {
   const filePath = path.join(__dirname, 'public', 'SuperJobGenie_Cool_Webpage_Desktop.zip');
   if (fs.existsSync(filePath)) {
+    const stat = fs.statSync(filePath);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/zip');
-    return res.download(filePath, 'SuperJobGenie_Cool_Webpage_Desktop.zip');
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Content-Disposition', 'attachment; filename="SuperJobGenie_Cool_Webpage_Desktop.zip"');
+    const fileStream = fs.createReadStream(filePath);
+    return fileStream.pipe(res);
   }
   return res.status(404).send('Webpage desktop bundle not found');
+});
+
+// GET /api/download-standalone-html: Direct 1-Click single file HTML download (double-click to open offline on Mac)
+app.get(['/api/download-standalone-html', '/SuperJobGenie_Showcase.html'], (_req: Request, res: Response) => {
+  const filePath = path.join(__dirname, 'public', 'SuperJobGenie_Showcase.html');
+  if (fs.existsSync(filePath)) {
+    const stat = fs.statSync(filePath);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Content-Disposition', 'attachment; filename="SuperJobGenie_Showcase.html"');
+    const fileStream = fs.createReadStream(filePath);
+    return fileStream.pipe(res);
+  }
+  return res.status(404).send('Standalone HTML not found');
 });
 
 // GET /api/download-project-zip & /api/download-website-zip: Download full website & codebase package

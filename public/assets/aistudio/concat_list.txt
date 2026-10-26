@@ -1,0 +1,13 @@
+file '/app/applet/public/assets/aistudio/touxian_frame2.jpg'
+duration 0.7
+file '/app/applet/public/assets/aistudio/hf_hero_frame3.jpg'
+duration 0.7
+file '/app/applet/public/assets/aistudio/draft_frame5.jpg'
+duration 0.7
+file '/app/applet/public/assets/aistudio/verify_clean_frame8.jpg'
+duration 0.7
+file '/app/applet/public/assets/aistudio/draft_frame5.jpg'
+duration 0.7
+file '/app/applet/public/assets/aistudio/hf_hero_frame3.jpg'
+duration 0.7
+file '/app/applet/public/assets/aistudio/hf_hero_frame3.jpg'

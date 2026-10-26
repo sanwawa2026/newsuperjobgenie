@@ -37,6 +37,7 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPrivacy }) => {
+  const [lang, setLang] = useState<'zh' | 'en'>('zh');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activePlatformTab, setActivePlatformTab] = useState<'indeed' | 'linkedin' | 'glassdoor'>('indeed');
   const [isVoiceoverModalOpen, setIsVoiceoverModalOpen] = useState<boolean>(false);
@@ -253,31 +254,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Top Announcement Bar - Chrome Web Store Live Milestone */}
-      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border-b border-emerald-500/30 py-2.5 px-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 text-emerald-300 font-medium">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span><strong>Official Google Chrome Web Store Release (v3.0.0)</strong>: Verified by job seekers across US, Japan & Germany · 100% Local Privacy.</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <a
-            href={CHROME_STORE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3.5 py-1.5 bg-[#ff4d15] hover:bg-[#e63e07] text-white font-black rounded-lg shadow-md shadow-orange-500/25 transition flex items-center gap-1.5 cursor-pointer text-xs font-mono"
-          >
-            <span>Add to Chrome · Free (v3.0.0)</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#080b11] text-slate-100 flex flex-col font-sans selection:bg-[#ff4d15] selection:text-white pt-4 sm:pt-8">
 
-      {/* Industrial Dieter Rams / Teenage Engineering Hardware Hero */}
+      {/* Beloved First Version: Tactile Industrial Hardware Hero with Retro Person ("复古人") & Rotary Dial */}
       <IndustrialHero
         onEnterApp={onEnterApp}
         onOpenPrivacy={onOpenPrivacy}
-        onOpenVoiceover={() => setIsVoiceoverModalOpen(true)}
       />
 
       {/* ========================================================================= */}

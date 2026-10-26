@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SuperJobGenie - AI Job Match & Career Pivot Intelligence</title>
+    <meta name="description" content="Next-gen AI job match and career pivot intelligence system. Solves 153-character truncation with full 8,000+ char scraping, accurate match scoring, and strategic career pivots." />
+    <meta property="og:title" content="SuperJobGenie - AI Job Match & Career Pivot Intelligence" />
+    <meta property="og:description" content="Next-gen AI job match and career pivot intelligence system. Solves 153-character truncation with full 8,000+ char scraping, accurate match scoring, and strategic career pivots." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Gracefully suppress benign Vite HMR WebSocket disconnect errors in iframe environment
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event.reason;
+        var msg = (reason && (reason.message || String(reason))) || '';
+        var stack = (reason && reason.stack) || '';
+        if (
+          msg.indexOf('WebSocket') !== -1 ||
+          msg.indexOf('vite:ws') !== -1 ||
+          stack.indexOf('@vite/client') !== -1 ||
+          stack.indexOf('client.mjs') !== -1
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      });
+      window.addEventListener('error', function (event) {
+        var msg = event.message || '';
+        var filename = event.filename || '';
+        if (
+          msg.indexOf('WebSocket') !== -1 ||
+          msg.indexOf('vite:ws') !== -1 ||
+          filename.indexOf('@vite/client') !== -1 ||
+          filename.indexOf('client.mjs') !== -1
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
