@@ -188,6 +188,58 @@
   let lastClickedCard = null;
 
   /**
+   * Job Freshness & Expiration Detector
+   * Accurately detects expired, closed, or stale (>30 days) listings on Indeed, LinkedIn, etc.
+   */
+  function extractJobFreshness(container, fullText) {
+    const textToSearch = ((container?.innerText || '') + ' ' + (fullText || '')).toLowerCase();
+    
+    // Check expiration indicators
+    const isExpired = /this job has expired|job has expired|job is closed|position closed|no longer accepting applications|not accepting applications|posting is no longer available|job has ended|listing expired|職缺已結束|職缺已關閉|已過期|已截止/i.test(textToSearch);
+    
+    if (isExpired) {
+      return {
+        isExpired: true,
+        isStale: true,
+        postedText: 'Closed / Expired',
+        statusClass: 'expired',
+        label: '⚠️ Closed / Expired'
+      };
+    }
+    
+    // Check 30+ days old
+    if (/30\+\s*days\s*ago|more than 30 days|active 30\+|posted 30\+|超過 30 天/i.test(textToSearch)) {
+      return {
+        isExpired: false,
+        isStale: true,
+        postedText: '30+ days ago',
+        statusClass: 'stale',
+        label: '⏰ 30+ Days Old'
+      };
+    }
+    
+    // Check recent post date
+    let postedText = '';
+    const dateMatch = textToSearch.match(/\b(just posted|today|yesterday|\d+\s*(?:day|days|hour|hours)\s*ago)\b/i);
+    if (dateMatch) {
+      postedText = dateMatch[1];
+    } else {
+      const activeMatch = textToSearch.match(/active\s*(\d+\s*days?\s*ago|today|yesterday)/i);
+      if (activeMatch) {
+        postedText = activeMatch[1];
+      }
+    }
+    
+    return {
+      isExpired: false,
+      isStale: false,
+      postedText: postedText || 'Active',
+      statusClass: 'active',
+      label: postedText ? `🟢 Active (${postedText})` : '🟢 Active Posting'
+    };
+  }
+
+  /**
    * Deep Extractor: Un-scoped Multi-Channel Extraction
    */
   function extractFullIndeedJob() {
@@ -705,7 +757,28 @@
     if (!title) title = `Select a Job on ${platform}`;
     if (!company) company = 'Click any job posting to evaluate';
 
+    // If fullBodyText is still empty / skeleton loading on Indeed, check if we have lastClickedCard
+    let isProvisionalPreview = false;
+    let provisionalScore = 0;
+    if ((!fullBodyText || fullBodyText.length < 80) && lastClickedCard && (Date.now() - (lastClickedCard.clickedAt || 0) < 20000)) {
+      if (lastClickedCard.title && (title.startsWith('Select a Job') || !title)) {
+        title = lastClickedCard.title;
+      }
+      if (lastClickedCard.company && (company.startsWith('Click any') || !company)) {
+        company = lastClickedCard.company;
+      }
+      if (lastClickedCard.snippet) {
+        fullBodyText = lastClickedCard.snippet;
+      }
+      if (lastClickedCard.score > 0) {
+        provisionalScore = lastClickedCard.score;
+      }
+      isProvisionalPreview = true;
+      extractionSource = `${platform} Card Ingestion`;
+    }
+
     const hasRealBody = Boolean(fullBodyText && fullBodyText.length >= 80);
+    const freshness = extractJobFreshness(activePane || document.body, fullBodyText);
 
     return {
       title,
@@ -719,7 +792,10 @@
       extractionSource,
       isSchemaOrg,
       hasRealBody,
-      jk
+      jk,
+      freshness,
+      isProvisionalPreview,
+      provisionalScore
     };
   }
 
@@ -1255,7 +1331,8 @@
    */
   function evaluateJobMatch(jobData, cand) {
     const isCardScan = Boolean(jobData?.isCardScan);
-    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 80) || (isCardScan && Boolean(jobData?.title));
+    const isProvisional = Boolean(jobData?.isProvisionalPreview);
+    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 80) || (isCardScan && Boolean(jobData?.title)) || (isProvisional && Boolean(jobData?.title));
     const isUnselected = !hasBody && (!jobData || !jobData.title || jobData.title.startsWith('Select a Job'));
     const platformName = jobData?.platform || detectPlatform();
     // Step 0: Normalize combinedText to separate glued words without breaking compound tech names (JavaScript, TypeScript, PostgreSQL, GraphQL)
@@ -1459,20 +1536,26 @@
       tierColor = '#94a3b8'; // Slate
     }
 
+    if (isProvisional && jobData?.provisionalScore > 0) {
+      overallMatchScore = Math.max(overallMatchScore, jobData.provisionalScore);
+    }
+
     const candRole = cand.title || 'Applicant';
     const candExp = cand.yearsOfExperience > 0 ? `${cand.yearsOfExperience} Yrs Exp` : 'Target Domain';
     const matchTier = `${overallMatchScore}% ${tierTitle}`;
     const matchHeadline = isBuggyMode
       ? '⚠️ Naive 98% Match: Based solely on 153 chars truncated preview. Click mode toggle to scan full JD!'
-      : `${overallMatchScore}% Match for ${candRole} (${candExp}) · ${tierDesc}`;
+      : (isProvisional
+          ? `⚡ ${overallMatchScore}% Match (Card Preview) · Ingesting 5,000+ chars full body from ${platformName}…`
+          : `${overallMatchScore}% Match for ${candRole} (${candExp}) · ${tierDesc}`);
 
     return {
       overallMatchScore,
       matchTier,
-      tierTitle,
-      tierDesc,
-      tierBadge,
-      tierColor,
+      tierTitle: isProvisional ? `${overallMatchScore}% Fit (Preview)` : tierTitle,
+      tierDesc: isProvisional ? 'Card preview fit · Deep-fetching full job text from active pane…' : tierDesc,
+      tierBadge: isProvisional ? 'Fetching Details…' : tierBadge,
+      tierColor: overallMatchScore >= 80 ? '#34d399' : (overallMatchScore >= 60 ? '#fbbf24' : '#94a3b8'),
       tierLevel,
       matchHeadline,
       verifiedSkills,
@@ -1480,6 +1563,7 @@
       detectedJdSkillsCount: totalDetected,
       isAwaitingJob: false,
       isScanning: false,
+      isFetchingDeepBody: isProvisional,
       detectedDomain: jobDomain.label,
       detectedDomainCode: jobDomain.code
     };
@@ -2518,6 +2602,92 @@
       background: #334155;
       color: #ffffff;
     }
+
+    .sjg-bot-btn-pause {
+      flex: 1.1;
+      background: linear-gradient(135deg, #b91c1c, #991b1b);
+      color: #ffffff;
+      border: 1px solid rgba(239, 68, 68, 0.6);
+      border-radius: 7px;
+      padding: 7px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+      transition: all 0.2s;
+    }
+
+    .sjg-bot-btn-pause:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .sjg-bot-btn-resume {
+      flex: 1.1;
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #ffffff;
+      border: 1px solid rgba(52, 211, 153, 0.6);
+      border-radius: 7px;
+      padding: 7px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: 0 2px 10px rgba(5, 150, 105, 0.35);
+      transition: all 0.2s;
+    }
+
+    .sjg-bot-btn-resume:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .sjg-freshness-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    .sjg-freshness-pill.active {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .sjg-freshness-pill.stale {
+      background: rgba(245, 158, 11, 0.12);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .sjg-freshness-pill.expired {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .sjg-expired-banner {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 5px 8px;
+      border-radius: 6px;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
   `;
 
   /**
@@ -2577,7 +2747,7 @@
           <div class="sjg-pill-text">
             <span class="sjg-pill-brand">
               SuperJobGenie 🚀
-              <span class="sjg-pill-bot-badge"><span class="sjg-bot-radar-dot"></span>BOT: ${isAutoPilotEnabled ? 'ON' : 'PAUSED'}</span>
+              <span class="sjg-pill-bot-badge"><span class="sjg-bot-radar-dot" style="${isAutoPilotEnabled ? '' : 'background:#94a3b8; box-shadow:none; animation:none;'}"></span>BOT: ${isAutoPilotEnabled ? 'ACTIVE' : 'PAUSED'}</span>
             </span>
             <span class="sjg-pill-chars">${displayChars.toLocaleString()} chars</span>
           </div>
@@ -2609,13 +2779,15 @@
             <div id="sjg-toggle-buggy-btn" class="sjg-mode-badge" title="Click to toggle between 153 chars truncated vs full-body chars">
               ${isBuggyMode 
                 ? '⚠️ Truncated: 153 Chars (Naive)' 
-                : (job.characterCount >= 200 
-                    ? `🛡️ Full Body: ${job.characterCount.toLocaleString()} Chars Verified` 
-                    : (job.characterCount > 0 
-                        ? `⏳ Parsing: ${job.characterCount} Chars` 
-                        : (job.title && job.title !== 'Select a Job on Indeed'
-                            ? `🛡️ Selected: ${escapeHtml(job.company || job.title)}`
-                            : '🔍 Select a Job to Verify Full Body')))}
+                : (job.isProvisionalPreview 
+                    ? `⏳ Ingesting Full Body from ${escapeHtml(job.platform)}…`
+                    : (job.characterCount >= 200 
+                        ? `🛡️ Full Body: ${job.characterCount.toLocaleString()} Chars Verified` 
+                        : (job.characterCount > 0 
+                            ? `⏳ Parsing: ${job.characterCount} Chars` 
+                            : (job.title && job.title !== 'Select a Job on Indeed'
+                                ? `🛡️ Selected: ${escapeHtml(job.company || job.title)}`
+                                : '🔍 Select a Job to Verify Full Body'))))}
             </div>
           </div>
 
@@ -2626,15 +2798,15 @@
             <div class="sjg-bot-deck">
               <div class="sjg-bot-header">
                 <div class="sjg-bot-badge">
-                  <span class="sjg-bot-radar-dot"></span>
+                  <span class="sjg-bot-radar-dot" style="${isAutoPilotEnabled ? '' : 'background:#94a3b8; box-shadow:none; animation:none;'}"></span>
                   <span style="font-weight:900; font-size:11.5px; color:#ffffff; letter-spacing:0.3px;">🤖 AUTONOMOUS SCOUT BOT</span>
-                  <span class="sjg-bot-status-tag" id="sjg-bot-active-tag">${isAutoPilotEnabled ? 'ACTIVE' : 'STANDBY'}</span>
+                  <span class="sjg-bot-status-tag" id="sjg-bot-active-tag" style="color:${isAutoPilotEnabled ? '#34d399' : '#94a3b8'}; border-color:${isAutoPilotEnabled ? 'rgba(52,211,153,0.4)' : 'rgba(148,163,184,0.4)'};">${isAutoPilotEnabled ? 'ACTIVE' : 'STANDBY (PAUSED)'}</span>
                 </div>
                 <div class="sjg-bot-switch-wrap">
                   <label class="sjg-switch-label" title="Auto-scan and badge job match scores as you browse or scroll">
                     <input type="checkbox" id="sjg-bot-autopilot-toggle" ${isAutoPilotEnabled ? 'checked' : ''} />
                     <span class="sjg-switch-slider"></span>
-                    <span style="font-size:10px; color:#93c5fd; font-weight:700;">Auto Cruise</span>
+                    <span style="font-size:10px; color:${isAutoPilotEnabled ? '#93c5fd' : '#94a3b8'}; font-weight:700;">Auto Cruise</span>
                   </label>
                 </div>
               </div>
@@ -2649,17 +2821,20 @@
                   <span class="sjg-bot-stat-lbl">High Match (≥80%)</span>
                 </div>
                 <div class="sjg-bot-stat-item">
-                  <span class="sjg-bot-stat-val" style="color:#38bdf8;">24/7</span>
-                  <span class="sjg-bot-stat-lbl">Radar Standby</span>
+                  <span class="sjg-bot-stat-val" style="color:${isAutoPilotEnabled ? '#38bdf8' : '#94a3b8'};">${isAutoPilotEnabled ? '24/7' : 'PAUSED'}</span>
+                  <span class="sjg-bot-stat-lbl">Radar State</span>
                 </div>
               </div>
 
               <div class="sjg-bot-actions-row">
-                <button id="sjg-bot-scan-page-btn" class="sjg-bot-btn-scan">
-                  <span>⚡ Scan & Match Page Jobs</span>
+                <button id="sjg-bot-toggle-btn" class="${isAutoPilotEnabled ? 'sjg-bot-btn-pause' : 'sjg-bot-btn-resume'}" title="${isAutoPilotEnabled ? 'Click to stop and pause Scout Bot background cruising' : 'Click to resume autonomous scout bot cruising'}">
+                  <span>${isAutoPilotEnabled ? '⏸️ Stop / Pause Bot' : '▶️ Resume Auto Cruise'}</span>
+                </button>
+                <button id="sjg-bot-scan-page-btn" class="sjg-bot-btn-scan" title="Scan and evaluate all visible page jobs now">
+                  <span>⚡ Scan Page Jobs</span>
                 </button>
                 <button id="sjg-bot-test-alert-btn" class="sjg-bot-btn-alert" title="Test real-time desktop radar alert notification">
-                  <span>🔔 Test Radar Alert</span>
+                  <span>🔔 Alert</span>
                 </button>
               </div>
             </div>
@@ -2674,9 +2849,11 @@
                 <span class="sjg-chars-badge">
                   ⚡ ${displayChars > 0 
                       ? `Captured ${displayChars.toLocaleString()} chars body` 
-                      : (job.title && job.title !== 'Select a Job on Indeed' 
-                          ? `Target Active (${escapeHtml(job.company || 'Selected')})` 
-                          : 'Waiting for job click')}
+                      : (job.isProvisionalPreview
+                          ? `Preview (${job.provisionalScore || 90}%) · Ingesting Full Body…`
+                          : (job.title && job.title !== 'Select a Job on Indeed' 
+                              ? `Target Active (${escapeHtml(job.company || 'Selected')})` 
+                              : 'Waiting for job click'))}
                 </span>
               </div>
               <div class="sjg-job-title">${escapeHtml(job.title)}</div>
@@ -2684,11 +2861,19 @@
                 <span class="sjg-job-company">🏢 ${escapeHtml(job.company)}</span> • 
                 <span>${escapeHtml(job.location)}</span>
               </div>
-              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                 <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
                   🌐 ${escapeHtml(evaluation.detectedDomain || 'Cross-Domain Ready')}
                 </span>
+                <span class="sjg-freshness-pill ${job.freshness?.statusClass || 'active'}">
+                  ${escapeHtml(job.freshness?.label || '🟢 Active Posting')}
+                </span>
               </div>
+              ${job.freshness?.isExpired ? `
+                <div class="sjg-expired-banner">
+                  ⚠️ This position is no longer accepting applications on ${escapeHtml(job.platform)}.
+                </div>
+              ` : ''}
             </div>
 
             <!-- Candidate Profile Card -->
@@ -2893,16 +3078,30 @@
       });
 
       // Autonomous Bot Event Listeners
-      wrapper.querySelector('#sjg-bot-autopilot-toggle')?.addEventListener('change', (e) => {
-        isAutoPilotEnabled = e.target.checked;
-        const tag = wrapper.querySelector('#sjg-bot-active-tag');
-        if (tag) {
-          tag.innerText = isAutoPilotEnabled ? 'ACTIVE' : 'STANDBY';
-          tag.style.color = isAutoPilotEnabled ? '#34d399' : '#94a3b8';
-        }
-        if (isAutoPilotEnabled) {
+      wrapper.querySelector('#sjg-bot-toggle-btn')?.addEventListener('click', () => {
+        isAutoPilotEnabled = !isAutoPilotEnabled;
+        if (!isAutoPilotEnabled) {
+          if (autoPilotScanTimer) {
+            clearTimeout(autoPilotScanTimer);
+            autoPilotScanTimer = null;
+          }
+        } else {
           runAutoPageScan(false);
         }
+        renderShadowUI();
+      });
+
+      wrapper.querySelector('#sjg-bot-autopilot-toggle')?.addEventListener('change', (e) => {
+        isAutoPilotEnabled = e.target.checked;
+        if (!isAutoPilotEnabled) {
+          if (autoPilotScanTimer) {
+            clearTimeout(autoPilotScanTimer);
+            autoPilotScanTimer = null;
+          }
+        } else {
+          runAutoPageScan(false);
+        }
+        renderShadowUI();
       });
 
       wrapper.querySelector('#sjg-bot-scan-page-btn')?.addEventListener('click', () => {
@@ -3352,26 +3551,33 @@ ${candidateDisplayName}`;
           badge.style.display = 'inline-flex';
           badge.style.alignItems = 'center';
           badge.style.gap = '6px';
-          badge.style.background = isHigh ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(4, 120, 87, 0.95))' : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))';
-          badge.style.color = isHigh ? '#34d399' : '#cbd5e1';
-          badge.style.border = isHigh ? '1px solid rgba(52, 211, 153, 0.85)' : '1px solid rgba(100, 116, 139, 0.5)';
-          badge.style.borderRadius = '6px';
-          badge.style.padding = '3px 8px';
-          badge.style.margin = '6px 0 4px 0';
-          badge.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-          badge.style.fontSize = '11px';
-          badge.style.fontWeight = '700';
-          badge.style.cursor = 'pointer';
-          badge.style.boxShadow = isHigh ? '0 0 12px rgba(52, 211, 153, 0.45)' : '0 1px 4px rgba(0,0,0,0.3)';
-          badge.style.zIndex = '50';
-          badge.style.width = 'fit-content';
-          badge.style.transition = 'all 0.2s ease';
-          badge.innerHTML = `
-            <span style="font-size:12px;">🤖</span>
-            <span style="color:#fff; font-weight:800;">${score}% Match</span>
-            <span style="opacity:0.9; font-size:10px;">• ${evalResult.verifiedSkills?.length || 0} Skills</span>
-            <span style="color:${isHigh ? '#6ee7b7' : '#94a3b8'}; font-size:10px; font-weight:800;">🎯 Active Target</span>
-          `;
+          
+          const isExpired = Boolean(job.freshness?.isExpired);
+          const isStale = Boolean(job.freshness?.isStale);
+
+          if (isExpired) {
+            badge.style.background = 'linear-gradient(135deg, rgba(69, 10, 10, 0.95), rgba(127, 29, 29, 0.95))';
+            badge.style.color = '#fca5a5';
+            badge.style.border = '1px solid rgba(248, 113, 113, 0.85)';
+            badge.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.4)';
+            badge.innerHTML = `
+              <span style="font-size:12px;">⚠️</span>
+              <span style="color:#fff; font-weight:800;">Closed / Expired</span>
+              <span style="opacity:0.9; font-size:10px;">• ${score}% Match</span>
+              <span style="color:#fca5a5; font-size:10px; font-weight:800;">🎯 Active Target</span>
+            `;
+          } else {
+            badge.style.background = isHigh ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(4, 120, 87, 0.95))' : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))';
+            badge.style.color = isHigh ? '#34d399' : '#cbd5e1';
+            badge.style.border = isHigh ? '1px solid rgba(52, 211, 153, 0.85)' : '1px solid rgba(100, 116, 139, 0.5)';
+            badge.style.boxShadow = isHigh ? '0 0 12px rgba(52, 211, 153, 0.45)' : '0 1px 4px rgba(0,0,0,0.3)';
+            badge.innerHTML = `
+              <span style="font-size:12px;">🤖</span>
+              <span style="color:#fff; font-weight:800;">${score}% Match</span>
+              <span style="color:${isStale ? '#fbbf24' : '#34d399'}; font-size:10px; font-weight:700;">• ${isStale ? '⏰ 30+ Days' : '🟢 Active'}</span>
+              <span style="color:${isHigh ? '#6ee7b7' : '#94a3b8'}; font-size:10px; font-weight:800;">🎯 Active Target</span>
+            `;
+          }
         }
       });
     } catch (e) {
@@ -3457,36 +3663,67 @@ ${candidateDisplayName}`;
 
         if (existingBadge) existingBadge.remove();
 
+        const cardFreshness = extractJobFreshness(card, snippet);
+
         const badge = document.createElement('div');
         badge.className = 'sjg-card-stamp';
         badge.setAttribute('data-score', score.toString());
         if (isCurrentActive) badge.setAttribute('data-active-target', 'true');
         const isHigh = score >= 80;
-        badge.style.cssText = `
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: ${isHigh ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(4, 120, 87, 0.95))' : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))'};
-          color: ${isHigh ? '#34d399' : '#cbd5e1'};
-          border: 1px solid ${isHigh ? 'rgba(52, 211, 153, 0.85)' : 'rgba(100, 116, 139, 0.5)'};
-          border-radius: 6px;
-          padding: 3px 8px;
-          margin: 6px 0 4px 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          font-size: 11px;
-          font-weight: 700;
-          cursor: pointer;
-          box-shadow: ${isHigh ? '0 0 10px rgba(52, 211, 153, 0.35)' : '0 1px 4px rgba(0,0,0,0.3)'};
-          z-index: 50;
-          width: fit-content;
-          transition: all 0.2s ease;
-        `;
-        badge.innerHTML = `
-          <span style="font-size:12px;">🤖</span>
-          <span style="color:#fff; font-weight:800;">${score}% Match</span>
-          <span style="opacity:0.85; font-size:10px;">• ${matchedSkills.length > 0 ? `${matchedSkills.length} Skills` : 'Verified'}</span>
-          <span style="color:${isHigh ? '#6ee7b7' : '#94a3b8'}; font-size:10px; font-weight:${isCurrentActive ? '800' : '600'};">${isCurrentActive ? '🎯 Active Target' : '🔍 Inspect'}</span>
-        `;
+
+        if (cardFreshness.isExpired) {
+          badge.style.cssText = `
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(69, 10, 10, 0.95), rgba(127, 29, 29, 0.95));
+            color: #fca5a5;
+            border: 1px solid rgba(248, 113, 113, 0.85);
+            border-radius: 6px;
+            padding: 3px 8px;
+            margin: 6px 0 4px 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.35);
+            z-index: 50;
+            width: fit-content;
+            transition: all 0.2s ease;
+          `;
+          badge.innerHTML = `
+            <span style="font-size:12px;">⚠️</span>
+            <span style="color:#fff; font-weight:800;">Closed / Expired</span>
+            <span style="opacity:0.85; font-size:10px;">• ${score}% Match</span>
+            <span style="color:#fca5a5; font-size:10px; font-weight:700;">${isCurrentActive ? '🎯 Active Target' : '🔍 Inspect'}</span>
+          `;
+        } else {
+          badge.style.cssText = `
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: ${isHigh ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(4, 120, 87, 0.95))' : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))'};
+            color: ${isHigh ? '#34d399' : '#cbd5e1'};
+            border: 1px solid ${isHigh ? 'rgba(52, 211, 153, 0.85)' : 'rgba(100, 116, 139, 0.5)'};
+            border-radius: 6px;
+            padding: 3px 8px;
+            margin: 6px 0 4px 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: ${isHigh ? '0 0 10px rgba(52, 211, 153, 0.35)' : '0 1px 4px rgba(0,0,0,0.3)'};
+            z-index: 50;
+            width: fit-content;
+            transition: all 0.2s ease;
+          `;
+          badge.innerHTML = `
+            <span style="font-size:12px;">🤖</span>
+            <span style="color:#fff; font-weight:800;">${score}% Match</span>
+            <span style="color:${cardFreshness.isStale ? '#fbbf24' : '#34d399'}; font-size:10px; font-weight:700;">• ${cardFreshness.isStale ? '⏰ 30+ Days' : '🟢 Active'}</span>
+            <span style="color:${isHigh ? '#6ee7b7' : '#94a3b8'}; font-size:10px; font-weight:${isCurrentActive ? '800' : '600'};">${isCurrentActive ? '🎯 Active Target' : '🔍 Inspect'}</span>
+          `;
+        }
 
         badge.addEventListener('mouseenter', () => {
           badge.style.transform = 'scale(1.03)';
@@ -3499,12 +3736,29 @@ ${candidateDisplayName}`;
         badge.addEventListener('click', (e) => {
           e.stopPropagation();
           const clickTarget = card.querySelector('a.job_link, a[data-test="job-title"], a.jcs-JobTitle, h2 a, h2') || card;
+          
+          lastClickedCard = {
+            title: title || '',
+            company: company || '',
+            jk: jk || '',
+            score: score || 0,
+            snippet: snippet,
+            clickedAt: Date.now()
+          };
+
           clickTarget.click();
           isModalOpen = true;
-          setTimeout(() => {
-            checkAndAutoRescan(true);
-            renderShadowUI();
-          }, 250);
+
+          // Render immediately with provisional preview score so it NEVER resets to ··· or spins forever
+          checkAndAutoRescan(true);
+          renderShadowUI();
+
+          const pollIntervals = [100, 250, 450, 750, 1200, 1800, 2600, 3600];
+          pollIntervals.forEach(delay => {
+            setTimeout(() => {
+              checkAndAutoRescan(false);
+            }, delay);
+          });
         });
 
         const insertTarget = card.querySelector('.resultContent, .jobsearch-CompanyInfoContainer, .job-card-container__primary-description') || titleEl?.parentElement || card;
@@ -3677,15 +3931,22 @@ ${candidateDisplayName}`;
       const t = cardEl.querySelector('h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], a.job-card-list__title, [class*="job-card-list__title"], h2, h3, a')?.innerText?.replace(/^new\s+/i, '')?.trim();
       const c = cardEl.querySelector('a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, [data-company-name="true"], .job-card-container__primary-description, span.job-card-container__primary-description')?.innerText?.trim();
       const jk = cardEl.getAttribute('data-jk') || cardEl.getAttribute('data-id') || cardEl.getAttribute('data-jobid') || cardEl.getAttribute('data-job-id') || cardEl.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
+      const badge = cardEl.querySelector('.sjg-card-stamp');
+      const score = badge ? parseInt(badge.getAttribute('data-score') || '0', 10) : 0;
+      const snippet = cardEl.querySelector('.job-snippet, [data-testid="job-snippet"], [class*="job-snippet"], ul.css-9446fg, .underShelfFooter, .job-card-list__snippet')?.innerText?.trim() || '';
+
       if (t && !isSearchHeader(t)) {
         lastClickedCard = { 
           title: t, 
           company: c ? c.replace(/[\d.]+\s*[★*]+.*$/g, '').trim() : '', 
-          jk: jk || '' 
+          jk: jk || '',
+          score: score || 0,
+          snippet: snippet,
+          clickedAt: Date.now()
         };
       }
     }
-    const timeouts = [50, 150, 350, 700, 1200, 2000];
+    const timeouts = [50, 150, 300, 500, 800, 1200, 1800, 2600, 3600];
     timeouts.forEach(delay => {
       setTimeout(() => checkAndAutoRescan(), delay);
     });

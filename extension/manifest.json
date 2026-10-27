@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SuperJobGenie - AI Career Intelligence & Deep JD Matcher",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Deep JD extractor and AI match analyzer across global & APAC job boards (Indeed, LinkedIn, Glassdoor, 104, CakeResume).",
   "permissions": [
     "storage",
