@@ -94,9 +94,9 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
             }`}
-            title="Taiwan 繁體中文微服務雲端崗位 (Bilingual Matching Verified)"
+            title="Taiwan Microservices Cloud Role (Bilingual Matching Verified)"
           >
-            <span>🇹🇼 台灣微服務後端</span>
+            <span>🇹🇼 Taiwan Microservices Backend</span>
           </button>
           <button
             onClick={() => onSelectPreset(SINGAPORE_FINTECH_LEAD_JD)}
@@ -107,7 +107,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
             }`}
             title="Singapore APAC Banking FinTech (High Concurrency & Microservices)"
           >
-            <span>🇸🇬 新加坡 FinTech</span>
+            <span>🇸🇬 Singapore FinTech Lead</span>
           </button>
           <button
             onClick={() => setActiveTab(activeTab === 'custom' ? 'job' : 'custom')}

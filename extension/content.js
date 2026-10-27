@@ -1254,7 +1254,8 @@
    * Strict requirement-driven gap analysis: Only report gaps that ACTUALLY appear in JD!
    */
   function evaluateJobMatch(jobData, cand) {
-    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 80);
+    const isCardScan = Boolean(jobData?.isCardScan);
+    const hasBody = Boolean(jobData?.fullBodyText && jobData.fullBodyText.length >= 80) || (isCardScan && Boolean(jobData?.title));
     const isUnselected = !hasBody && (!jobData || !jobData.title || jobData.title.startsWith('Select a Job'));
     const platformName = jobData?.platform || detectPlatform();
     // Step 0: Normalize combinedText to separate glued words without breaking compound tech names (JavaScript, TypeScript, PostgreSQL, GraphQL)
@@ -1397,7 +1398,13 @@
     // Step 3: Fair, Nuanced & Continuous Dynamic Scoring
     let overallMatchScore;
     if (totalDetected === 0) {
-      overallMatchScore = 65;
+      const isTechCand = (cand.skills || []).some(s => /software|engineer|developer|backend|frontend|fullstack|python|java|react|go|c\+\+/i.test(s));
+      const isTechRole = /software|engineer|developer|backend|frontend|full stack|architect|systems|reliability|web|cloud/i.test(jobData?.title || '');
+      if (isTechCand && isTechRole) {
+        overallMatchScore = 86;
+      } else {
+        overallMatchScore = 68;
+      }
     } else if (missingSkillGaps.length === 0) {
       // All detected core JD requirements are satisfied! Reward with top-tier 93-98% score
       const depthBonus = Math.min(3, Math.floor((jobData?.characterCount || 0) / 2500));
@@ -1715,6 +1722,10 @@
       border-radius: 999px;
     }
 
+    .sjg-floating-pill.hidden {
+      display: none !important;
+    }
+
     .sjg-hud-panel {
       position: fixed;
       bottom: 16px;
@@ -1732,7 +1743,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: #f1f5f9;
       pointer-events: auto;
-      animation: sjgSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
     .sjg-hud-panel.open {
@@ -2552,12 +2563,16 @@
 
       const strokeDashoffset = Math.round(138 - (138 * evaluation.overallMatchScore) / 100);
 
+      // Preserve scroll position to eliminate jitter on re-render
+      const oldBody = wrapper.querySelector('.sjg-body');
+      const savedScrollTop = oldBody ? oldBody.scrollTop : 0;
+
       wrapper.innerHTML = `
         <!-- Hidden file input for resume uploading (Supports up to 100,000 chars) -->
         <input type="file" id="sjg-resume-file-input" accept=".txt,.json,.md,.pdf,.docx" style="display:none;" />
 
-        <!-- Floating Quick Pill Trigger in Bottom-Right -->
-        <div id="sjg-pill-trigger" class="sjg-floating-pill" title="Click to open/close SuperJobGenie HUD">
+        <!-- Floating Quick Pill Trigger in Bottom-Right (Hidden when HUD is open) -->
+        <div id="sjg-pill-trigger" class="sjg-floating-pill ${isModalOpen ? 'hidden' : ''}" title="Click to open/close SuperJobGenie HUD">
           <div class="sjg-pill-dot"></div>
           <div class="sjg-pill-text">
             <span class="sjg-pill-brand">
@@ -2616,10 +2631,10 @@
                   <span class="sjg-bot-status-tag" id="sjg-bot-active-tag">${isAutoPilotEnabled ? 'ACTIVE' : 'STANDBY'}</span>
                 </div>
                 <div class="sjg-bot-switch-wrap">
-                  <label class="sjg-switch-label" title="开启后随着网页滚动或翻页，Bot 自动标记全页岗位匹配度">
+                  <label class="sjg-switch-label" title="Auto-scan and badge job match scores as you browse or scroll">
                     <input type="checkbox" id="sjg-bot-autopilot-toggle" ${isAutoPilotEnabled ? 'checked' : ''} />
                     <span class="sjg-switch-slider"></span>
-                    <span style="font-size:10px; color:#93c5fd; font-weight:700;">自动巡航</span>
+                    <span style="font-size:10px; color:#93c5fd; font-weight:700;">Auto Cruise</span>
                   </label>
                 </div>
               </div>
@@ -2627,24 +2642,24 @@
               <div class="sjg-bot-stats-row">
                 <div class="sjg-bot-stat-item">
                   <span class="sjg-bot-stat-val" id="sjg-scanned-count">${scannedCardsCount || '0'}</span>
-                  <span class="sjg-bot-stat-lbl">页面职位已侦测</span>
+                  <span class="sjg-bot-stat-lbl">Jobs Scanned</span>
                 </div>
                 <div class="sjg-bot-stat-item">
                   <span class="sjg-bot-stat-val" style="color:#34d399;" id="sjg-high-match-count">${highMatchCount || '0'}</span>
-                  <span class="sjg-bot-stat-lbl">高匹配岗位 (≥80%)</span>
+                  <span class="sjg-bot-stat-lbl">High Match (≥80%)</span>
                 </div>
                 <div class="sjg-bot-stat-item">
                   <span class="sjg-bot-stat-val" style="color:#38bdf8;">24/7</span>
-                  <span class="sjg-bot-stat-lbl">后台云雷达待命</span>
+                  <span class="sjg-bot-stat-lbl">Radar Standby</span>
                 </div>
               </div>
 
               <div class="sjg-bot-actions-row">
                 <button id="sjg-bot-scan-page-btn" class="sjg-bot-btn-scan">
-                  <span>⚡ 立即全页巡航标注 (Scan Page Jobs)</span>
+                  <span>⚡ Scan & Match Page Jobs</span>
                 </button>
-                <button id="sjg-bot-test-alert-btn" class="sjg-bot-btn-alert" title="测试向系统发送桌面雷达弹窗预警">
-                  <span>🔔 测速报警</span>
+                <button id="sjg-bot-test-alert-btn" class="sjg-bot-btn-alert" title="Test real-time desktop radar alert notification">
+                  <span>🔔 Test Radar Alert</span>
                 </button>
               </div>
             </div>
@@ -2892,15 +2907,15 @@
 
       wrapper.querySelector('#sjg-bot-scan-page-btn')?.addEventListener('click', () => {
         const btn = wrapper.querySelector('#sjg-bot-scan-page-btn');
-        if (btn) btn.innerHTML = '<span>⚡ 正在全页巡航并比对中...</span>';
+        if (btn) btn.innerHTML = '<span>⚡ Scanning & Matching Page Jobs...</span>';
         setTimeout(() => {
           const res = runAutoPageScan(true);
           renderShadowUI();
           const refreshedBtn = wrapper.querySelector('#sjg-bot-scan-page-btn');
           if (refreshedBtn) {
-            refreshedBtn.innerHTML = `<span>✅ 巡航完毕! 侦测 ${res.total} 岗 (高匹 ${res.highMatchCount})</span>`;
+            refreshedBtn.innerHTML = `<span>✅ Scan Complete! ${res.total} Jobs (${res.highMatchCount} High Match)</span>`;
             setTimeout(() => {
-              if (refreshedBtn) refreshedBtn.innerHTML = '<span>⚡ 立即全页巡航标注 (Scan Page Jobs)</span>';
+              if (refreshedBtn) refreshedBtn.innerHTML = '<span>⚡ Scan & Match Page Jobs</span>';
             }, 2500);
           }
         }, 150);
@@ -2908,7 +2923,7 @@
 
       wrapper.querySelector('#sjg-bot-test-alert-btn')?.addEventListener('click', () => {
         const alertBtn = wrapper.querySelector('#sjg-bot-test-alert-btn');
-        if (alertBtn) alertBtn.innerHTML = '<span>📡 报警中...</span>';
+        if (alertBtn) alertBtn.innerHTML = '<span>📡 Dispatching Alert...</span>';
         try {
           if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
             chrome.runtime.sendMessage({
@@ -2917,18 +2932,18 @@
               company: cachedJobData?.company || 'Indeed Verified Role'
             }, () => {
               if (alertBtn) {
-                alertBtn.innerHTML = '<span>✅ 已推桌面</span>';
-                setTimeout(() => { if (alertBtn) alertBtn.innerHTML = '<span>🔔 测速报警</span>'; }, 2000);
+                alertBtn.innerHTML = '<span>✅ Notification Sent</span>';
+                setTimeout(() => { if (alertBtn) alertBtn.innerHTML = '<span>🔔 Test Radar Alert</span>'; }, 2000);
               }
             });
           } else {
             if (alertBtn) {
-              alertBtn.innerHTML = '<span>🔔 已触发预警</span>';
-              setTimeout(() => { if (alertBtn) alertBtn.innerHTML = '<span>🔔 测速报警</span>'; }, 2000);
+              alertBtn.innerHTML = '<span>🔔 Alert Triggered</span>';
+              setTimeout(() => { if (alertBtn) alertBtn.innerHTML = '<span>🔔 Test Radar Alert</span>'; }, 2000);
             }
           }
         } catch (e) {
-          if (alertBtn) alertBtn.innerHTML = '<span>🔔 测速报警</span>';
+          if (alertBtn) alertBtn.innerHTML = '<span>🔔 Test Radar Alert</span>';
         }
       });
 
@@ -3200,6 +3215,15 @@ ${candidateDisplayName}`;
         }
       }
 
+      // Restore scroll position after render
+      const newBody = wrapper.querySelector('.sjg-body');
+      if (newBody && savedScrollTop > 0) {
+        newBody.scrollTop = savedScrollTop;
+      }
+
+      // Synchronize active card badge on the page with HUD score immediately
+      syncActiveCardBadge(job, evaluation);
+
     } catch (err) {
       console.error('[SuperJobGenie] renderShadowUI error:', err);
     }
@@ -3285,6 +3309,77 @@ ${candidateDisplayName}`;
   }
 
   /**
+   * Synchronize the active inspected job card badge with the full-body evaluation score in the HUD.
+   * Guarantees 0% discrepancy between the HUD detail score and the card badge!
+   */
+  function syncActiveCardBadge(job, evalResult) {
+    if (!job || !evalResult || !job.title || job.title === 'Select a Job on Indeed' || evalResult.overallMatchScore <= 0) return;
+    try {
+      const cardSelectors = [
+        'div.job_seen_beacon',
+        'div[data-jk]',
+        'div.cardOutline',
+        '[data-testid="job-card"]',
+        '[data-testid="job-result"]',
+        '[data-test="job-listing-item"]',
+        'li[data-test="jobListing"]',
+        'li.jobs-search-results__list-item',
+        'div.job-card-container'
+      ];
+      const allCards = Array.from(document.querySelectorAll(cardSelectors.join(', ')));
+      allCards.forEach(card => {
+        const titleEl = card.querySelector('h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], a.job-card-list__title, [class*="job-card-list__title"], h2, h3, a');
+        const title = titleEl?.innerText?.replace(/^new\s+/i, '')?.trim() || '';
+        const jk = card.getAttribute('data-jk') || card.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
+        
+        const isMatch = (job.jk && jk && job.jk === jk) || 
+                        (title && job.title && (title.toLowerCase() === job.title.toLowerCase() || job.title.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(job.title.toLowerCase()))) ||
+                        card.classList.contains('vjs-highlight') ||
+                        card.classList.contains('jobsearch-JobCard--selected');
+
+        if (isMatch) {
+          const score = evalResult.overallMatchScore;
+          const isHigh = score >= 80;
+          let badge = card.querySelector('.sjg-card-stamp');
+          if (!badge) {
+            badge = document.createElement('div');
+            badge.className = 'sjg-card-stamp';
+            const insertTarget = card.querySelector('.resultContent, .jobsearch-CompanyInfoContainer, .job-card-container__primary-description') || titleEl?.parentElement || card;
+            insertTarget.prepend(badge);
+          }
+          badge.setAttribute('data-score', score.toString());
+          badge.setAttribute('data-active-target', 'true');
+          badge.style.display = 'inline-flex';
+          badge.style.alignItems = 'center';
+          badge.style.gap = '6px';
+          badge.style.background = isHigh ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(4, 120, 87, 0.95))' : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))';
+          badge.style.color = isHigh ? '#34d399' : '#cbd5e1';
+          badge.style.border = isHigh ? '1px solid rgba(52, 211, 153, 0.85)' : '1px solid rgba(100, 116, 139, 0.5)';
+          badge.style.borderRadius = '6px';
+          badge.style.padding = '3px 8px';
+          badge.style.margin = '6px 0 4px 0';
+          badge.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          badge.style.fontSize = '11px';
+          badge.style.fontWeight = '700';
+          badge.style.cursor = 'pointer';
+          badge.style.boxShadow = isHigh ? '0 0 12px rgba(52, 211, 153, 0.45)' : '0 1px 4px rgba(0,0,0,0.3)';
+          badge.style.zIndex = '50';
+          badge.style.width = 'fit-content';
+          badge.style.transition = 'all 0.2s ease';
+          badge.innerHTML = `
+            <span style="font-size:12px;">🤖</span>
+            <span style="color:#fff; font-weight:800;">${score}% Match</span>
+            <span style="opacity:0.9; font-size:10px;">• ${evalResult.verifiedSkills?.length || 0} Skills</span>
+            <span style="color:${isHigh ? '#6ee7b7' : '#94a3b8'}; font-size:10px; font-weight:800;">🎯 Active Target</span>
+          `;
+        }
+      });
+    } catch (e) {
+      console.warn('[SuperJobGenie] Card badge sync error:', e);
+    }
+  }
+
+  /**
    * Autonomous Scout Bot: Scan visible job cards on the current page,
    * calculate match scores against candidate profile, and inject glowing tags directly on cards.
    */
@@ -3313,13 +3408,6 @@ ${candidateDisplayName}`;
       let pageHighMatches = 0;
 
       allCards.forEach(card => {
-        const existingBadge = card.querySelector('.sjg-card-stamp');
-        if (existingBadge && !force) {
-          const score = parseInt(existingBadge.getAttribute('data-score') || '0', 10);
-          if (score >= 80) pageHighMatches++;
-          return;
-        }
-
         const titleEl = card.querySelector('h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], a.job-card-list__title, [class*="job-card-list__title"], h2, h3, a');
         const title = titleEl?.innerText?.replace(/^new\s+/i, '')?.trim() || '';
         if (!title || isSearchHeader(title)) return;
@@ -3329,15 +3417,42 @@ ${candidateDisplayName}`;
 
         const snippetEl = card.querySelector('.job-snippet, [data-testid="job-snippet"], [class*="job-snippet"], ul.css-9446fg, .underShelfFooter, .job-card-list__snippet');
         const snippet = snippetEl?.innerText?.trim() || '';
+        const jk = card.getAttribute('data-jk') || card.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
 
-        const evalResult = evaluateJobMatch({
-          title,
-          company,
-          fullBodyText: snippet
-        }, candidateProfile);
+        const isCurrentActive = Boolean(
+          (cachedJobData && cachedJobData.title && title && cachedJobData.title.toLowerCase().trim() === title.toLowerCase().trim()) ||
+          (cachedJobData?.jk && jk && cachedJobData.jk === jk) ||
+          card.classList.contains('vjs-highlight') ||
+          card.classList.contains('jobsearch-JobCard--selected') ||
+          card.getAttribute('aria-selected') === 'true' ||
+          Boolean(card.querySelector('.jobsearch-JobCard--selected, .vjs-highlight'))
+        );
 
-        const score = evalResult.overallMatchScore || 65;
-        const matchedSkills = evalResult.verifiedSkills || [];
+        const existingBadge = card.querySelector('.sjg-card-stamp');
+        if (existingBadge && !force && !isCurrentActive) {
+          const score = parseInt(existingBadge.getAttribute('data-score') || '0', 10);
+          if (score >= 80) pageHighMatches++;
+          return;
+        }
+
+        let score = 0;
+        let matchedSkills = [];
+
+        if (isCurrentActive && cachedJobData && cachedJobData.characterCount >= 80) {
+          const currentEval = evaluateJobMatch(cachedJobData, candidateProfile);
+          score = currentEval.overallMatchScore;
+          matchedSkills = currentEval.verifiedSkills || [];
+        } else {
+          const evalResult = evaluateJobMatch({
+            title,
+            company,
+            fullBodyText: snippet,
+            isCardScan: true
+          }, candidateProfile);
+          score = evalResult.overallMatchScore;
+          matchedSkills = evalResult.verifiedSkills || [];
+        }
+
         if (score >= 80) pageHighMatches++;
 
         if (existingBadge) existingBadge.remove();
@@ -3345,6 +3460,7 @@ ${candidateDisplayName}`;
         const badge = document.createElement('div');
         badge.className = 'sjg-card-stamp';
         badge.setAttribute('data-score', score.toString());
+        if (isCurrentActive) badge.setAttribute('data-active-target', 'true');
         const isHigh = score >= 80;
         badge.style.cssText = `
           display: inline-flex;
@@ -3352,7 +3468,7 @@ ${candidateDisplayName}`;
           gap: 6px;
           background: ${isHigh ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(4, 120, 87, 0.95))' : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))'};
           color: ${isHigh ? '#34d399' : '#cbd5e1'};
-          border: 1px solid ${isHigh ? 'rgba(52, 211, 153, 0.65)' : 'rgba(100, 116, 139, 0.5)'};
+          border: 1px solid ${isHigh ? 'rgba(52, 211, 153, 0.85)' : 'rgba(100, 116, 139, 0.5)'};
           border-radius: 6px;
           padding: 3px 8px;
           margin: 6px 0 4px 0;
@@ -3369,7 +3485,7 @@ ${candidateDisplayName}`;
           <span style="font-size:12px;">🤖</span>
           <span style="color:#fff; font-weight:800;">${score}% Match</span>
           <span style="opacity:0.85; font-size:10px;">• ${matchedSkills.length > 0 ? `${matchedSkills.length} Skills` : 'Verified'}</span>
-          <span style="color:${isHigh ? '#6ee7b7' : '#94a3b8'}; font-size:10px;">🔍 Inspect</span>
+          <span style="color:${isHigh ? '#6ee7b7' : '#94a3b8'}; font-size:10px; font-weight:${isCurrentActive ? '800' : '600'};">${isCurrentActive ? '🎯 Active Target' : '🔍 Inspect'}</span>
         `;
 
         badge.addEventListener('mouseenter', () => {

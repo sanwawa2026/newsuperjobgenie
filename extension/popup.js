@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           testRadarBtn.disabled = false;
           testRadarBtn.innerText = '✅ Alert Dispatched (96%)!';
           setTimeout(() => {
-            testRadarBtn.innerText = '📡 测试雷达秒推 (Test Scout Alert)';
+            testRadarBtn.innerText = '📡 Test Scout Radar Alert';
           }, 2000);
         }, 500);
       });
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     scanPageJobsBtn.addEventListener('click', async () => {
       if (!activeTab || !activeTab.id) return;
       scanPageJobsBtn.disabled = true;
-      scanPageJobsBtn.innerText = '⚡ 正在全页巡航并打标...';
+      scanPageJobsBtn.innerText = '⚡ Scanning & Matching Page Jobs...';
 
       chrome.tabs.sendMessage(activeTab.id, { action: 'scan_page_jobs' }, async (response) => {
         if (chrome.runtime.lastError) {
@@ -101,19 +101,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             setTimeout(() => {
               chrome.tabs.sendMessage(activeTab.id, { action: 'scan_page_jobs' }, (res2) => {
-                scanPageJobsBtn.innerText = `✅ 已巡航 ${res2?.count || 0} 岗位!`;
+                scanPageJobsBtn.innerText = `✅ Scanned ${res2?.count || 0} Jobs!`;
                 setTimeout(() => window.close(), 800);
               });
             }, 300);
           } catch (err) {
-            scanPageJobsBtn.innerText = '请先打开求职招聘网页';
+            scanPageJobsBtn.innerText = 'Please navigate to a job board first';
             setTimeout(() => {
               scanPageJobsBtn.disabled = false;
-              scanPageJobsBtn.innerText = '⚡ 一键巡检当前页面岗位 (Scan Page)';
+              scanPageJobsBtn.innerText = '⚡ Scan & Match Page Jobs';
             }, 2000);
           }
         } else {
-          scanPageJobsBtn.innerText = `✅ 已巡航 ${response?.count || 0} 岗位 (高匹 ${response?.highMatchCount || 0})!`;
+          scanPageJobsBtn.innerText = `✅ Scanned ${response?.count || 0} Jobs (${response?.highMatchCount || 0} High Match)!`;
           setTimeout(() => window.close(), 700);
         }
       });
