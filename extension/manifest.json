@@ -1,14 +1,19 @@
 {
   "manifest_version": 3,
   "name": "SuperJobGenie - AI Career Intelligence & Deep JD Matcher",
-  "version": "3.0.0",
-  "description": "Deep JD extractor and AI match analyzer across modern job boards and ATS application portals.",
+  "version": "3.1.0",
+  "description": "Deep JD extractor and AI match analyzer across global & APAC job boards (Indeed, LinkedIn, Glassdoor, 104, CakeResume).",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "alarms",
+    "notifications"
   ],
   "host_permissions": [
     "https://*.indeed.com/*",
+    "https://*.indeed.hk/*",
+    "https://*.indeed.com.tw/*",
+    "https://*.indeed.com.sg/*",
     "https://*.indeed.co.uk/*",
     "https://*.indeed.ca/*",
     "https://*.indeed.de/*",
@@ -16,6 +21,11 @@
     "https://*.indeed.es/*",
     "https://*.indeed.it/*",
     "https://*.indeed.jp/*",
+    "https://*.104.com.tw/*",
+    "https://*.1111.com.tw/*",
+    "https://*.cakeresume.com/*",
+    "https://*.jobstreet.com.sg/*",
+    "https://*.jobstreet.com.my/*",
     "https://*.linkedin.com/*",
     "https://*.glassdoor.com/*",
     "https://*.glassdoor.co.uk/*",
@@ -47,6 +57,9 @@
     {
       "matches": [
         "https://*.indeed.com/*",
+        "https://*.indeed.hk/*",
+        "https://*.indeed.com.tw/*",
+        "https://*.indeed.com.sg/*",
         "https://*.indeed.co.uk/*",
         "https://*.indeed.ca/*",
         "https://*.indeed.de/*",
@@ -54,6 +67,11 @@
         "https://*.indeed.es/*",
         "https://*.indeed.it/*",
         "https://*.indeed.jp/*",
+        "https://*.104.com.tw/*",
+        "https://*.1111.com.tw/*",
+        "https://*.cakeresume.com/*",
+        "https://*.jobstreet.com.sg/*",
+        "https://*.jobstreet.com.my/*",
         "https://*.linkedin.com/*",
         "https://*.glassdoor.com/*",
         "https://*.glassdoor.co.uk/*",

@@ -27,6 +27,8 @@ import {
 } from 'lucide-react';
 import { VoiceoverStudioModal } from './VoiceoverStudioModal';
 import { IndustrialHero } from './IndustrialHero';
+import { AutonomousRadarModal } from './AutonomousRadarModal';
+import { Bot, BellRing } from 'lucide-react';
 
 const CHROME_STORE_URL =
   'https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb';
@@ -41,6 +43,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activePlatformTab, setActivePlatformTab] = useState<'indeed' | 'linkedin' | 'glassdoor'>('indeed');
   const [isVoiceoverModalOpen, setIsVoiceoverModalOpen] = useState<boolean>(false);
+  const [isRadarModalOpen, setIsRadarModalOpen] = useState<boolean>(false);
   const [showStickyBar, setShowStickyBar] = useState<boolean>(true);
   const [isBarDismissed, setIsBarDismissed] = useState<boolean>(false);
   const [selectedCardPreview, setSelectedCardPreview] = useState<{
@@ -322,6 +325,46 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
         </div>
       </section>
 
+      {/* ========================================================================= */}
+      {/* Autonomous Scout Radar & Telegram Bot Banner (User Innovation Request)    */}
+      {/* ========================================================================= */}
+      <section className="py-6 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-950/70 via-slate-900 to-indigo-950/70 border-2 border-cyan-500/40 p-6 sm:p-8 shadow-2xl shadow-cyan-500/10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div className="space-y-3 max-w-2xl">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 uppercase tracking-widest flex items-center gap-1.5">
+                  <Bot className="w-3.5 h-3.5 text-cyan-400" />
+                  AI Agent Evolution · Next-Gen Autonomous Scout
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">
+                  ● 24/7 BACKGROUND RADAR
+                </span>
+              </div>
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+                无人值守自动化巡航求职雷达 &amp; Telegram Bot 实时秒推
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                厌倦了每天手动刷招聘网？设定好你的履历与目标，SuperJobGenie 静默在后台自动巡航全球职位源。一旦发现匹配度达到 <strong>≥85%</strong> 的高分契合岗位，毫秒级将职位卡片与定制敲门砖推送到你的 <strong>Telegram / 邮箱</strong>！
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+              <button
+                onClick={() => setIsRadarModalOpen(true)}
+                className="px-5 py-3.5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-mono font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition hover:scale-[1.02] active:scale-95 cursor-pointer"
+              >
+                <Bot className="w-4 h-4" />
+                <span>进入自动化雷达与 Bot 演练中心</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Supported Job Boards Bar */}
       <section className="relative overflow-hidden pt-4 pb-16 px-6 max-w-6xl mx-auto text-center flex-1 flex flex-col items-center justify-center">
         <div className="w-full max-w-4xl pt-8 border-t border-slate-800/80 mb-12">
@@ -542,6 +585,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
                     <span>⚡ Add to Chrome · Free (v3.0.0)</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
+                  {/* Prominently Elevated Career Pivot Discovery */}
+                  <button 
+                    onClick={onEnterApp}
+                    className="w-full p-2 bg-gradient-to-r from-indigo-950/90 via-purple-950/80 to-cyan-950/95 hover:from-indigo-900 hover:to-cyan-900 text-indigo-100 border border-indigo-400/50 shadow-[0_0_15px_rgba(99,102,241,0.3)] rounded-lg text-left transition flex flex-col gap-0.5 cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-extrabold text-[11px] text-white flex items-center gap-1.5">
+                        <span className="text-cyan-300">🧭</span> Smart Career Pivot Discovery
+                      </span>
+                      <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 text-slate-950 text-[8.5px] font-black px-1.5 py-0.2 rounded uppercase">
+                        V2.0 AI
+                      </span>
+                    </div>
+                    <div className="text-[9.5px] text-indigo-200/80 flex items-center justify-between font-medium">
+                      <span>Cross-Domain Transferable Skills & Auto-Match</span>
+                      <span className="text-cyan-300 group-hover:translate-x-0.5 transition-transform font-bold">→</span>
+                    </div>
+                  </button>
+
                   <div className="grid grid-cols-2 gap-2">
                     <button 
                       onClick={onEnterApp}
@@ -556,12 +618,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
                       👑 4-Tier Exec
                     </button>
                   </div>
-                  <button 
-                    onClick={onEnterApp}
-                    className="w-full py-1.5 bg-indigo-950/80 hover:bg-indigo-900/90 text-indigo-200 border border-indigo-700/50 rounded-lg text-[11px] font-bold transition text-center cursor-pointer"
-                  >
-                    ✨ 🌟 Smart Career Pivot Discovery
-                  </button>
                 </div>
 
               </div>
@@ -599,6 +655,166 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 5 Unfair Strategic Advantages vs Incumbents (军师战略护城河对比)           */}
+      {/* ========================================================================= */}
+      <section className="py-20 px-4 sm:px-6 bg-gradient-to-b from-slate-900/60 via-slate-950 to-slate-900/80 border-y border-slate-800/80">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#ff4d15]/10 text-[#ff4d15] border border-[#ff4d15]/30 uppercase tracking-widest inline-flex items-center gap-1.5">
+              <Award className="w-3.5 h-3.5" />
+              Strategic Moats · 降维打击分析
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight mt-3 mb-3">
+              Why SuperJobGenie? 5 个竞品做不到的降维杀手锏
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400">
+              市面传统工具（Jobscan、Teal、LazyApply）大多停留在死板关键词扫描或无脑海投封号。军师为求职者打造的是真正的高维副驾驶。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            {/* Moat 1 */}
+            <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-amber-500/30 relative overflow-hidden group hover:border-amber-500/60 transition shadow-xl">
+              <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-2xl">✨</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  行业首创 · 独家
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-amber-400 transition">
+                智能跨界转行挖掘 (Career Pivot)
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                传统工具只做死板字面匹配，换个行业直接给你打 20 分劝退；军师挖掘<strong className="text-amber-300">底层可迁移元能力</strong>，给出桥接话术，助你推开以前不敢投的高薪大门。
+              </p>
+              <div className="pt-3 border-t border-slate-800 text-[11px] space-y-1.5 text-slate-400">
+                <div className="flex items-center gap-2 text-rose-400">
+                  <X className="w-3.5 h-3.5 shrink-0" />
+                  <span>Jobscan: 缺少行业字面术语直接标红打压</span>
+                </div>
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>军师: 提取75%+隐藏可迁移实力与叙事策略</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Moat 2 */}
+            <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-cyan-500/30 relative overflow-hidden group hover:border-cyan-500/60 transition shadow-xl">
+              <div className="absolute top-0 right-0 w-28 h-28 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-2xl">⚡</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                  零跳出体验
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-cyan-400 transition">
+                零跳出即时驻留 HUD 驾驶舱
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                人在岗位上，决策在眼皮下。直接在 Indeed / LinkedIn 招聘卡片右侧以 Shadow DOM 注入，滚动即透视，<strong className="text-cyan-300">无需切屏、无需多开 10 个标签页</strong>。
+              </p>
+              <div className="pt-3 border-t border-slate-800 text-[11px] space-y-1.5 text-slate-400">
+                <div className="flex items-center gap-2 text-rose-400">
+                  <X className="w-3.5 h-3.5 shrink-0" />
+                  <span>传统插件: 必须复制粘贴到外部网页等待</span>
+                </div>
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>军师: 50毫秒就地就绪，全景透析一览无余</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Moat 3 */}
+            <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-purple-500/30 relative overflow-hidden group hover:border-purple-500/60 transition shadow-xl">
+              <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-2xl">👑</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  高管级公关
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-purple-400 transition">
+                3-Tier &amp; 4-Tier 战略定制求职信
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                拒绝千篇一律的 AI 乞求模板套话。3-Tier 直击 HR/ATS 数字化战果对标；4-Tier 直击部门高管，提供<strong className="text-purple-300">行业洞察与前 90 天落地路线图</strong>。
+              </p>
+              <div className="pt-3 border-t border-slate-800 text-[11px] space-y-1.5 text-slate-400">
+                <div className="flex items-center gap-2 text-rose-400">
+                  <X className="w-3.5 h-3.5 shrink-0" />
+                  <span>竞品AI: "我怀着极大热情申请..." (HR秒扔)</span>
+                </div>
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>军师: 顾问式破局方案，让面试官主动约聊</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Moat 4 */}
+            <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-emerald-500/30 relative overflow-hidden group hover:border-emerald-500/60 transition shadow-xl">
+              <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-2xl">🌐</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                  亚太与全球无缝
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-emerald-400 transition">
+                中英双语与亚太职场语义透析
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                欧美工具在遇到中英混合（新加坡）、繁体中文（台湾）或日韩招聘时分词彻底失效。军师具备跨文化职场语境理解，精准解读<strong className="text-emerald-300">权责范围与真实潜台词</strong>。
+              </p>
+              <div className="pt-3 border-t border-slate-800 text-[11px] space-y-1.5 text-slate-400">
+                <div className="flex items-center gap-2 text-rose-400">
+                  <X className="w-3.5 h-3.5 shrink-0" />
+                  <span>欧美SaaS: 中文分词错乱，无法理解本地职场</span>
+                </div>
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>军师: 中英双语原生透析，亚太与欧美全通吃</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Moat 5 */}
+            <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-blue-500/30 relative overflow-hidden group hover:border-blue-500/60 transition shadow-xl md:col-span-2 lg:col-span-2">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-2xl">🎯</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                  狙击手精准打击 vs 盲目滥投封号
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-blue-400 transition">
+                隐私安全架构 &amp; 狙击手式精准投递 (Sniper vs Spam Bot)
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                部分竞品（如 LazyApply）诱导用户一键盲投几千家，导致求职者邮箱被 HR 标记为垃圾邮件甚至 LinkedIn 账号被官方封号。军师坚持<strong>“高命中副驾驶”</strong>路线：
+                100% 浏览器本地计算，简历隐私绝不泄露，只锁定匹配度 ≥ 85% 的高价值岗位做精准狙击，面试转化率提升 5~10 倍。
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-800 text-[11px]">
+                <div className="flex items-center gap-2 text-rose-400">
+                  <X className="w-3.5 h-3.5 shrink-0" />
+                  <span>盲投脚本: 造成求职名誉污染与平台封号</span>
+                </div>
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>军师副驾驶: 稳健精准狙击，把控权始终在用户手中</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -670,6 +886,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
               <span>Explore Web Dashboard</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+
+            <a
+              href="/superjobgenie-v2-extension.zip"
+              download="superjobgenie-v2-extension.zip"
+              className="px-5 py-3.5 bg-indigo-950/60 hover:bg-indigo-900/80 text-cyan-300 border border-cyan-500/30 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer hover:border-cyan-400"
+              title="Download unpackable V2.0 Autonomous Scout Chrome Extension (Manifest V3)"
+            >
+              <span>📦 Download V2.0 Extension Zip</span>
+            </a>
           </div>
 
           {/* Chrome Web Store Trust Pillar */}
@@ -843,6 +1068,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
       <VoiceoverStudioModal
         isOpen={isVoiceoverModalOpen}
         onClose={() => setIsVoiceoverModalOpen(false)}
+      />
+
+      {/* Autonomous Scout Radar & Bot Dispatch Modal */}
+      <AutonomousRadarModal
+        isOpen={isRadarModalOpen}
+        onClose={() => setIsRadarModalOpen(false)}
       />
     </div>
   );

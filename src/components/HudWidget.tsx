@@ -399,26 +399,38 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
 
         {/* HUD Quick Action Buttons */}
         <div className="space-y-2 pt-1">
-          <button
-            onClick={() => {
-              TelemetryManager.track('panel_expanded', { source: 'hud_main_btn' });
-              onOpenDashboard('diagnostics');
-            }}
-            className="w-full py-2 px-3 rounded-lg font-bold text-xs bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-500 hover:to-orange-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2 transition"
-          >
-            <Crown className="w-3.5 h-3.5 text-amber-200" />
-            <span>Open in Executive Dashboard (PRO)</span>
-          </button>
-
+          {/* Prominently Elevated Career Pivot Discovery (V2.0 Flagship) */}
           <button
             onClick={() => {
               TelemetryManager.track('pivot_analysis_viewed', { source: 'hud_pivot_btn' });
               onOpenDashboard('pivot');
             }}
-            className="w-full py-2 px-3 rounded-lg font-bold text-xs bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-500/40 flex items-center justify-center gap-2 transition"
+            className="w-full p-2.5 rounded-lg font-bold text-xs bg-gradient-to-r from-indigo-900/90 via-purple-900/80 to-cyan-950/90 hover:from-indigo-800 hover:to-cyan-900 text-white border border-indigo-400/50 shadow-[0_0_20px_rgba(99,102,241,0.35)] flex flex-col gap-1 transition group cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>✨ Smart Career Pivot Discovery</span>
+            <div className="flex items-center justify-between w-full">
+              <span className="flex items-center gap-1.5 text-white font-black text-[12px]">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-300 animate-pulse" />
+                <span>Smart Career Pivot Discovery</span>
+              </span>
+              <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                V2.0 AI
+              </span>
+            </div>
+            <div className="flex items-center justify-between w-full text-[10px] text-indigo-200/90 font-medium">
+              <span>Cross-Domain Transferable Skills & Match Finder</span>
+              <span className="text-cyan-300 group-hover:translate-x-0.5 transition-transform font-bold">→</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => {
+              TelemetryManager.track('panel_expanded', { source: 'hud_main_btn' });
+              onOpenDashboard('diagnostics');
+            }}
+            className="w-full py-2 px-3 rounded-lg font-bold text-xs bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-500 hover:to-orange-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2 transition cursor-pointer"
+          >
+            <Crown className="w-3.5 h-3.5 text-amber-200" />
+            <span>Open in Executive Dashboard (PRO)</span>
           </button>
 
           <div className="grid grid-cols-2 gap-2">

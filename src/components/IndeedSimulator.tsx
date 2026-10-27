@@ -15,7 +15,12 @@ import {
   Database
 } from 'lucide-react';
 import { ExtractedJobData } from '../types';
-import { FULL_INDEED_AI_TRAINER_JD, FULL_INDEED_SENIOR_BACKEND_JD } from '../data/sampleData';
+import { 
+  FULL_INDEED_AI_TRAINER_JD, 
+  FULL_INDEED_SENIOR_BACKEND_JD,
+  TAIWAN_SENIOR_BACKEND_JD,
+  SINGAPORE_FINTECH_LEAD_JD
+} from '../data/sampleData';
 
 interface IndeedSimulatorProps {
   currentJob: ExtractedJobData;
@@ -60,8 +65,8 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
         </div>
 
         {/* Preset Selector */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-slate-500 font-medium">Switch Target Job:</span>
+        <div className="flex items-center flex-wrap gap-1.5">
+          <span className="text-slate-500 font-medium">Presets:</span>
           <button
             onClick={() => onSelectPreset(FULL_INDEED_AI_TRAINER_JD)}
             className={`px-2.5 py-1 rounded-md text-xs font-semibold transition ${
@@ -70,7 +75,7 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
                 : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
             }`}
           >
-            AI Trainer (Benchmark Job)
+            AI Trainer (Benchmark)
           </button>
           <button
             onClick={() => onSelectPreset(FULL_INDEED_SENIOR_BACKEND_JD)}
@@ -80,7 +85,29 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
                 : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
             }`}
           >
-            Senior Backend (Direct Match)
+            Senior Backend (US)
+          </button>
+          <button
+            onClick={() => onSelectPreset(TAIWAN_SENIOR_BACKEND_JD)}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1 ${
+              currentJob.title.includes('後端軟體工程師')
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+            }`}
+            title="Taiwan 繁體中文微服務雲端崗位 (Bilingual Matching Verified)"
+          >
+            <span>🇹🇼 台灣微服務後端</span>
+          </button>
+          <button
+            onClick={() => onSelectPreset(SINGAPORE_FINTECH_LEAD_JD)}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1 ${
+              currentJob.title.includes('FinTech / High-Concurrency')
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+            }`}
+            title="Singapore APAC Banking FinTech (High Concurrency & Microservices)"
+          >
+            <span>🇸🇬 新加坡 FinTech</span>
           </button>
           <button
             onClick={() => setActiveTab(activeTab === 'custom' ? 'job' : 'custom')}

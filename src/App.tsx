@@ -17,7 +17,8 @@ import {
   Download,
   LayoutDashboard,
   Globe,
-  Activity
+  Activity,
+  Bot
 } from 'lucide-react';
 import { HudWidget } from './components/HudWidget';
 import { IndeedSimulator } from './components/IndeedSimulator';
@@ -28,6 +29,7 @@ import { ExportExtensionButton } from './components/ExportExtensionButton';
 import { InPageModalDialog } from './components/InPageModalDialog';
 import { ResumeJobIngestionView } from './components/ResumeJobIngestionView';
 import { TelemetryDashboardModal } from './components/TelemetryDashboardModal';
+import { AutonomousRadarModal } from './components/AutonomousRadarModal';
 import { LandingPage } from './components/LandingPage';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { TelemetryManager } from './services/telemetry';
@@ -56,6 +58,7 @@ export default function App() {
   const [showHud, setShowHud] = useState<boolean>(true);
 
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState<boolean>(false);
+  const [isRadarModalOpen, setIsRadarModalOpen] = useState<boolean>(false);
 
   // Auto-handle external deep-links from Chrome Extension (e.g. ?tab=pivot, ?tab=coverletter, ?title=..., ?view=workstation)
   useEffect(() => {
@@ -517,6 +520,16 @@ export default function App() {
               <span className="hidden sm:inline">V1.0 Observatory</span>
             </button>
 
+            {/* Autonomous Bot Radar & Sentinel */}
+            <button
+              onClick={() => setIsRadarModalOpen(true)}
+              className="px-3 py-1.5 bg-gradient-to-r from-cyan-950/90 to-indigo-950/90 hover:from-cyan-900 hover:to-indigo-900 text-cyan-300 border border-cyan-500/40 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-sm shadow-cyan-500/10 cursor-pointer"
+              title="启动 24/7 自动巡航求职雷达与 Telegram 告警机器人"
+            >
+              <Bot className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="hidden sm:inline">Bot 雷达</span>
+            </button>
+
             {/* Direct Official Chrome Web Store Link */}
             <a
               href="https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb"
@@ -668,6 +681,12 @@ export default function App() {
       <PrivacyPolicyModal
         isOpen={isPrivacyModalOpen}
         onClose={() => setIsPrivacyModalOpen(false)}
+      />
+
+      {/* Autonomous Scout Radar & Bot Dispatch Modal */}
+      <AutonomousRadarModal
+        isOpen={isRadarModalOpen}
+        onClose={() => setIsRadarModalOpen(false)}
       />
     </div>
   );

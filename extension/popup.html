@@ -6,7 +6,7 @@
   <title>SuperJobGenie</title>
   <style>
     body {
-      width: 330px;
+      width: 340px;
       margin: 0;
       padding: 16px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -58,7 +58,7 @@
       background: #0f172a;
       border-radius: 12px;
       padding: 12px 14px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       border: 1px solid #1e293b;
     }
     .card-title {
@@ -85,10 +85,47 @@
       margin-top: 6px;
       line-height: 1.45;
     }
+    .radar-card {
+      background: linear-gradient(135deg, #0b1329 0%, #171638 100%);
+      border: 1px solid #38bdf840;
+    }
+    .radar-badge {
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .input-group {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .input-label {
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .input-field {
+      background: #090d16;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      outline: none;
+    }
+    .input-field:focus {
+      border-color: #38bdf8;
+    }
     .actions-box {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      margin-top: 10px;
     }
     .btn-primary {
       width: 100%;
@@ -96,8 +133,8 @@
       color: white;
       border: none;
       border-radius: 10px;
-      padding: 11px;
-      font-size: 13px;
+      padding: 10px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
@@ -111,14 +148,33 @@
       opacity: 0.94;
       transform: translateY(-1px);
     }
+    .btn-radar {
+      background: linear-gradient(135deg, #0284c7, #4f46e5);
+      border: 1px solid #38bdf860;
+      color: white;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+    .btn-radar:hover {
+      filter: brightness(1.1);
+    }
     .btn-secondary {
       width: 100%;
       background: #1e293b;
       color: #cbd5e1;
       border: 1px solid #334155;
       border-radius: 8px;
-      padding: 9px;
-      font-size: 12px;
+      padding: 8px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
@@ -137,7 +193,7 @@
       border: 1px solid #4338ca;
       border-radius: 8px;
       padding: 8px 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       font-size: 11px;
     }
     .job-preview-title {
@@ -152,9 +208,37 @@
       <div class="logo-badge">🚀</div>
       <div class="logo-text">SuperJobGenie</div>
     </div>
-    <div class="status-badge" id="statusBadge">Auto HUD v2.6</div>
+    <div class="status-badge" id="statusBadge">Active v3.1</div>
   </div>
 
+  <!-- Detected Job Card -->
+  <div id="jobPreviewBox" class="job-preview">
+    <div class="job-preview-title" id="previewTitle">Target Job Detected</div>
+    <div id="previewMeta" style="color: #94a3b8; font-size: 10px; margin-top: 2px;"></div>
+  </div>
+
+  <!-- V2.0 Autonomous Scout Radar -->
+  <div class="card radar-card">
+    <div class="card-title">
+      <span style="display:flex; align-items:center; gap:5px;">
+        <span>🛰️ 自动巡航雷达</span>
+        <span class="radar-badge">V2.0 AI</span>
+      </span>
+      <span id="radarStatusText" style="color:#34d399; font-size:10px;">● 正在侦测</span>
+    </div>
+    <div class="desc" style="margin-top:2px; color:#cbd5e1;">
+      后台监控 Indeed / LinkedIn 全球岗位，匹配度 ≥ 85% 即发系统与 Telegram 预警。
+    </div>
+    <div class="input-group">
+      <label class="input-label">意向行业 / 目标职位</label>
+      <input type="text" id="radarRoleInput" class="input-field" value="Senior Backend / Full-Stack Engineer" />
+    </div>
+    <button class="btn-radar" id="testRadarBtn">
+      <span>📡 测试雷达秒推 (Test Scout Alert)</span>
+    </button>
+  </div>
+
+  <!-- In-Page HUD Mode -->
   <div class="card">
     <div class="card-title">
       <span>Job Board HUD Engine</span>
@@ -162,13 +246,8 @@
     </div>
     <div class="val">⚡ Auto-Popping HUD Ready</div>
     <div class="desc">
-      When browsing job listings on Indeed, LinkedIn, or other ATS platforms, the SuperJobGenie HUD automatically unfolds with deep analysis. The floating capsule at the bottom right allows quick toggling anytime.
+      在浏览 Indeed、LinkedIn、Glassdoor 时，智能驾驶舱驻留右侧即时透视匹配度与转行策略。
     </div>
-  </div>
-
-  <div id="jobPreviewBox" class="job-preview">
-    <div class="job-preview-title" id="previewTitle">Target Job Detected</div>
-    <div id="previewMeta" style="color: #94a3b8; font-size: 10px; margin-top: 2px;"></div>
   </div>
 
   <div class="actions-box">
@@ -176,7 +255,7 @@
       🎯 Open In-Page HUD Modal
     </button>
     <button class="btn-secondary" id="openLocalDashboard">
-      🌐 Open Full Web Dashboard
+      🌐 Open Executive Web Cockpit
     </button>
   </div>
 

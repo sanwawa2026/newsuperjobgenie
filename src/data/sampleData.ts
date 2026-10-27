@@ -402,4 +402,106 @@ What We're Looking For:
   rawTruncatedSnippet153: `Anthropic is an AI safety and research company that builds reliable, interpretable, and steerable AI systems. We believe AI technology will have vast societal`
 };
 
+// Taiwan Traditional Chinese Tech JD (Indeed Taiwan / 104 人力銀行)
+export const TAIWAN_SENIOR_BACKEND_JD: ExtractedJobData = {
+  title: '資深後端軟體工程師 (Senior Backend Engineer - 微服務 / 雲端架構)',
+  company: 'Gogoro / 睿能創意 (台灣台北)',
+  location: '台北市信義區 • 彈性遠端 (Hybrid)',
+  salary: 'NT$ 1,500,000 - 2,400,000 / 年薪',
+  fullBodyText: `資深後端軟體工程師 (Senior Backend Engineer - 微服務 / 雲端架構)
+Gogoro · 台北市信義區 · NT$ 1,500,000 - 2,400,000 / 年薪
+
+【工作內容 / 主要職責】
+• 負責核心車聯網物聯網平台後端微服務架構設計與程式開發，支撐高併發與海量即時交易請求。
+• 規劃與主導關聯式資料庫 (PostgreSQL / MySQL) 綱要設計、索引規劃與 SQL 查詢效能調優。
+• 建立穩定可靠之分散式系統架構，採用 Redis 快取與消息隊列機制確保系統高可用性。
+• 負責 AWS 雲端基礎架構部署，透過 Docker 與 Kubernetes 實現微服務容器化與自動化擴展。
+• 導入 CI/CD 自動化部署管線，撰寫單元測試以確保軟體產出品質與系統穩定度。
+• 與產品經理、前端工程師及跨功能團隊緊密協作，參與敏捷開發 (Scrum) 衝刺與代碼審查。
+
+【條件要求 / 任職資格】
+• 5 年以上軟體工程與後端開發實務經驗，熟悉 Java、Python 或 Go 語言。
+• 具備微服務架構與大型分散式系統實務經驗，能獨立處理高併發系統效能瓶頸。
+• 熟悉關聯式資料庫設計、資料建模及資料庫優化。
+• 具備 AWS 或 GCP 雲端平台運維與容器化 (Docker / K8s) 部署實務經驗。
+• 熟悉敏捷開發 (Agile / Scrum) 流程，具備良好跨團隊溝通能力與問題解決思維。
+
+【加分項目】
+• 具備系統重構與大型軟體架構升級經驗者佳。
+• 具備雲端架構師認證 (AWS Certified Solutions Architect) 者優先錄取。`,
+  characterCount: 1680,
+  wordCount: 240,
+  sections: {
+    benefits: ['三節禮金與年終獎金', '員工購車優惠與電池資費補助', '彈性混合辦公與全額健康保險', '每年技術研討會進修補助'],
+    responsibilities: [
+      '微服務架構設計與程式開發，支撐高併發與即時交易請求',
+      '關聯式資料庫 (PostgreSQL/MySQL) 綱要設計與 SQL 效能調優',
+      '分散式系統架構設計與 Redis 快取機制導入',
+      'AWS 雲端容器化 (Docker/Kubernetes) 部署與維運',
+      'CI/CD 自動化管線建置與單元測試品質保證',
+      '敏捷開發 (Scrum) 協作與跨團隊溝通'
+    ],
+    qualifications: [
+      '5 年以上後端開發經驗，精通 Java / Python / Go',
+      '微服務與高併發分散式系統實務經驗',
+      '資料庫設計、資料建模與 SQL 優化能力',
+      'AWS 雲端運維與 Docker / Kubernetes 容器技術',
+      '敏捷開發協作與跨職能團隊溝通'
+    ],
+    notes: ['Indeed Taiwan (tw.indeed.com) / 104 人力銀行']
+  },
+  extractionSource: 'Indeed Taiwan (tw.indeed.com / #jobDescriptionText)',
+  rawTruncatedSnippet153: `負責核心車聯網物聯網平台後端微服務架構設計與程式開發，支撐高併發與海量即時交易請求。規劃與主導關聯式資料庫綱要設計與 SQL 查詢效能調優...`
+};
+
+// Singapore Global FinTech JD (Indeed Singapore / JobStreet)
+export const SINGAPORE_FINTECH_LEAD_JD: ExtractedJobData = {
+  title: 'Lead Software Engineer (FinTech / High-Concurrency Banking Systems)',
+  company: 'DBS Bank / Technology & Operations',
+  location: 'Marina Bay Financial Centre, Singapore • Hybrid',
+  salary: 'S$ 14,000 - S$ 21,000 / month',
+  fullBodyText: `Lead Software Engineer (FinTech / High-Concurrency Banking Systems)
+DBS Bank · Marina Bay Financial Centre, Singapore · S$ 14,000 - S$ 21,000 / month
+
+About the Role:
+We are seeking an experienced Lead Software Engineer to head the architecture and execution of next-generation digital banking transaction platforms across APAC markets.
+
+Key Responsibilities:
+• Architect, design, and deliver mission-critical distributed microservices with 99.999% reliability for real-time payment settlement and cross-border remittances.
+• Lead relational database architecture (PostgreSQL, Oracle, MySQL) with advanced data modeling, sharding, and query optimization.
+• Drive cloud infrastructure adoption on AWS, implementing zero-trust security and Kubernetes container orchestration.
+• Establish high-grade CI/CD automation pipelines, automated regression testing, and code quality standards.
+• Foster Agile Scrum excellence, mentoring junior engineers and liaising directly with regional business stakeholders.
+
+Requirements:
+• 8+ years in enterprise software engineering with hands-on proficiency in Java, Python, Go, or modern C++.
+• Proven track record designing high-concurrency, fault-tolerant distributed systems and RESTful APIs.
+• Strong relational database fundamentals, SQL optimization, and NoSQL cache caching (Redis).
+• Hands-on mastery of Docker, Kubernetes, and AWS cloud services.
+• Exceptional cross-functional leadership, PMO alignment, and communication skills in bilingual multicultural APAC environments.`,
+  characterCount: 1940,
+  wordCount: 260,
+  sections: {
+    benefits: ['Competitive annual performance bonus', 'Comprehensive international medical & life insurance', 'Subsidized mortgage and banking benefits', 'Flexible remote-work arrangement (2 days WFH)'],
+    responsibilities: [
+      'Architect and deliver mission-critical distributed microservices for real-time payments',
+      'Lead relational database architecture (PostgreSQL, MySQL) and query optimization',
+      'Drive AWS cloud infrastructure and Kubernetes container orchestration',
+      'Establish CI/CD pipelines, automated regression, and code review governance',
+      'Direct cross-functional Agile Scrum delivery and mentor regional engineering teams'
+    ],
+    qualifications: [
+      '8+ years in enterprise software engineering (Java, Python, Go, C++)',
+      'High-concurrency distributed systems and RESTful API architecture',
+      'Relational databases, SQL tuning, and Redis caching',
+      'Docker, Kubernetes, and AWS cloud mastery',
+      'Cross-functional leadership in bilingual APAC environment'
+    ],
+    notes: ['Indeed Singapore (sg.indeed.com) / JobStreet']
+  },
+  extractionSource: 'Indeed Singapore (sg.indeed.com / #jobDescriptionText)',
+  rawTruncatedSnippet153: `We are seeking an experienced Lead Software Engineer to head the architecture and execution of next-generation digital banking transaction platforms across APAC...`
+};
+
+
 

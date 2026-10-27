@@ -104,6 +104,13 @@
    */
   function detectPlatform() {
     const host = window.location.hostname.toLowerCase();
+    if (host.includes('indeed.hk')) return 'Indeed Hong Kong';
+    if (host.includes('tw.indeed.com') || host.includes('indeed.com.tw')) return 'Indeed Taiwan';
+    if (host.includes('sg.indeed.com') || host.includes('indeed.com.sg')) return 'Indeed Singapore';
+    if (host.includes('104.com.tw')) return '104人力銀行 (Taiwan)';
+    if (host.includes('1111.com.tw')) return '1111人力銀行 (Taiwan)';
+    if (host.includes('cakeresume.com')) return 'CakeResume';
+    if (host.includes('jobstreet.com')) return 'JobStreet (SG/MY)';
     if (host.includes('indeed.')) return 'Indeed';
     if (host.includes('linkedin.')) return 'LinkedIn';
     if (host.includes('glassdoor.')) return 'Glassdoor';
@@ -132,6 +139,11 @@
            s.includes('full job description') ||
            s.includes('about the company') ||
            s.includes('company overview') ||
+           s.includes('工作職缺') ||
+           s.includes('職缺列表') ||
+           s.includes('常見問題') ||
+           s.includes('公司簡介') ||
+           s.includes('職務說明') ||
            s === 'job description' ||
            s === 'overview' ||
            s === 'faq' ||
@@ -158,7 +170,11 @@
       'compensation',
       'location',
       'salary',
-      'abotts'
+      'abotts',
+      '立即應徵',
+      '儲存職缺',
+      '公司介紹',
+      '薪資待遇'
     ];
     return junkTerms.some(t => s === t || s.includes(t));
   }
@@ -709,101 +725,236 @@
     BIOTECH_PHARMA: {
       code: 'BIOTECH_PHARMA',
       label: 'Biotech & Pharma',
-      signature: /\b(clinical trial|clinical study|pharmaceutical|biotech|biotechnology|drug development|oncology|pharmacology|in-vivo|in-vitro|fda submission|ind application|nda submission|good clinical practice|gcp guidelines|ich guidelines|gmp|glp|bioassay|cell culture|pipetting|molecular biology|elisa|pcr|western blot|medicinal chemistry|pharmacokinetics|cro|biostatistics|recombinant|mrna|antibody|cro management|small molecule|biologics|preclinical)\b/i
+      signature: /\b(clinical trial|clinical study|pharmaceutical|biotech|biotechnology|drug development|oncology|pharmacology|in-vivo|in-vitro|fda submission|ind application|nda submission|good clinical practice|gcp guidelines|ich guidelines|gmp|glp|bioassay|cell culture|pipetting|molecular biology|elisa|pcr|western blot|medicinal chemistry|pharmacokinetics|cro|biostatistics|recombinant|mrna|antibody|cro management|small molecule|biologics|preclinical)\b|(?:臨床試驗|生技|生物科技|藥物研發|生化|臨床研究|醫藥)/i
     },
     HEALTHCARE_MEDICINE: {
       code: 'HEALTHCARE_MEDICINE',
       label: 'Healthcare & Clinical Medicine',
-      signature: /\b(patient care|hospital|physician|nurse|practitioner|clinical practice|diagnosis|medical doctor|inpatient|outpatient|cardiology|coronary|pathology|surgery|electronic health record|ehr|emr|epic system|cerner|hipaa|medical terminology|vital signs|patient triage|clinical workflow|intensive care|icu|pediatric|oncology clinic)\b/i
+      signature: /\b(patient care|hospital|physician|nurse|practitioner|clinical practice|diagnosis|medical doctor|inpatient|outpatient|cardiology|coronary|pathology|surgery|electronic health record|ehr|emr|epic system|cerner|hipaa|medical terminology|vital signs|patient triage|clinical workflow|intensive care|icu|pediatric|oncology clinic)\b|(?:醫療|護理|醫師|醫院|臨床醫學|病患照護|電子病歷)/i
     },
     FINANCE_BANKING: {
       code: 'FINANCE_BANKING',
       label: 'Finance, Banking & Accounting',
-      signature: /\b(investment banking|private equity|hedge fund|equity research|valuation model|financial modeling|dcf|lbo|comps|portfolio management|fp&a|financial planning|gaap|sec reporting|10-k|10-q|m&a|mergers and acquisitions|bloomberg terminal|factset|derivatives|capital markets|balance sheet|income statement|general ledger|ebitda|audit senior|financial controller)\b/i
+      signature: /\b(investment banking|private equity|hedge fund|equity research|valuation model|financial modeling|dcf|lbo|comps|portfolio management|fp&a|financial planning|gaap|sec reporting|10-k|10-q|m&a|mergers and acquisitions|bloomberg terminal|factset|derivatives|capital markets|balance sheet|income statement|general ledger|ebitda|audit senior|financial controller)\b|(?:投資銀行|私募基金|財務分析|會計|審計|金融|銀行|財務報表|風控|證券)/i
     },
     CIVIL_ARCHITECTURE: {
       code: 'CIVIL_ARCHITECTURE',
       label: 'Civil Engineering & Architecture',
-      signature: /\b(civil engineer|civil engineering|architectural design|architect|construction management|autocad|revit|building information modeling|\bbim\b|structural engineering|structural design|mep|hvac|steel frame|timber frame|concrete design|building code|site inspection|surveying|blueprints|dwg|contractor|osha 30|osha 10|general contractor|leed)\b/i
+      signature: /\b(civil engineer|civil engineering|architectural design|architect|construction management|autocad|revit|building information modeling|\bbim\b|structural engineering|structural design|mep|hvac|steel frame|timber frame|concrete design|building code|site inspection|surveying|blueprints|dwg|contractor|osha 30|osha 10|general contractor|leed)\b|(?:土木工程|建築設計|結構工程|營造|工程顧問|建築師|施工管理|測量)/i
     },
     TECH_SOFTWARE: {
       code: 'TECH_SOFTWARE',
       label: 'Software Engineering & Cloud',
-      signature: /\b(software engineer|software developer|backend developer|frontend developer|full stack|web developer|systems programming|devops|cloud infrastructure|database administrator|microservices|distributed systems|computer science|programming language|github|docker|kubernetes|aws|api design|full-stack|c\+\+|golang|react|spring boot)\b/i
+      signature: /\b(software engineer|software developer|backend developer|frontend developer|full stack|web developer|systems programming|devops|cloud infrastructure|database administrator|microservices|distributed systems|computer science|programming language|github|docker|kubernetes|aws|api design|full-stack|c\+\+|golang|react|spring boot)\b|(?:軟體工程師|软件工程师|後端工程師|后端工程师|前端工程師|前端工程师|全端工程師|全栈工程师|程式設計師|程序开发|軟體開發|软件开发|系統架構|系统架构|資料庫|数据库|微服務|微服务|雲端|云计算|雲原生|云原生|分散式|分布式|資訊工程|程式開發)/i
     }
   };
 
   /**
+   * Bilingual Tech Stack Semantic Mapping Dictionary (繁簡中英雙語對照詞典)
+   * Bridges Traditional & Simplified Chinese technical terms in Taiwan, HK, and Singapore JDs
+   * with standard English candidate skills & resume achievements.
+   */
+  const BILINGUAL_TECH_MAP = [
+    // 1. Databases, SQL & Storage
+    {
+      pattern: /(?:資料庫|數據庫|關聯式資料庫|关系型数据库|資料庫設計|数据库设计|資料庫優化|数据库优化|資料庫管理|資料庫維護|資料結構設計|sql語法|sql查詢|sql查询|資料模型|数据模型|rdbms|relational\s+database)/i,
+      synonyms: ['sql', 'database', 'mysql', 'postgresql', 'postgres', 'relational database', 'data model', 'rdbms', 'oracle', 'sqlite', 'redis', 'nosql', 'storage', 'data relationship'],
+      canonical: 'SQL / Relational Databases'
+    },
+    {
+      pattern: /(?:非關聯式|nosql|快取|緩存|記憶體資料庫|鍵值存儲|分佈式緩存|分布式缓存)/i,
+      synonyms: ['nosql', 'redis', 'mongodb', 'elasticsearch', 'cache', 'caching', 'memcached', 'dynamodb'],
+      canonical: 'Redis / MongoDB / NoSQL'
+    },
+    // 2. Microservices & Distributed Architecture
+    {
+      pattern: /(?:微服務|微服务|微服務架構|微服务架构|服務化|分布式微服务|服務網格|服务网格)/i,
+      synonyms: ['microservices', 'microservice', 'distributed systems', 'spring boot', 'spring cloud', 'grpc', 'service mesh'],
+      canonical: 'Distributed Systems & Microservices'
+    },
+    {
+      pattern: /(?:分散式系統|分布式系统|分散式架構|分布式架构|分散式運算|分布式计算|高併發|高并发|高負載|高可用|高可用性|負載平衡|负载均衡|容災|集群)/i,
+      synonyms: ['distributed systems', 'distributed', 'high concurrency', 'concurrency', 'scalability', 'high availability', 'load balancing', 'clustering', 'fault tolerant'],
+      canonical: 'High Concurrency & Scalability'
+    },
+    {
+      pattern: /(?:系統架構|系统架构|軟體架構|软件架构|架構設計|架构设计|系統設計|系统设计|架構規劃|架构规划|軟體工程師|软件工程师|後端工程師|后端工程师|全端工程師|全栈工程师|技術架構)/i,
+      synonyms: ['system architecture', 'software architecture', 'system design', 'software engineer', 'backend', 'full stack', 'technical lead', 'software development'],
+      canonical: 'System Architecture & Design'
+    },
+    // 3. Cloud Platforms, Containers & DevOps
+    {
+      pattern: /(?:雲端|雲計算|云计算|云原生|雲端平台|云服务|雲服務|雲架構|云架构|雲端運算|雲服務架構)/i,
+      synonyms: ['aws', 'cloud', 'gcp', 'azure', 'alicloud', 'cloud infrastructure', 'cloud computing'],
+      canonical: 'Cloud Infrastructure (AWS/GCP)'
+    },
+    {
+      pattern: /(?:容器化|容器|虛擬化|虚拟化|容器技術|容器編排|容器编排)/i,
+      synonyms: ['docker', 'kubernetes', 'k8s', 'container', 'containers', 'containerization'],
+      canonical: 'Docker & Kubernetes'
+    },
+    {
+      pattern: /(?:持續整合|持續交付|持續部署|持续集成|持续交付|持續構建|自動化部署|自動化發布|自動化構建|部署流程|發布流程|運維|維運|devops)/i,
+      synonyms: ['ci/cd', 'jenkins', 'devops', 'pipeline', 'deployment', 'automated pipeline', 'ci/cd pipeline'],
+      canonical: 'CI/CD & DevOps'
+    },
+    // 4. Software Programming & Engineering
+    {
+      pattern: /(?:軟體開發|软件开发|程式開發|程序开发|程式設計|程序设计|後端開發|后端开发|系統開發|系统开发|程式撰寫|代碼編寫|編碼能力)/i,
+      synonyms: ['software development', 'software engineer', 'backend', 'java', 'python', 'go', 'golang', 'c++', 'software dev', 'coding'],
+      canonical: 'Software Development & Engineering'
+    },
+    {
+      pattern: /(?:前端開發|前端开发|前端架構|前端框架|前端工程|前端介面|使用者介面|前端技術)/i,
+      synonyms: ['frontend', 'react', 'vue', 'angular', 'javascript', 'typescript', 'html', 'css', 'next.js', 'web development'],
+      canonical: 'Frontend Architecture & Frameworks'
+    },
+    {
+      pattern: /(?:全端開發|全栈开发|全端工程|全栈工程)/i,
+      synonyms: ['full stack', 'fullstack', 'frontend', 'backend', 'react', 'node', 'java', 'full-stack'],
+      canonical: 'Full Stack Development'
+    },
+    // 5. APIs, Interfaces & Network Protocols
+    {
+      pattern: /(?:應用程式介面|應用程序介面|介面設計|接口设计|接口開發|介面開發|網絡服務|网络服务|restful\s*api|api\s*串接|api\s*設計|接口對接)/i,
+      synonyms: ['api', 'rest', 'restful', 'graphql', 'endpoints', 'api design', 'swagger', 'postman'],
+      canonical: 'REST APIs / GraphQL'
+    },
+    // 6. Agile Methodologies & Team Collaboration
+    {
+      pattern: /(?:敏捷開發|敏捷开发|敏捷管理|敏捷迭代|scrum\s*流程|敏捷協作)/i,
+      synonyms: ['agile', 'scrum', 'kanban', 'sprint', 'jira', 'confluence'],
+      canonical: 'Agile & Project Methodologies'
+    },
+    {
+      pattern: /(?:跨團隊|跨部門|跨團隊協作|跨部门协作|專案管理|项目管理|團隊領導|团队管理|團隊協作|团队协作|溝通協調|沟通协调|團隊合作)/i,
+      synonyms: ['cross-functional', 'leadership', 'team', 'pmo', 'project management', 'collaboration', 'stakeholder management'],
+      canonical: 'Cross-Functional Leadership & PMO'
+    },
+    // 7. Testing & Quality Assurance
+    {
+      pattern: /(?:單元測試|单元测试|自動化測試|自动化测试|整合測試|集成测试|品質保證|质量保证|測試框架|測試案例|測試驅動開發|tdd|壓測|壓力測試)/i,
+      synonyms: ['unit test', 'testing', 'qa', 'automated test', 'jest', 'mocha', 'vitest', 'integration test', 'tdd', 'software testing'],
+      canonical: 'Unit Testing & QA'
+    },
+    // 8. Refactoring & Code Quality
+    {
+      pattern: /(?:程式碼優化|代码优化|系統重構|系统重构|效能調優|性能优化|代碼審查|程式碼審查|code\s*review|代碼重構|技術債|模組化|模組設計)/i,
+      synonyms: ['system refactoring', 'optimization', 'performance tuning', 'code review', 'refactoring', 'clean code'],
+      canonical: 'System Refactoring & Code Quality'
+    },
+    // 9. Algorithms, Big Data & Analytics
+    {
+      pattern: /(?:演算法|算法|資料結構|数据结构|演算法設計)/i,
+      synonyms: ['algorithm', 'algorithms', 'data structure', 'data structures', 'leetcode'],
+      canonical: 'Algorithms & Data Structures'
+    },
+    {
+      pattern: /(?:大數據|大数据|資料分析|数据分析|資料工程|数据工程|資料處理|数据处理|資料管線|数据管道|商業智慧|商业智能)/i,
+      synonyms: ['data analysis', 'big data', 'data pipeline', 'analytics', 'data engineering', 'etl', 'elasticsearch'],
+      canonical: 'Data Engineering & Analytics'
+    },
+    // 10. AI / Machine Learning
+    {
+      pattern: /(?:人工智慧|人工智能|機器學習|机器学习|深度學習|深度学习|模型訓練|模型评估|神經網絡|神经网络|自然語言處理)/i,
+      synonyms: ['machine learning', 'deep learning', 'ai', 'artificial intelligence', 'ml', 'pytorch', 'tensorflow', 'nlp'],
+      canonical: 'Machine Learning & AI'
+    },
+    // 11. Security & Compliance
+    {
+      pattern: /(?:資訊安全|信息安全|網路安全|网络安全|資安|資料加密|数据加密|身分驗證|身份认证|安全合規)/i,
+      synonyms: ['security', 'encryption', 'cybersecurity', 'auth', 'oauth', 'jwt', 'security clearance'],
+      canonical: 'Security & Data Protection'
+    }
+  ];
+
+  /**
    * Universal Dynamic JD Requirement Extractor (NLP Phrase Mining)
    * Dissects arbitrary job postings to extract genuine functional requirements and duties
-   * Guarantees ZERO fake jargon fallbacks (never 'Core Domain Execution'!)
+   * Guarantees ZERO fake jargon fallbacks across English, Traditional & Simplified Chinese JDs
    */
   function extractDynamicJdRequirements(combinedText, fullBodyText, domain) {
     if (!fullBodyText && !combinedText) return [];
     const source = (fullBodyText || combinedText);
 
-    // Administrative & non-skill stop patterns (salary, travel, email, legal disclaimers)
-    const ADMIN_NOISE_REGEX = /\b(salary|hourly|\$\d+|send res|send resume|email to|hr@|jobs@|travel|relocate|unanticipated|equal opportunity|eeo|benefits|401k|dental|vision|health insurance|full time|part time|on-site|remote|hybrid|irvine|los angeles|california|applicant must|all qualified applicants|background check|drug test|equal opportunity employer)\b/i;
+    // Administrative & non-skill stop patterns (salary, travel, email, legal disclaimers, Taiwan/HK/SG admin terms)
+    const ADMIN_NOISE_REGEX = /\b(salary|hourly|\$\d+|send res|send resume|email to|hr@|jobs@|travel|relocate|unanticipated|equal opportunity|eeo|benefits|401k|dental|vision|health insurance|full time|part time|on-site|remote|hybrid|irvine|los angeles|california|applicant must|all qualified applicants|background check|drug test|equal opportunity employer)\b|(?:\b(?:nt\$|hk\$|s\$|\$)\s*\d+|(?:月薪|年薪|面議|薪資|福利待遇|勞保|健保|勞健保|特休|三節|團保|全職|兼職|工作地點|上班地點|上班時段|休假制度|出差外派|科系要求|具備駕照|應徵方式|聯絡方式|男女不拘|依法投保|年終獎金|績效獎金))/i;
 
     const extracted = [];
     const seenLabels = new Set();
 
-    // 1. Clean explicit section headers (only when they act as section headings, NEVER plain nouns in sentences)
+    // 1. Clean explicit section headers (both English & Traditional/Simplified Chinese)
     const cleanSource = source
       .replace(/(?:^|\n)\s*(?:Basic|Preferred|Minimum|Required)?\s*Qualifications\s*:?/gim, '\n')
       .replace(/(?:^|\n)\s*(?:Job\s+duties|Key\s+Responsibilities|Core\s+Responsibilities|Responsibilities)\s*:?/gim, '\n')
       .replace(/(?:^|\n)\s*(?:Requirements|Role\s+Requirements|Job\s+Requirements)\s*:\s*/gim, '\n')
-      .replace(/(?:^|\n)\s*What\s+you(?:'ll| will)\s+do\s*:?/gim, '\n');
+      .replace(/(?:^|\n)\s*What\s+you(?:'ll| will)\s+do\s*:?/gim, '\n')
+      .replace(/(?:^|\n)\s*(?:工作內容|主要職責|崗位職責|工作職責|工作需求|條件要求|應徵條件|應徵要求|技能要求|任職要求|任职资格|加分條件|加分項目|職位要求|具備條件|必要條件|其他條件)\s*[:：]?/gim, '\n');
 
-    const rawClauses = cleanSource.split(/(?:[;\n•\r·\*\t]|\d+\.\s+)/);
+    // Split clauses by punctuation, bullet markers, and Chinese sentence/clause delimiters
+    const rawClauses = cleanSource.split(/(?:[;\n•\r·\*\t；。]|\d+[\.、]\s*)/);
 
     const STOPWORDS = new Set(['and', 'the', 'for', 'with', 'from', 'that', 'this', 'have', 'has', 'had', 'our', 'you', 'your', 'will', 'all', 'such', 'making', 'writing', 'using', 'into', 'well', 'across', 'including', 'key', 'etc', 'able', 'per', 'their', 'must']);
 
     for (let raw of rawClauses) {
       let clause = raw.trim();
-      if (clause.length < 8 || clause.length > 130) continue;
+      if (clause.length < 6 || clause.length > 130) continue;
       if (ADMIN_NOISE_REGEX.test(clause)) continue;
 
       // Filter out explicit negation phrases ("not required", "no experience needed", etc.)
-      const isNegated = /\b(not\s+required|not\s+necessary|no\s+prior\s+(?:experience|knowledge)\s+(?:needed|required)|optional|is\s+a\s+plus(?:\s+only)?)\b/i.test(clause);
+      const isNegated = /\b(not\s+required|not\s+necessary|no\s+prior\s+(?:experience|knowledge)\s+(?:needed|required)|optional|is\s+a\s+plus(?:\s+only)?)\b|(?:不拘|不限|無經驗可|非必要)/i.test(clause);
       if (isNegated) continue;
 
-      // Clean leading/trailing punctuation, bullet markers, conjunctions & boilerplates
+      // Clean leading/trailing punctuation, bullet markers, conjunctions & boilerplates (EN + ZH)
       clause = clause
-        .replace(/^[\s\-–—•*·>]+\s*/, '')
+        .replace(/^[\s\-–—•*·>、一二三四五六七八九十\d\.\)]+\s*/, '')
         .replace(/^(?:and|or|&|\+|as well as)\s+/i, '')
         .replace(/^(?:must have|ability to|responsible for|experience (?:working in|working with|developing in|leading|managing|building|designing|using|with|in)|prior experience (?:with|in)|hands-on experience (?:with|in)|proven experience (?:with|in)|expert level proficiency in|expert level in|extensive experience (?:with|in)|demonstrated experience (?:with|in)|expertise in|proficient in|proficient with|proficiency in|including|knowledge of|proven track record in|familiarity with|strong understanding of|understanding of|demonstrated|solid)\s+/i, '')
+        .replace(/^(?:須具備|需具備|具備|熟悉|精通|良好|熟練|擅長|負責|協助|配合|理解|掌握|具|有)(?:\s+|[與和跟對])?/i, '')
         .replace(/^(?:and|or|&|\+|as well as)\s+/i, '')
-        .replace(/[.,;:]+$/, '')
+        .replace(/[.,;:，。；：]+$/, '')
         .trim();
 
-      if (clause.length < 5) continue;
+      if (clause.length < 4) continue;
 
-      // Check if clause has technical / functional substance
-      const hasSubstance = /\b(node|next\.js|express|react|javascript|typescript|python|java|golang|vue|angular|c\+\+|c#|tailwind|scss|css|html|jest|mocha|vitest|design|dvlp|develop|architecture|system|data|model|interface|api|code|program|test|manage|analysis|clinical|patient|cad|gaap|audit|pipeline|gcp|bim|circuit|hardware|network|security|cloud|database|sql|agile|scrum|lean)\b/i.test(clause);
+      // Check if clause has technical / functional substance (English + Traditional & Simplified Chinese)
+      const hasSubstance = /\b(node|next\.js|express|react|javascript|typescript|python|java|golang|vue|angular|c\+\+|c#|tailwind|scss|css|html|jest|mocha|vitest|design|dvlp|develop|architecture|system|data|model|interface|api|code|program|test|manage|analysis|clinical|patient|cad|gaap|audit|pipeline|gcp|bim|circuit|hardware|network|security|cloud|database|sql|agile|scrum|lean)\b/i.test(clause) ||
+        /(軟體|軟件|程式|程序|開發|架构|架構|系統|系统|資料庫|数据库|微服務|微服务|雲端|云计算|云原生|敏捷|測試|测试|前端|後端|后端|全端|全栈|演算法|算法|介面|接口|網絡|网络|資安|信息安全|容器|併發|并发|高可用|模組|模块|重構|重构|維運|运维|管線|管道|工程師|工程师|平台|服務)/.test(clause);
       if (!hasSubstance) continue;
 
       // Synthesize clean display title
       let cleanTitle = clause.charAt(0).toUpperCase() + clause.slice(1);
-      if (cleanTitle.length > 35) {
-        cleanTitle = cleanTitle.substring(0, 32).trim() + '…';
+      const isChinese = /[\u4e00-\u9fa5]/.test(cleanTitle);
+      const maxLen = isChinese ? 24 : 35;
+      if (cleanTitle.length > maxLen) {
+        cleanTitle = cleanTitle.substring(0, maxLen - 3).trim() + '…';
       }
 
-      const dedupeKey = cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
+      // Keep Chinese characters in deduplication key so Chinese requirements aren't collapsed to ""
+      const dedupeKey = cleanTitle.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]/g, '');
+      if (!dedupeKey) continue;
+
       if (!seenLabels.has(dedupeKey)) {
         seenLabels.add(dedupeKey);
         
-        // Preserve short symbols & critical tech tokens (C++, C#, Go, AI, ML, CI/CD)
+        // Preserve short symbols & critical tech tokens (C++, C#, Go, AI, ML, CI/CD) and Chinese characters
         const normalized = clause.toLowerCase()
           .replace(/\bc\+\+/g, 'cpp_token')
           .replace(/\bc#/g, 'csharp_token')
           .replace(/\bci\/cd\b/g, 'cicd_token')
-          .replace(/[^a-z0-9_\s]/g, ' ');
+          .replace(/[^a-z0-9_\s\u4e00-\u9fa5]/g, ' ');
 
         const ALLOWED_SHORT = new Set(['go', 'ai', 'ml', 'qa', 'r']);
         const meaningfulWords = normalized.split(/\s+/)
           .map(w => w === 'cpp_token' ? 'c++' : (w === 'csharp_token' ? 'c#' : (w === 'cicd_token' ? 'ci/cd' : w)))
-          .filter(w => (w.length > 2 || ALLOWED_SHORT.has(w) || w === 'c++' || w === 'c#' || w === 'ci/cd') && !STOPWORDS.has(w));
+          .filter(w => (w.length > 2 || ALLOWED_SHORT.has(w) || w === 'c++' || w === 'c#' || w === 'ci/cd' || /[\u4e00-\u9fa5]/.test(w)) && !STOPWORDS.has(w));
+
+        // Inject canonical English synonyms into the key if matching Chinese tech terms
+        for (const bMap of BILINGUAL_TECH_MAP) {
+          if (bMap.pattern.test(clause)) {
+            meaningfulWords.push(...bMap.synonyms.slice(0, 3));
+          }
+        }
 
         extracted.push({
           name: cleanTitle,
@@ -822,11 +973,40 @@
   /**
    * Universal Semantic Matching: Determine if candidate satisfies a given requirement
    * Checks explicit skills, resume text, synonyms, and engineering equivalents
+   * Equipped with Bilingual Cross-Lingual Tech Mapping (繁簡中英雙向穿透)
    */
   function candidateSatisfiesRequirement(reqSkill, cand) {
     const candSkills = cand.skills || [];
     const rawResume = (cand.rawResumeText || '').toLowerCase();
     const reqNameLower = reqSkill.name.toLowerCase();
+    const reqFullNameLower = (reqSkill.fullName || reqSkill.name || '').toLowerCase();
+
+    // 0. Bilingual Cross-Lingual Semantic Mapping for Chinese Job Postings (Taiwan, HK, Singapore)
+    for (const bMap of BILINGUAL_TECH_MAP) {
+      if (bMap.pattern.test(reqNameLower) || bMap.pattern.test(reqFullNameLower) || (reqSkill.key && bMap.pattern.test(reqSkill.key))) {
+        // Candidate satisfies if ANY of their English skills match the mapped synonyms
+        const hasBilingualSkill = candSkills.some(s => {
+          const sLower = s.toLowerCase();
+          return bMap.synonyms.some(syn => sLower === syn || sLower.includes(syn) || syn.includes(sLower));
+        });
+        if (hasBilingualSkill) return true;
+
+        if (rawResume) {
+          const hasBilingualResume = bMap.synonyms.some(syn => {
+            try {
+              if (syn.includes('+') || syn.includes('#') || syn.includes('/')) {
+                return rawResume.includes(syn);
+              }
+              const reg = new RegExp(`\\b${syn}\\b`, 'i');
+              return reg.test(rawResume);
+            } catch (e) {
+              return rawResume.includes(syn);
+            }
+          });
+          if (hasBilingualResume) return true;
+        }
+      }
+    }
 
     // 1. Direct candidate skill list match
     const ALLOWED_SHORT_KEYS = new Set(['c++', 'c#', 'go', 'ai', 'ml', 'qa', 'r', 'ci/cd']);
@@ -874,7 +1054,7 @@
     }
 
     // Testing frameworks (Jest, Mocha, Vitest, Unit Testing)
-    if (/\b(jest|mocha|vitest|unit test|testing framework)\b/i.test(reqNameLower)) {
+    if (/\b(jest|mocha|vitest|unit test|testing framework)\b/i.test(reqNameLower) || /(單元測試|单元测试|自動化測試|测试)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(unit test|testing|qa)\b/i.test(s))) return true;
     }
 
@@ -884,56 +1064,56 @@
     }
 
     // A: Software Architecture & System Design
-    if (/\b(system|architecture|design|component|module|interface)\b/i.test(reqNameLower)) {
+    if (/\b(system|architecture|design|component|module|interface)\b/i.test(reqNameLower) || /(系統架構|架构|架構設計|系統設計)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(system design|microservices|distributed|software architecture|backend)\b/i.test(s))) {
         return true;
       }
     }
 
     // B: Software Development & Coding
-    if (/\b(software|develop|dvlp|engineering|program|coding|application|app)\b/i.test(reqNameLower)) {
+    if (/\b(software|develop|dvlp|engineering|program|coding|application|app)\b/i.test(reqNameLower) || /(軟體開發|程式開發|軟體工程|程序设计)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(java|python|c\+\+|go|javascript|typescript|c#|rust|software)\b/i.test(s))) {
         return true;
       }
     }
 
     // C: Databases, SQL, & Data Models
-    if (/\b(database|data model|relationship|sql|nosql|storage)\b/i.test(reqNameLower)) {
+    if (/\b(database|data model|relationship|sql|nosql|storage)\b/i.test(reqNameLower) || /(資料庫|數據庫|關聯式)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(sql|mysql|postgresql|postgres|database|redis|mongodb)\b/i.test(s))) {
         return true;
       }
     }
 
     // D: APIs & Microservices
-    if (/\b(api|interface|rest|graphql|microservice|endpoints)\b/i.test(reqNameLower)) {
+    if (/\b(api|interface|rest|graphql|microservice|endpoints)\b/i.test(reqNameLower) || /(微服務|微服务|接口|介面)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(api|rest|microservices|spring boot|node|fastapi)\b/i.test(s))) {
         return true;
       }
     }
 
     // E: Cross-Functional Teamwork & Coordination
-    if (/\b(business|coordinate|clarify|team|cross-functional|stakeholder|communication)\b/i.test(reqNameLower)) {
+    if (/\b(business|coordinate|clarify|team|cross-functional|stakeholder|communication)\b/i.test(reqNameLower) || /(跨團隊|跨部門|團隊管理|專案管理)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(agile|scrum|cross-functional|pmo|leadership|management)\b/i.test(s)) || cand.yearsOfExperience >= 3) {
         return true;
       }
     }
 
     // F: Biotech / Pharma (GCP, Clinical, Regulatory)
-    if (/\b(gcp|clinical|trial|protocol|fda|glp|gmp)\b/i.test(reqNameLower)) {
+    if (/\b(gcp|clinical|trial|protocol|fda|glp|gmp)\b/i.test(reqNameLower) || /(臨床試驗|臨床|生技)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(gcp|clinical|trial|regulatory|cra|crc)\b/i.test(s)) || /\b(gcp|clinical trial|ich-gcp)\b/i.test(rawResume)) {
         return true;
       }
     }
 
     // G: Civil / Architecture (CAD, BIM, Revit)
-    if (/\b(cad|drafting|dwg|revit|bim)\b/i.test(reqNameLower)) {
+    if (/\b(cad|drafting|dwg|revit|bim)\b/i.test(reqNameLower) || /(土木|建築|結構)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(autocad|revit|bim|cad)\b/i.test(s)) || /\b(autocad|revit|bim)\b/i.test(rawResume)) {
         return true;
       }
     }
 
     // H: Finance / Banking (GAAP, Valuation, DCF)
-    if (/\b(gaap|valuation|financial model|dcf|lbo|accounting)\b/i.test(reqNameLower)) {
+    if (/\b(gaap|valuation|financial model|dcf|lbo|accounting)\b/i.test(reqNameLower) || /(財務|會計|審計|金融)/.test(reqNameLower)) {
       if (candSkills.some(s => /\b(gaap|financial model|valuation|cpa|accounting)\b/i.test(s)) || /\b(cpa|gaap|valuation)\b/i.test(rawResume)) {
         return true;
       }
@@ -953,26 +1133,26 @@
     { domain: 'TECH_SOFTWARE', name: 'Go (Golang)', key: 'golang|go language|go programming|go backend|go developer' },
     { domain: 'TECH_SOFTWARE', name: 'TypeScript / JavaScript', key: 'typescript|javascript' },
     { domain: 'TECH_SOFTWARE', name: 'Linux / Unix', key: 'linux|unix|bash|shell scripting' },
-    { domain: 'TECH_SOFTWARE', name: 'Distributed Systems & Microservices', key: 'microservice|distributed system|distributed systems' },
-    { domain: 'TECH_SOFTWARE', name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread|high throughput' },
-    { domain: 'TECH_SOFTWARE', name: 'Software Development & Engineering', key: 'software develop|software dev|dvlp app|dvlp apps|application develop|software developer|software engineer|software program' },
-    { domain: 'TECH_SOFTWARE', name: 'System Architecture & Design', key: 'system architecture|software architecture|softw architecture|system design|distributed architecture|system component' },
-    { domain: 'TECH_SOFTWARE', name: 'SQL / Relational Databases', key: 'sql|mysql|postgresql|postgres|database design|data model|data relationship|relational database' },
-    { domain: 'TECH_SOFTWARE', name: 'Redis / MongoDB / NoSQL', key: 'redis|mongodb|nosql|elasticsearch' },
-    { domain: 'TECH_SOFTWARE', name: 'Docker & Kubernetes', key: 'docker|kubernetes|k8s' },
-    { domain: 'TECH_SOFTWARE', name: 'Cloud Infrastructure (AWS/GCP)', key: 'aws|azure|google cloud|cloud computing|gcp cloud' },
-    { domain: 'TECH_SOFTWARE', name: 'CI/CD & DevOps', key: 'ci/cd|jenkins|devops|deployment pipeline|ci\\/cd pipeline|automated pipeline' },
-    { domain: 'TECH_SOFTWARE', name: 'Unit Testing', key: 'unit test|integration test|automated test|qa test|e2e test|tdd|software testing|jest|mocha|vitest' },
+    { domain: 'TECH_SOFTWARE', name: 'Distributed Systems & Microservices', key: 'microservice|distributed system|distributed systems|微服務|微服务|分散式系統|分布式系统|分散式架構|分布式架构' },
+    { domain: 'TECH_SOFTWARE', name: 'High Concurrency & Scalability', key: 'high concurrency|concurrency|multithread|high throughput|高併發|高并发|高負載|高可用' },
+    { domain: 'TECH_SOFTWARE', name: 'Software Development & Engineering', key: 'software develop|software dev|dvlp app|dvlp apps|application develop|software developer|software engineer|software program|軟體開發|软件开发|程式開發|程序开发|程式設計' },
+    { domain: 'TECH_SOFTWARE', name: 'System Architecture & Design', key: 'system architecture|software architecture|softw architecture|system design|distributed architecture|system component|系統架構|系统架构|架構設計|架构设计|軟體架構' },
+    { domain: 'TECH_SOFTWARE', name: 'SQL / Relational Databases', key: 'sql|mysql|postgresql|postgres|database design|data model|data relationship|relational database|資料庫|數據庫|關聯式資料庫|关系型数据库|資料庫設計|數據庫設計' },
+    { domain: 'TECH_SOFTWARE', name: 'Redis / MongoDB / NoSQL', key: 'redis|mongodb|nosql|elasticsearch|快取|緩存|非關聯式' },
+    { domain: 'TECH_SOFTWARE', name: 'Docker & Kubernetes', key: 'docker|kubernetes|k8s|容器|虛擬化|容器化' },
+    { domain: 'TECH_SOFTWARE', name: 'Cloud Infrastructure (AWS/GCP)', key: 'aws|azure|google cloud|cloud computing|gcp cloud|雲端|雲計算|云计算|云原生|雲端平台|云服务' },
+    { domain: 'TECH_SOFTWARE', name: 'CI/CD & DevOps', key: 'ci/cd|jenkins|devops|deployment pipeline|ci\\/cd pipeline|automated pipeline|持續整合|持續交付|自動化部署' },
+    { domain: 'TECH_SOFTWARE', name: 'Unit Testing', key: 'unit test|integration test|automated test|qa test|e2e test|tdd|software testing|jest|mocha|vitest|單元測試|单元测试|自動化測試|自动化测试' },
     { domain: 'TECH_SOFTWARE', name: 'Security Clearance (DoD)', key: 'secret clearance|dod clearance|top secret|security clearance|ts\\/sci' },
-    { domain: 'TECH_SOFTWARE', name: 'Algorithms & Data Structures', key: 'algorithm|algorithms|data structure|data structures|leetcode' },
-    { domain: 'TECH_SOFTWARE', name: 'Machine Learning & AI', key: 'machine learning|deep learning|artificial intelligence|pytorch|tensorflow' },
+    { domain: 'TECH_SOFTWARE', name: 'Algorithms & Data Structures', key: 'algorithm|algorithms|data structure|data structures|leetcode|演算法|算法|資料結構|数据结构' },
+    { domain: 'TECH_SOFTWARE', name: 'Machine Learning & AI', key: 'machine learning|deep learning|artificial intelligence|pytorch|tensorflow|機器學習|机器学习|人工智慧|人工智能' },
     { domain: 'TECH_SOFTWARE', name: 'Computer Vision', key: 'computer vision|opencv' },
     { domain: 'TECH_SOFTWARE', name: 'Natural Language Processing (NLP)', key: 'natural language processing|\\bnlp\\b|information retrieval' },
     { domain: 'TECH_SOFTWARE', name: '3D Graphics & Rendering (OpenGL/Vulkan)', key: 'opengl|vulkan|directx|metal api|apple metal|glsl|hlsl|shader|3d rendering|rendering engine|3d graphics' },
     { domain: 'TECH_SOFTWARE', name: 'Game Engines & AR/VR (Unity/Unreal)', key: 'unity|unreal|lens studio|lenscore|augmented reality|ar engine|virtual reality' },
     { domain: 'TECH_SOFTWARE', name: 'React', key: 'react|vue|angular' },
     { domain: 'TECH_SOFTWARE', name: 'Node.js / Express / Next.js', key: 'node\\.js|nodejs|node\\s+js|expressjs|express\\.js|next\\.js' },
-    { domain: 'TECH_SOFTWARE', name: 'REST APIs / GraphQL', key: 'developer-facing api|graphql|rest api|api design|restful|app interface|interface|api' },
+    { domain: 'TECH_SOFTWARE', name: 'REST APIs / GraphQL', key: 'developer-facing api|graphql|rest api|api design|restful|app interface|interface|api|api\\s*串接|應用程式介面' },
 
     // ==========================================
     // --- BIOTECH & PHARMACEUTICAL ---
@@ -1023,8 +1203,8 @@
     // ==========================================
     // --- COMMON PROFESSIONAL (ALL DOMAINS) ---
     // ==========================================
-    { domain: 'COMMON', name: 'Agile & Project Methodologies', key: 'agile|scrum|kanban|pmp' },
-    { domain: 'COMMON', name: 'Cross-Functional Leadership & PMO', key: 'cross-functional leadership|cross-functional team|stakeholder management|pmo|program management' }
+    { domain: 'COMMON', name: 'Agile & Project Methodologies', key: 'agile|scrum|kanban|pmp|敏捷開發|敏捷开发|敏捷|敏捷管理' },
+    { domain: 'COMMON', name: 'Cross-Functional Leadership & PMO', key: 'cross-functional leadership|cross-functional team|stakeholder management|pmo|program management|跨團隊|跨部門|團隊管理|專案管理' }
   ];
 
   function detectJobDomain(text, jobTitle = '') {
@@ -1033,17 +1213,17 @@
     const titleLower = (jobTitle || '').toLowerCase();
     const textLower = (text || '').toLowerCase();
 
-    // 1. High-priority Title Check (Title is the strongest indicator of domain)
-    if (/\b(financial analyst|finance analyst|finance|accounting|accountant|auditor|audit|risk analyst|risk manager|portfolio manager|investment banking|equity research|credit analyst|treasury|tax analyst|underwriter)\b/i.test(titleLower)) {
+    // 1. High-priority Title Check (Title is the strongest indicator of domain - EN + ZH)
+    if (/\b(financial analyst|finance analyst|finance|accounting|accountant|auditor|audit|risk analyst|risk manager|portfolio manager|investment banking|equity research|credit analyst|treasury|tax analyst|underwriter)\b|(?:財務|會計|審計|金融|風控)/i.test(titleLower)) {
       return INDUSTRY_DOMAINS.FINANCE_BANKING;
     }
-    if (/\b(clinical|nurse|physician|doctor|pharmacist|pharmacy|patient care|assessor|functional assessor|medical|healthcare|therapist|biomedical)\b/i.test(titleLower)) {
+    if (/\b(clinical|nurse|physician|doctor|pharmacist|pharmacy|patient care|assessor|functional assessor|medical|healthcare|therapist|biomedical)\b|(?:醫療|護士|護理師|醫師|藥師|生技)/i.test(titleLower)) {
       return INDUSTRY_DOMAINS.HEALTHCARE_MEDICINE;
     }
-    if (/\b(civil engineer|architectural|architect(?!ure\s+(?:software|cloud|systems?))|construction|structural engineer|building)\b/i.test(titleLower)) {
+    if (/\b(civil engineer|architectural|architect(?!ure\s+(?:software|cloud|systems?))|construction|structural engineer|building)\b|(?:土木|建築設計|結構工程|營造)/i.test(titleLower)) {
       return INDUSTRY_DOMAINS.CIVIL_ARCHITECTURE;
     }
-    if (/\b(software engineer|software developer|backend developer|frontend developer|full stack|devops|cloud engineer|systems engineer|site reliability|qa engineer|firmware|embedded software)\b/i.test(titleLower)) {
+    if (/\b(software engineer|software developer|backend developer|frontend developer|full stack|devops|cloud engineer|systems engineer|site reliability|qa engineer|firmware|embedded software)\b|(?:軟體工程師|软件工程师|後端工程師|后端工程师|前端工程師|前端工程师|全端工程師|全栈工程师|程式設計師|軟體開發|系統架構師|架構師)/i.test(titleLower)) {
       return INDUSTRY_DOMAINS.TECH_SOFTWARE;
     }
 
@@ -2009,24 +2189,28 @@
 
     .sjg-btn-pivot {
       width: 100%;
-      background: #181838;
-      color: #c7d2fe;
-      border: 1px solid #4338ca;
-      border-radius: 9px;
-      padding: 8px 12px;
-      font-size: 11px;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.4) 0%, rgba(124, 58, 237, 0.5) 50%, rgba(14, 165, 233, 0.4) 100%);
+      color: #ffffff;
+      border: 1.5px solid #818cf8;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 11.5px;
       font-weight: 800;
       cursor: pointer;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s;
+      flex-direction: column;
+      gap: 3px;
+      box-shadow: 0 0 18px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-top: 10px;
+      margin-bottom: 8px;
     }
 
     .sjg-btn-pivot:hover {
-      background: #232352;
-      color: #ffffff;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.65) 0%, rgba(139, 92, 246, 0.75) 50%, rgba(14, 165, 233, 0.6) 100%);
+      border-color: #38bdf8;
+      box-shadow: 0 0 26px rgba(56, 189, 248, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      transform: translateY(-1.5px);
     }
 
     .sjg-buttons-row {
@@ -2358,9 +2542,28 @@
               `).join('') : '<div style="color:#34d399; font-size:11px; padding:4px 0;">🎉 All core JD requirements covered! Zero skill gaps.</div>'}
             </div>
 
-            <!-- Action Buttons -->
-            <div class="sjg-cover-letter-options" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e293b;">
-              <div style="color: #94a3b8; font-size: 11px; margin-bottom: 6px; text-transform: uppercase; font-weight:700;">Generate Tailored Application</div>
+            <!-- Prominently Elevated Career Pivot Discovery (V2.0 Hero Action) -->
+            <button id="sjg-smart-pivot-btn" class="sjg-btn-pivot">
+              <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                <span style="display:flex; align-items:center; gap:6px; font-weight:800; font-size:12px; color:#ffffff;">
+                  <span style="font-size:13px;">🧭</span> Smart Career Pivot Discovery
+                </span>
+                <span style="background:linear-gradient(90deg, #38bdf8, #818cf8); color:#020617; font-size:9.5px; font-weight:900; padding:2px 6px; border-radius:4px; text-transform:uppercase; letter-spacing:0.5px; box-shadow:0 0 8px rgba(56,189,248,0.5);">V2.0 AI</span>
+              </div>
+              <div style="font-size:10px; color:#c7d2fe; font-weight:500; text-align:left; width:100%; display:flex; justify-content:space-between; align-items:center; opacity:0.95;">
+                <span>Cross-Domain Transferable Skills & Match Finder</span>
+                <span style="font-size:12px; color:#38bdf8; font-weight:bold;">→</span>
+              </div>
+            </button>
+
+            <!-- Primary Executive Dashboard Button -->
+            <button id="sjg-open-dashboard-btn" class="sjg-btn-executive">
+              👑 Open in Executive Dashboard (PRO)
+            </button>
+
+            <!-- Tailored Application Options -->
+            <div class="sjg-cover-letter-options" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b;">
+              <div style="color: #94a3b8; font-size: 10.5px; margin-bottom: 5px; text-transform: uppercase; font-weight:700;">Generate Tailored Application</div>
               <div class="sjg-buttons-row">
                 <button id="sjg-cl-free-btn" class="sjg-btn-letter">
                   ✉️ 3-Tier Professional
@@ -2370,14 +2573,6 @@
                 </button>
               </div>
             </div>
-
-            <button id="sjg-open-dashboard-btn" class="sjg-btn-executive">
-              👑 Open in Executive Dashboard (PRO)
-            </button>
-
-            <button id="sjg-smart-pivot-btn" class="sjg-btn-pivot">
-              ✨ 🌟 Smart Career Pivot Discovery (Cross-Domain Analysis)
-            </button>
 
           </div>
 
@@ -2952,5 +3147,10 @@ ${candidateDisplayName}`;
       console.warn('[SuperJobGenie] Heartbeat error:', e);
     }
   }, 500);
+
+  // Expose evaluation engine on window for diagnostics and testing
+  window.__SUPER_JOB_GENIE_EVALUATE__ = evaluateJobMatch;
+  window.__SUPER_JOB_GENIE_DOMAINS__ = INDUSTRY_DOMAINS;
+  window.__SUPER_JOB_GENIE_BILINGUAL_MAP__ = BILINGUAL_TECH_MAP;
 
 })();

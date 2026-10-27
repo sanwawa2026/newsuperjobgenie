@@ -5,10 +5,57 @@ document.addEventListener('DOMContentLoaded', async () => {
   const previewTitle = document.getElementById('previewTitle');
   const previewMeta = document.getElementById('previewMeta');
   const statusBadge = document.getElementById('statusBadge');
+  const radarRoleInput = document.getElementById('radarRoleInput');
+  const testRadarBtn = document.getElementById('testRadarBtn');
+  const radarStatusText = document.getElementById('radarStatusText');
 
   let activeTab = null;
 
-  // 1. Query current active tab and check status
+  // 1. Load saved radar preferences
+  if (chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['radarConfig'], (res) => {
+      if (res && res.radarConfig && res.radarConfig.targetRole) {
+        if (radarRoleInput) radarRoleInput.value = res.radarConfig.targetRole;
+      }
+    });
+  }
+
+  // 2. Save radar role on change
+  if (radarRoleInput) {
+    radarRoleInput.addEventListener('change', () => {
+      const val = radarRoleInput.value.trim();
+      chrome.storage.local.get(['radarConfig'], (res) => {
+        const config = res.radarConfig || {};
+        config.targetRole = val;
+        chrome.storage.local.set({ radarConfig: config });
+      });
+    });
+  }
+
+  // 3. Test Radar Ping Button
+  if (testRadarBtn) {
+    testRadarBtn.addEventListener('click', () => {
+      const role = radarRoleInput ? radarRoleInput.value : 'Senior Engineer';
+      testRadarBtn.disabled = true;
+      testRadarBtn.innerText = '📡 Scanning Job Stream...';
+
+      chrome.runtime.sendMessage({
+        action: 'trigger_radar_test',
+        role: role,
+        company: 'SeaMoney / Shopee Tech (SG)'
+      }, (res) => {
+        setTimeout(() => {
+          testRadarBtn.disabled = false;
+          testRadarBtn.innerText = '✅ Alert Dispatched (96%)!';
+          setTimeout(() => {
+            testRadarBtn.innerText = '📡 测试雷达秒推 (Test Scout Alert)';
+          }, 2000);
+        }, 500);
+      });
+    });
+  }
+
+  // 4. Query current active tab and check page status
   try {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tabs && tabs[0]) {
@@ -37,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error(e);
   }
 
-  // 2. Trigger in-page HUD modal
+  // 5. Trigger in-page HUD modal
   if (openInPageModalBtn) {
     openInPageModalBtn.addEventListener('click', async () => {
       if (!activeTab || !activeTab.id) return;
@@ -63,7 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 3. Open Web Dashboard
+  // 6. Open Web Dashboard
   if (openLocalDashboardBtn) {
     openLocalDashboardBtn.addEventListener('click', () => {
       const dashboardUrl = 'https://ais-dev-dpehhkspkblknqvlwnko6m-423633136396.europe-west2.run.app';
