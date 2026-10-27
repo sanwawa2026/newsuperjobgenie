@@ -70,6 +70,12 @@
   let lastFireworksJobKey = null;
   let renderDebounceTimer = null; // Coalesces rapid back-to-back rescans into a single render
 
+  // Autonomous Scout Bot Engine State
+  let isAutoPilotEnabled = true;
+  let scannedCardsCount = 0;
+  let highMatchCount = 0;
+  let autoPilotScanTimer = null;
+
   /**
    * HTML Sanitizer & Formatter
    */
@@ -2310,6 +2316,197 @@
       margin-top: 10px;
       padding-bottom: 10px;
     }
+
+    /* Autonomous Scout Bot Console Styles */
+    .sjg-pill-bot-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      border-radius: 4px;
+      padding: 1px 5px;
+      letter-spacing: 0.5px;
+    }
+
+    .sjg-bot-deck {
+      background: linear-gradient(135deg, #0b132b 0%, #151d3b 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sjg-bot-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sjg-bot-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sjg-bot-radar-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      display: inline-block;
+      animation: sjgRadarPulse 1.8s infinite;
+    }
+
+    @keyframes sjgRadarPulse {
+      0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .sjg-bot-status-tag {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+    }
+
+    .sjg-bot-switch-wrap {
+      display: flex;
+      align-items: center;
+    }
+
+    .sjg-switch-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sjg-switch-label input {
+      display: none;
+    }
+
+    .sjg-switch-slider {
+      position: relative;
+      width: 26px;
+      height: 14px;
+      background: #334155;
+      border-radius: 999px;
+      transition: all 0.2s;
+      display: inline-block;
+    }
+
+    .sjg-switch-slider::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 10px;
+      height: 10px;
+      background: #ffffff;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .sjg-switch-label input:checked + .sjg-switch-slider {
+      background: #0284c7;
+    }
+
+    .sjg-switch-label input:checked + .sjg-switch-slider::before {
+      transform: translateX(12px);
+    }
+
+    .sjg-bot-stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin: 4px 0;
+      padding: 6px 8px;
+      background: rgba(7, 11, 20, 0.7);
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+    }
+
+    .sjg-bot-stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .sjg-bot-stat-val {
+      font-size: 13px;
+      font-weight: 900;
+      font-family: ui-monospace, monospace;
+      color: #ffffff;
+    }
+
+    .sjg-bot-stat-lbl {
+      font-size: 9px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+
+    .sjg-bot-actions-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .sjg-bot-btn-scan {
+      flex: 1;
+      background: linear-gradient(135deg, #0284c7, #4f46e5);
+      color: #ffffff;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35);
+      transition: all 0.2s;
+    }
+
+    .sjg-bot-btn-scan:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .sjg-bot-btn-alert {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .sjg-bot-btn-alert:hover {
+      background: #334155;
+      color: #ffffff;
+    }
   `;
 
   /**
@@ -2365,6 +2562,7 @@
           <div class="sjg-pill-text">
             <span class="sjg-pill-brand">
               SuperJobGenie 🚀
+              <span class="sjg-pill-bot-badge"><span class="sjg-bot-radar-dot"></span>BOT: ${isAutoPilotEnabled ? 'ON' : 'PAUSED'}</span>
             </span>
             <span class="sjg-pill-chars">${displayChars.toLocaleString()} chars</span>
           </div>
@@ -2408,6 +2606,48 @@
 
           <!-- Main Scrollable Body -->
           <div class="sjg-body">
+
+            <!-- 🤖 V2.0 Autonomous Scout Bot Console Deck -->
+            <div class="sjg-bot-deck">
+              <div class="sjg-bot-header">
+                <div class="sjg-bot-badge">
+                  <span class="sjg-bot-radar-dot"></span>
+                  <span style="font-weight:900; font-size:11.5px; color:#ffffff; letter-spacing:0.3px;">🤖 AUTONOMOUS SCOUT BOT</span>
+                  <span class="sjg-bot-status-tag" id="sjg-bot-active-tag">${isAutoPilotEnabled ? 'ACTIVE' : 'STANDBY'}</span>
+                </div>
+                <div class="sjg-bot-switch-wrap">
+                  <label class="sjg-switch-label" title="开启后随着网页滚动或翻页，Bot 自动标记全页岗位匹配度">
+                    <input type="checkbox" id="sjg-bot-autopilot-toggle" ${isAutoPilotEnabled ? 'checked' : ''} />
+                    <span class="sjg-switch-slider"></span>
+                    <span style="font-size:10px; color:#93c5fd; font-weight:700;">自动巡航</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="sjg-bot-stats-row">
+                <div class="sjg-bot-stat-item">
+                  <span class="sjg-bot-stat-val" id="sjg-scanned-count">${scannedCardsCount || '0'}</span>
+                  <span class="sjg-bot-stat-lbl">页面职位已侦测</span>
+                </div>
+                <div class="sjg-bot-stat-item">
+                  <span class="sjg-bot-stat-val" style="color:#34d399;" id="sjg-high-match-count">${highMatchCount || '0'}</span>
+                  <span class="sjg-bot-stat-lbl">高匹配岗位 (≥80%)</span>
+                </div>
+                <div class="sjg-bot-stat-item">
+                  <span class="sjg-bot-stat-val" style="color:#38bdf8;">24/7</span>
+                  <span class="sjg-bot-stat-lbl">后台云雷达待命</span>
+                </div>
+              </div>
+
+              <div class="sjg-bot-actions-row">
+                <button id="sjg-bot-scan-page-btn" class="sjg-bot-btn-scan">
+                  <span>⚡ 立即全页巡航标注 (Scan Page Jobs)</span>
+                </button>
+                <button id="sjg-bot-test-alert-btn" class="sjg-bot-btn-alert" title="测试向系统发送桌面雷达弹窗预警">
+                  <span>🔔 测速报警</span>
+                </button>
+              </div>
+            </div>
             
             <!-- Live Job Target Card -->
             <div class="sjg-card">
@@ -2635,6 +2875,61 @@
       wrapper.querySelector('#sjg-expand-btn')?.addEventListener('click', () => {
         isCandidateExpanded = !isCandidateExpanded;
         renderShadowUI();
+      });
+
+      // Autonomous Bot Event Listeners
+      wrapper.querySelector('#sjg-bot-autopilot-toggle')?.addEventListener('change', (e) => {
+        isAutoPilotEnabled = e.target.checked;
+        const tag = wrapper.querySelector('#sjg-bot-active-tag');
+        if (tag) {
+          tag.innerText = isAutoPilotEnabled ? 'ACTIVE' : 'STANDBY';
+          tag.style.color = isAutoPilotEnabled ? '#34d399' : '#94a3b8';
+        }
+        if (isAutoPilotEnabled) {
+          runAutoPageScan(false);
+        }
+      });
+
+      wrapper.querySelector('#sjg-bot-scan-page-btn')?.addEventListener('click', () => {
+        const btn = wrapper.querySelector('#sjg-bot-scan-page-btn');
+        if (btn) btn.innerHTML = '<span>⚡ 正在全页巡航并比对中...</span>';
+        setTimeout(() => {
+          const res = runAutoPageScan(true);
+          renderShadowUI();
+          const refreshedBtn = wrapper.querySelector('#sjg-bot-scan-page-btn');
+          if (refreshedBtn) {
+            refreshedBtn.innerHTML = `<span>✅ 巡航完毕! 侦测 ${res.total} 岗 (高匹 ${res.highMatchCount})</span>`;
+            setTimeout(() => {
+              if (refreshedBtn) refreshedBtn.innerHTML = '<span>⚡ 立即全页巡航标注 (Scan Page Jobs)</span>';
+            }, 2500);
+          }
+        }, 150);
+      });
+
+      wrapper.querySelector('#sjg-bot-test-alert-btn')?.addEventListener('click', () => {
+        const alertBtn = wrapper.querySelector('#sjg-bot-test-alert-btn');
+        if (alertBtn) alertBtn.innerHTML = '<span>📡 报警中...</span>';
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+            chrome.runtime.sendMessage({
+              action: 'trigger_radar_test',
+              role: candidateProfile.targetRole || 'Senior Engineer',
+              company: cachedJobData?.company || 'Indeed Verified Role'
+            }, () => {
+              if (alertBtn) {
+                alertBtn.innerHTML = '<span>✅ 已推桌面</span>';
+                setTimeout(() => { if (alertBtn) alertBtn.innerHTML = '<span>🔔 测速报警</span>'; }, 2000);
+              }
+            });
+          } else {
+            if (alertBtn) {
+              alertBtn.innerHTML = '<span>🔔 已触发预警</span>';
+              setTimeout(() => { if (alertBtn) alertBtn.innerHTML = '<span>🔔 测速报警</span>'; }, 2000);
+            }
+          }
+        } catch (e) {
+          if (alertBtn) alertBtn.innerHTML = '<span>🔔 测速报警</span>';
+        }
       });
 
   // Resume Upload Logic - NO TRUNCATION (Up to 100,000 characters)
@@ -2990,6 +3285,137 @@ ${candidateDisplayName}`;
   }
 
   /**
+   * Autonomous Scout Bot: Scan visible job cards on the current page,
+   * calculate match scores against candidate profile, and inject glowing tags directly on cards.
+   */
+  function runAutoPageScan(force = false) {
+    try {
+      const cardSelectors = [
+        'div.job_seen_beacon',
+        'div[data-jk]',
+        'div.cardOutline',
+        '[data-testid="job-card"]',
+        '[data-testid="job-result"]',
+        '[data-test="job-listing-item"]',
+        'li[data-test="jobListing"]',
+        'li.jobs-search-results__list-item',
+        'div.job-card-container'
+      ];
+      
+      const rawCards = Array.from(document.querySelectorAll(cardSelectors.join(', ')));
+      const allCards = rawCards.filter(el => {
+        if (el.classList.contains('jobsearch-ResultsList') || el.id === 'mosaic-provider-jobcards') return false;
+        const parentCard = el.parentElement?.closest(cardSelectors.join(', '));
+        return !parentCard;
+      });
+
+      let newlyScanned = 0;
+      let pageHighMatches = 0;
+
+      allCards.forEach(card => {
+        const existingBadge = card.querySelector('.sjg-card-stamp');
+        if (existingBadge && !force) {
+          const score = parseInt(existingBadge.getAttribute('data-score') || '0', 10);
+          if (score >= 80) pageHighMatches++;
+          return;
+        }
+
+        const titleEl = card.querySelector('h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], a.job-card-list__title, [class*="job-card-list__title"], h2, h3, a');
+        const title = titleEl?.innerText?.replace(/^new\s+/i, '')?.trim() || '';
+        if (!title || isSearchHeader(title)) return;
+
+        const compEl = card.querySelector('a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, [data-company-name="true"], .job-card-container__primary-description, span.job-card-container__primary-description');
+        const company = compEl?.innerText?.replace(/[\d.]+\s*[★*]+.*$/g, '')?.trim() || '';
+
+        const snippetEl = card.querySelector('.job-snippet, [data-testid="job-snippet"], [class*="job-snippet"], ul.css-9446fg, .underShelfFooter, .job-card-list__snippet');
+        const snippet = snippetEl?.innerText?.trim() || '';
+
+        const evalResult = evaluateJobMatch({
+          title,
+          company,
+          fullBodyText: snippet
+        }, candidateProfile);
+
+        const score = evalResult.overallMatchScore || 65;
+        const matchedSkills = evalResult.verifiedSkills || [];
+        if (score >= 80) pageHighMatches++;
+
+        if (existingBadge) existingBadge.remove();
+
+        const badge = document.createElement('div');
+        badge.className = 'sjg-card-stamp';
+        badge.setAttribute('data-score', score.toString());
+        const isHigh = score >= 80;
+        badge.style.cssText = `
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: ${isHigh ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(4, 120, 87, 0.95))' : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))'};
+          color: ${isHigh ? '#34d399' : '#cbd5e1'};
+          border: 1px solid ${isHigh ? 'rgba(52, 211, 153, 0.65)' : 'rgba(100, 116, 139, 0.5)'};
+          border-radius: 6px;
+          padding: 3px 8px;
+          margin: 6px 0 4px 0;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: ${isHigh ? '0 0 10px rgba(52, 211, 153, 0.35)' : '0 1px 4px rgba(0,0,0,0.3)'};
+          z-index: 50;
+          width: fit-content;
+          transition: all 0.2s ease;
+        `;
+        badge.innerHTML = `
+          <span style="font-size:12px;">🤖</span>
+          <span style="color:#fff; font-weight:800;">${score}% Match</span>
+          <span style="opacity:0.85; font-size:10px;">• ${matchedSkills.length > 0 ? `${matchedSkills.length} Skills` : 'Verified'}</span>
+          <span style="color:${isHigh ? '#6ee7b7' : '#94a3b8'}; font-size:10px;">🔍 Inspect</span>
+        `;
+
+        badge.addEventListener('mouseenter', () => {
+          badge.style.transform = 'scale(1.03)';
+          badge.style.filter = 'brightness(1.15)';
+        });
+        badge.addEventListener('mouseleave', () => {
+          badge.style.transform = 'scale(1)';
+          badge.style.filter = 'brightness(1)';
+        });
+        badge.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const clickTarget = card.querySelector('a.job_link, a[data-test="job-title"], a.jcs-JobTitle, h2 a, h2') || card;
+          clickTarget.click();
+          isModalOpen = true;
+          setTimeout(() => {
+            checkAndAutoRescan(true);
+            renderShadowUI();
+          }, 250);
+        });
+
+        const insertTarget = card.querySelector('.resultContent, .jobsearch-CompanyInfoContainer, .job-card-container__primary-description') || titleEl?.parentElement || card;
+        insertTarget.prepend(badge);
+        newlyScanned++;
+      });
+
+      scannedCardsCount = allCards.length;
+      highMatchCount = pageHighMatches;
+      return { total: allCards.length, newlyScanned, highMatchCount: pageHighMatches };
+    } catch (e) {
+      console.warn('[SuperJobGenie Bot] Page scan error:', e);
+      return { total: 0, newlyScanned: 0, highMatchCount: 0 };
+    }
+  }
+
+  function debouncedAutoPageScan() {
+    if (!isAutoPilotEnabled) return;
+    if (autoPilotScanTimer) clearTimeout(autoPilotScanTimer);
+    autoPilotScanTimer = setTimeout(() => {
+      autoPilotScanTimer = null;
+      runAutoPageScan(false);
+      renderShadowUI();
+    }, 600);
+  }
+
+  /**
    * Rescan and Auto-detection Trigger
    */
   let lastJobKey = '';
@@ -3049,7 +3475,10 @@ ${candidateDisplayName}`;
           jobTitle: job.title,
           company: job.company,
           charCount: job.characterCount,
-          platform: job.platform
+          platform: job.platform,
+          botActive: isAutoPilotEnabled,
+          scannedCount: scannedCardsCount,
+          highMatchCount: highMatchCount
         });
         return true;
       }
@@ -3058,6 +3487,14 @@ ${candidateDisplayName}`;
         isModalOpen = true;
         renderShadowUI();
         sendResponse({ success: true, charCount: cachedJobData?.characterCount || 0 });
+        return true;
+      }
+
+      if (request.action === 'scan_page_jobs') {
+        const res = runAutoPageScan(true);
+        isModalOpen = true;
+        renderShadowUI();
+        sendResponse({ success: true, count: res.total, highMatchCount: res.highMatchCount });
         return true;
       }
     });
@@ -3071,6 +3508,12 @@ ${candidateDisplayName}`;
         const initialJob = extractFullIndeedJob();
         cachedJobData = initialJob;
         renderShadowUI();
+        if (isAutoPilotEnabled) {
+          setTimeout(() => {
+            runAutoPageScan(false);
+            renderShadowUI();
+          }, 600);
+        }
       } catch (err) {
         console.error('[SuperJobGenie] Initial scan error:', err);
       }
@@ -3083,11 +3526,17 @@ ${candidateDisplayName}`;
   // SPA navigation events
   window.addEventListener('popstate', () => {
     setTimeout(() => checkAndAutoRescan(true), 150);
-    setTimeout(() => checkAndAutoRescan(true), 600);
+    setTimeout(() => {
+      checkAndAutoRescan(true);
+      debouncedAutoPageScan();
+    }, 600);
   });
   window.addEventListener('hashchange', () => {
     setTimeout(() => checkAndAutoRescan(true), 150);
-    setTimeout(() => checkAndAutoRescan(true), 600);
+    setTimeout(() => {
+      checkAndAutoRescan(true);
+      debouncedAutoPageScan();
+    }, 600);
   });
 
   // Multi-platform Job Card Click Delegation (Indeed, Glassdoor, ZipRecruiter, LinkedIn)
@@ -3132,6 +3581,7 @@ ${candidateDisplayName}`;
     if (paneObserverTimeout) clearTimeout(paneObserverTimeout);
     paneObserverTimeout = setTimeout(() => {
       checkAndAutoRescan();
+      debouncedAutoPageScan();
     }, 250);
   });
 

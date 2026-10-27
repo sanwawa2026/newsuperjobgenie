@@ -11,33 +11,53 @@
     <meta name="twitter:card" content="summary_large_image" />
     <script>
       // Gracefully suppress benign Vite HMR WebSocket disconnect errors in iframe environment
-      window.addEventListener('unhandledrejection', function (event) {
-        var reason = event.reason;
-        var msg = (reason && (reason.message || String(reason))) || '';
-        var stack = (reason && reason.stack) || '';
-        if (
-          msg.indexOf('WebSocket') !== -1 ||
-          msg.indexOf('vite:ws') !== -1 ||
-          stack.indexOf('@vite/client') !== -1 ||
-          stack.indexOf('client.mjs') !== -1
-        ) {
-          event.preventDefault();
-          event.stopPropagation();
+      (function() {
+        function isViteHmrNoise(str) {
+          if (!str) return false;
+          var s = String(str);
+          return (
+            s.indexOf('WebSocket') !== -1 ||
+            s.indexOf('vite:ws') !== -1 ||
+            s.indexOf('@vite/client') !== -1 ||
+            s.indexOf('client.mjs') !== -1 ||
+            s.indexOf('vite') !== -1 && s.indexOf('failed') !== -1
+          );
         }
-      });
-      window.addEventListener('error', function (event) {
-        var msg = event.message || '';
-        var filename = event.filename || '';
-        if (
-          msg.indexOf('WebSocket') !== -1 ||
-          msg.indexOf('vite:ws') !== -1 ||
-          filename.indexOf('@vite/client') !== -1 ||
-          filename.indexOf('client.mjs') !== -1
-        ) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      });
+
+        var origOnError = window.onerror;
+        window.onerror = function(msg, url, lineNo, colNo, error) {
+          var errorStr = (msg || '') + ' ' + (url || '') + ' ' + (error ? (error.stack || error.message || '') : '');
+          if (isViteHmrNoise(errorStr)) {
+            return true; // Prevents default browser and frame error logging
+          }
+          if (origOnError) {
+            return origOnError.apply(this, arguments);
+          }
+          return false;
+        };
+
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event.reason;
+          var msg = (reason && (reason.message || String(reason))) || '';
+          var stack = (reason && reason.stack) || '';
+          if (isViteHmrNoise(msg + ' ' + stack)) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+          }
+        }, true);
+
+        window.addEventListener('error', function (event) {
+          var msg = event.message || '';
+          var filename = event.filename || '';
+          var stack = (event.error && event.error.stack) || '';
+          if (isViteHmrNoise(msg + ' ' + filename + ' ' + stack)) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+          }
+        }, true);
+      })();
     </script>
   </head>
   <body>

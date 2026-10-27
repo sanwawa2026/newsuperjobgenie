@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  const scanPageJobsBtn = document.getElementById('scanPageJobsBtn');
   const openInPageModalBtn = document.getElementById('openInPageModal');
   const openLocalDashboardBtn = document.getElementById('openLocalDashboard');
   const jobPreviewBox = document.getElementById('jobPreviewBox');
@@ -82,6 +83,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch (e) {
     console.error(e);
+  }
+
+  // 4.5 Trigger Page Job Scan & Tagging
+  if (scanPageJobsBtn) {
+    scanPageJobsBtn.addEventListener('click', async () => {
+      if (!activeTab || !activeTab.id) return;
+      scanPageJobsBtn.disabled = true;
+      scanPageJobsBtn.innerText = '⚡ 正在全页巡航并打标...';
+
+      chrome.tabs.sendMessage(activeTab.id, { action: 'scan_page_jobs' }, async (response) => {
+        if (chrome.runtime.lastError) {
+          try {
+            await chrome.scripting.executeScript({
+              target: { tabId: activeTab.id, allFrames: true },
+              files: ['content.js']
+            });
+            setTimeout(() => {
+              chrome.tabs.sendMessage(activeTab.id, { action: 'scan_page_jobs' }, (res2) => {
+                scanPageJobsBtn.innerText = `✅ 已巡航 ${res2?.count || 0} 岗位!`;
+                setTimeout(() => window.close(), 800);
+              });
+            }, 300);
+          } catch (err) {
+            scanPageJobsBtn.innerText = '请先打开求职招聘网页';
+            setTimeout(() => {
+              scanPageJobsBtn.disabled = false;
+              scanPageJobsBtn.innerText = '⚡ 一键巡检当前页面岗位 (Scan Page)';
+            }, 2000);
+          }
+        } else {
+          scanPageJobsBtn.innerText = `✅ 已巡航 ${response?.count || 0} 岗位 (高匹 ${response?.highMatchCount || 0})!`;
+          setTimeout(() => window.close(), 700);
+        }
+      });
+    });
   }
 
   // 5. Trigger in-page HUD modal
