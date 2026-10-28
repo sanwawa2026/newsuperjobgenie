@@ -72,6 +72,8 @@
 
   // Autonomous Scout Bot Engine State
   let isAutoPilotEnabled = true;
+  let isFocusHighMatchOnly = false; // X-Ray Focus: Highlight >= 80% matches, dim low matches
+  let scannedLeadsRegistry = new Map(); // Global session registry of scanned job leads
   let scannedCardsCount = 0;
   let highMatchCount = 0;
   let autoPilotScanTimer = null;
@@ -301,15 +303,31 @@
 
     // 3. Channel 1: Native Live DOM Traversal (Right pane + Document-wide multi-candidate traversal)
     const candidateSelectors = [
-      // Indeed (All locales: US, ES, UK, FR, DE, IT, JP, etc.)
+      // Indeed (Global, Taiwan tw.indeed.com, HK, SG, JP, US, UK, FR, DE, IT, etc.)
       '#jobDescriptionText',
       '[data-testid="jobDescriptionText"]',
+      'div#jobDescriptionText',
       '.jobsearch-jobDescriptionText',
       '.jobsearch-JobComponent-description',
+      '[data-testid="jobsearch-JobComponent-description"]',
       '[data-testid="jobsearch-JobDescriptionSection"]',
+      '#jobDescriptionSection',
       'div[data-segment-label="JobDescription"]',
       '#jobDescriptionTitle ~ div',
       '#jobDescriptionTitle + div',
+      '#vjs-content #jobDescriptionText',
+      '#vjs-desc',
+      '.vjs-content',
+      '.vjs-desc',
+      'div.fastviewjob #jobDescriptionText',
+      '#viewJobSSRRoot #jobDescriptionText',
+      '#viewJobSSRRoot [class*="JobComponent"]',
+      'div[class*="jobsearch-JobComponent-description"]',
+      'div[class*="jobDescriptionText"]',
+      'div[data-testid*="jobDescription"]',
+      'div[data-testid*="job-description"]',
+      'section[data-testid*="jobDescription"]',
+      'article[class*="jobDescription"]',
       // Glassdoor
       '[data-test="jobDescriptionText"]',
       '[data-test="job-description"]',
@@ -375,11 +393,12 @@
       }
     }
 
-    // 4. Channel 2: Multi-lingual Heading Anchor & Container Fallbacks (ES, EN, FR, DE, IT, PT, JP)
+    // 4. Channel 2: Multi-lingual Heading Anchor & Container Fallbacks (Traditional Chinese, EN, JP, ES, FR, DE, IT)
     if (!fullBodyText || fullBodyText.length < 80) {
       const isJdHeading = (txt) => {
         if (!txt || txt.length > 70) return false;
-        return /^(?:full\s+)?job\s+description|^about\s+the\s+(?:role|job)|^what\s+we(?:'re|\s+are)\s+looking\s+for|descripci[oó]n\s+(?:completa\s+)?del\s+(?:empleo|puesto)|detalles\s+del\s+empleo|description\s+(?:du|compl[eè]te\s+du)\s+poste|stellenbeschreibung|vollst[aä]ndige\s+stellenbeschreibung|descrizione\s+(?:completa\s+dell['’]offerta|del\s+lavoro)|descri[cç][aã]o\s+(?:completa\s+)?da\s+vaga|仕事内容|職務内容/i.test(txt.trim());
+        const s = txt.trim().toLowerCase();
+        return /^(?:full\s+)?job\s+description|^about\s+the\s+(?:role|job|company)|^what\s+we(?:'re|\s+are)\s+looking\s+for|^what\s+you(?:'ll|\s+will)\s+do|descripci[oó]n\s+(?:completa\s+)?del\s+(?:empleo|puesto)|detalles\s+del\s+empleo|description\s+(?:du|compl[eè]te\s+du)\s+poste|stellenbeschreibung|vollst[aä]ndige\s+stellenbeschreibung|descrizione\s+(?:completa\s+dell['’]offerta|del\s+lavoro)|descri[cç][aã]o\s+(?:completa\s+)?da\s+vaga|仕事内容|職務内容|完整職缺說明|職缺說明|工作內容|職務說明|職務內容|工作職缺|職位描述|職位要求|條件要求|應徵條件|職缺詳細內容|工作職責|職位詳情|工作詳情/i.test(s);
       };
 
       const scopes = [activePane, document.body].filter(Boolean);
@@ -430,6 +449,39 @@
           if (fullBodyText && fullBodyText.length > 80) break;
         }
         if (fullBodyText && fullBodyText.length > 80) break;
+      }
+    }
+
+    // Channel 2.5: Active Details Pane Deep Body Isolation (Infallible Fallback for Taiwan/APAC/international layouts)
+    if ((!fullBodyText || fullBodyText.length < 150) && activePane && activePane !== document && activePane !== document.body) {
+      try {
+        const paneClone = activePane.cloneNode(true);
+        // Strip non-content UI elements: headers, top cards, apply buttons, navigation, scripts, svg, HUD
+        const junkEls = paneClone.querySelectorAll(`
+          .jobsearch-JobInfoHeader,
+          [data-testid="jobsearch-JobInfoHeader"],
+          .jobsearch-JobComponent-header,
+          .jobsearch-DesktopStickyContainer,
+          [data-testid="jobsearch-ViewJobTopCard"],
+          header,
+          nav,
+          button,
+          .sjg-hud-panel,
+          #sjg-shadow-host-root,
+          script,
+          style,
+          svg,
+          form,
+          [role="toolbar"]
+        `);
+        junkEls.forEach(el => el.remove());
+        const cleanedText = (paneClone.innerText || paneClone.textContent || '').trim();
+        if (cleanedText.length > 150) {
+          fullBodyText = cleanedText;
+          extractionSource = `${platform} Pane Deep Body`;
+        }
+      } catch (e) {
+        console.warn('[SuperJobGenie] Active pane clone extraction error:', e);
       }
     }
 
@@ -760,21 +812,21 @@
     // If fullBodyText is still empty / skeleton loading on Indeed, check if we have lastClickedCard
     let isProvisionalPreview = false;
     let provisionalScore = 0;
-    if ((!fullBodyText || fullBodyText.length < 80) && lastClickedCard && (Date.now() - (lastClickedCard.clickedAt || 0) < 20000)) {
+    if ((!fullBodyText || fullBodyText.length < 180) && lastClickedCard && (Date.now() - (lastClickedCard.clickedAt || 0) < 20000)) {
       if (lastClickedCard.title && (title.startsWith('Select a Job') || !title)) {
         title = lastClickedCard.title;
       }
       if (lastClickedCard.company && (company.startsWith('Click any') || !company)) {
         company = lastClickedCard.company;
       }
-      if (lastClickedCard.snippet) {
+      if (!fullBodyText && lastClickedCard.snippet) {
         fullBodyText = lastClickedCard.snippet;
       }
       if (lastClickedCard.score > 0) {
         provisionalScore = lastClickedCard.score;
       }
       isProvisionalPreview = true;
-      extractionSource = `${platform} Card Ingestion`;
+      extractionSource = `${platform} Card Preview Ingestion`;
     }
 
     const hasRealBody = Boolean(fullBodyText && fullBodyText.length >= 80);
@@ -2649,6 +2701,40 @@
       transform: translateY(-1px);
     }
 
+    .sjg-bot-export-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .sjg-bot-btn-export {
+      flex: 1;
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95));
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 7px;
+      padding: 6px 8px;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .sjg-bot-btn-export:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .sjg-switch-slider.focus-active {
+      background: #059669 !important;
+    }
+
     .sjg-freshness-pill {
       display: inline-flex;
       align-items: center;
@@ -2689,6 +2775,100 @@
       line-height: 1.4;
     }
   `;
+
+  /**
+   * Export all scanned leads in session to clean CSV with UTF-8 BOM
+   */
+  function exportScannedLeadsToCSV() {
+    if (scannedLeadsRegistry.size === 0) {
+      runAutoPageScan(true);
+    }
+    if (scannedLeadsRegistry.size === 0) {
+      alert('No job leads detected on current page yet. Please run Scan Page Jobs first.');
+      return;
+    }
+
+    const leads = Array.from(scannedLeadsRegistry.values());
+    leads.sort((a, b) => b.score - a.score);
+
+    const headers = [
+      'Job Title',
+      'Company',
+      'Location',
+      'Match Score (%)',
+      'Match Tier',
+      'Posting Freshness',
+      'Key Matched Skills',
+      'Job URL',
+      'Scanned Date'
+    ];
+
+    const escapeCsv = (str) => {
+      if (str === null || str === undefined) return '""';
+      const s = String(str).replace(/"/g, '""');
+      return `"${s}"`;
+    };
+
+    const rows = leads.map(l => [
+      escapeCsv(l.title),
+      escapeCsv(l.company),
+      escapeCsv(l.location || 'N/A'),
+      l.score,
+      escapeCsv(l.score >= 90 ? 'Top 1% Exceptional' : (l.score >= 75 ? 'Competitive Strong' : (l.score >= 60 ? 'Transferable' : 'Cross-Track'))),
+      escapeCsv(l.isExpired ? 'Closed / Expired' : (l.isStale ? '30+ Days Old' : 'Active Posting')),
+      escapeCsv((l.verifiedSkills || []).map(s => s.name || s).join(', ')),
+      escapeCsv(l.url || window.location.href),
+      escapeCsv(new Date(l.scannedAt || Date.now()).toISOString().split('T')[0])
+    ]);
+
+    const csvContent = '\uFEFF' + [
+      headers.map(h => `"${h}"`).join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const platformClean = detectPlatform().replace(/[^a-zA-Z0-9]/g, '_');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `SuperJobGenie_Leads_${platformClean}_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Copy scanned leads as Markdown Table for Notion/Obsidian
+   */
+  function copyScannedLeadsAsMarkdown() {
+    if (scannedLeadsRegistry.size === 0) {
+      runAutoPageScan(true);
+    }
+    if (scannedLeadsRegistry.size === 0) {
+      return;
+    }
+
+    const leads = Array.from(scannedLeadsRegistry.values());
+    leads.sort((a, b) => b.score - a.score);
+
+    let md = `### SuperJobGenie Scout Leads (${leads.length} Jobs - ${detectPlatform()})\n\n`;
+    md += `| # | Score | Job Title | Company | Freshness | Key Skills | Link |\n`;
+    md += `|---|---|---|---|---|---|---|\n`;
+
+    leads.forEach((l, idx) => {
+      const skillsStr = (l.verifiedSkills || []).slice(0, 4).map(s => s.name || s).join(', ');
+      const cleanTitle = (l.title || 'Job').replace(/\|/g, '-');
+      const cleanComp = (l.company || 'Company').replace(/\|/g, '-');
+      const freshStr = l.isExpired ? 'Closed' : (l.isStale ? '30+d' : 'Active');
+      const linkStr = l.url ? `[Link](${l.url})` : 'Here';
+      md += `| ${idx + 1} | **${l.score}%** | ${cleanTitle} | ${cleanComp} | ${freshStr} | ${skillsStr} | ${linkStr} |\n`;
+    });
+
+    navigator.clipboard.writeText(md);
+  }
 
   /**
    * Render or Update HUD UI inside Shadow DOM
@@ -2835,6 +3015,15 @@
                 </button>
                 <button id="sjg-bot-test-alert-btn" class="sjg-bot-btn-alert" title="Test real-time desktop radar alert notification">
                   <span>🔔 Alert</span>
+                </button>
+              </div>
+
+              <div class="sjg-bot-export-row">
+                <button id="sjg-bot-export-csv-btn" class="sjg-bot-btn-export" title="Export all scanned job leads to clean CSV (Excel/Sheets ready)">
+                  <span>📥 Export CSV (${scannedLeadsRegistry.size || scannedCardsCount || 0})</span>
+                </button>
+                <button id="sjg-bot-copy-md-btn" class="sjg-bot-btn-export" style="background:#1e293b; border-color:#334155; color:#cbd5e1; flex:0.9;" title="Copy scanned jobs as Markdown table for Notion/Obsidian">
+                  <span>📋 Copy Table (MD)</span>
                 </button>
               </div>
             </div>
@@ -3143,6 +3332,28 @@
           }
         } catch (e) {
           if (alertBtn) alertBtn.innerHTML = '<span>🔔 Test Radar Alert</span>';
+        }
+      });
+
+      wrapper.querySelector('#sjg-bot-export-csv-btn')?.addEventListener('click', () => {
+        exportScannedLeadsToCSV();
+        const exportBtn = wrapper.querySelector('#sjg-bot-export-csv-btn');
+        if (exportBtn) {
+          exportBtn.innerHTML = '<span>✅ CSV Exported!</span>';
+          setTimeout(() => {
+            renderShadowUI();
+          }, 2000);
+        }
+      });
+
+      wrapper.querySelector('#sjg-bot-copy-md-btn')?.addEventListener('click', () => {
+        copyScannedLeadsAsMarkdown();
+        const copyBtn = wrapper.querySelector('#sjg-bot-copy-md-btn');
+        if (copyBtn) {
+          copyBtn.innerHTML = '<span>✅ Table Copied!</span>';
+          setTimeout(() => {
+            renderShadowUI();
+          }, 2000);
         }
       });
 
@@ -3661,9 +3872,33 @@ ${candidateDisplayName}`;
 
         if (score >= 80) pageHighMatches++;
 
-        if (existingBadge) existingBadge.remove();
+        // Save / Update into global session registry for CSV / Markdown export
+        const locEl = card.querySelector('[data-testid="text-location"], .companyLocation, [class*="companyLocation"], .job-search-card__location, .job-card-container__metadata-item');
+        const location = locEl?.innerText?.trim() || '';
+        const linkEl = card.querySelector('a.jcs-JobTitle, a.job_link, a[data-test="job-title"], a[data-test="job-link"], a[id^="job_"], a.job-card-list__title, a');
+        let cardUrl = linkEl?.href || '';
+        if (!cardUrl && jk) {
+          cardUrl = `${window.location.origin}/viewjob?jk=${jk}`;
+        }
 
+        const leadKey = jk ? `jk_${jk}` : `${title}::${company}`;
         const cardFreshness = extractJobFreshness(card, snippet);
+        scannedLeadsRegistry.set(leadKey, {
+          key: leadKey,
+          title,
+          company,
+          location,
+          score,
+          jk,
+          url: cardUrl,
+          snippet,
+          isExpired: Boolean(cardFreshness.isExpired),
+          isStale: Boolean(cardFreshness.isStale),
+          verifiedSkills: matchedSkills,
+          scannedAt: Date.now()
+        });
+
+        if (existingBadge) existingBadge.remove();
 
         const badge = document.createElement('div');
         badge.className = 'sjg-card-stamp';
