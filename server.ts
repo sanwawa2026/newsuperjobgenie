@@ -909,6 +909,9 @@ async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
   const distPath = path.join(__dirname, 'dist');
 
+  // Always serve public assets (videos, banners, avatars, audio) directly
+  app.use(express.static(path.join(__dirname, 'public')));
+
   if (isProd && fs.existsSync(distPath)) {
     app.use(express.static(distPath));
     app.get('*', (_req, res) => {

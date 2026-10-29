@@ -20,6 +20,7 @@ app/
 # Video files (GitHub API limit is 25MB, large blobs fail commit tree creation)
 *.mp4
 **/*.mp4
+!public/assets/superjobgenie_short_01.mp4
 *.mov
 **/*.mov
 *.avi

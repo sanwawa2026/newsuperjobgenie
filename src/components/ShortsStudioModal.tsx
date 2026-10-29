@@ -77,6 +77,7 @@ export const ShortsStudioModal: React.FC<ShortsStudioModalProps> = ({
   const [activeTab, setActiveTab] = useState<'simulator' | 'script' | 'metadata' | 'rebrand'>('simulator');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isRecordingMode, setIsRecordingMode] = useState<boolean>(false);
+  const [previewMode, setPreviewMode] = useState<'mp4' | 'simulator'>('mp4');
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<any>(null);
@@ -585,6 +586,32 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
           {/* Left Column: 9:16 Vertical Phone Simulator (Takes 5 cols on lg) */}
           <div className={`${isRecordingMode ? 'lg:col-span-12 max-w-sm mx-auto' : 'lg:col-span-5'} flex flex-col items-center`}>
             
+            {/* View Mode Switcher */}
+            <div className="flex items-center gap-1 p-1 bg-slate-950 border border-slate-800 rounded-xl mb-3 shadow-inner">
+              <button
+                onClick={() => setPreviewMode('mp4')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                  previewMode === 'mp4'
+                    ? 'bg-rose-600 text-white shadow-md shadow-rose-900/40'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Video className="w-3.5 h-3.5" />
+                <span>🎬 Finished Short MP4</span>
+              </button>
+              <button
+                onClick={() => setPreviewMode('simulator')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                  previewMode === 'simulator'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/40'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>📱 Kinetic Simulator</span>
+              </button>
+            </div>
+
             {/* Phone Bezel */}
             <div className="relative w-[300px] sm:w-[320px] aspect-[9/16] bg-slate-950 rounded-[44px] p-3 border-[6px] border-slate-800 shadow-2xl shadow-indigo-900/30 flex flex-col overflow-hidden ring-1 ring-slate-700">
               
@@ -606,10 +633,30 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
               </div>
 
               {/* Phone Screen Canvas Content */}
-              <div className="relative flex-1 rounded-[32px] overflow-hidden bg-slate-900 flex flex-col justify-between p-4 mt-2">
-                
-                {/* Background visual simulation layer based on active timeline */}
-                <div className="absolute inset-0 z-0">
+              <div className="relative flex-1 rounded-[32px] overflow-hidden bg-slate-900 flex flex-col justify-between mt-2">
+                {previewMode === 'mp4' ? (
+                  <div className="w-full h-full flex flex-col justify-center items-center relative bg-black">
+                    <video
+                      src="/assets/superjobgenie_short_01.mp4"
+                      controls
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-3 right-3 z-30">
+                      <a
+                        href="/assets/superjobgenie_short_01.mp4"
+                        download="SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4"
+                        className="px-2.5 py-1 bg-rose-600/90 hover:bg-rose-500 text-white rounded-lg text-xs font-bold shadow flex items-center gap-1"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Save MP4</span>
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative w-full h-full flex flex-col justify-between p-4">
+                    {/* Background visual simulation layer based on active timeline */}
+                    <div className="absolute inset-0 z-0">
                   {currentTime < 3 ? (
                     <div className="w-full h-full bg-gradient-to-b from-red-950/80 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
                       <div className="w-16 h-16 rounded-2xl bg-red-500/20 border-2 border-red-500 flex items-center justify-center animate-bounce">
@@ -733,8 +780,9 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
                     <span className="text-[9px] font-mono text-slate-400">@SuperJobGenie</span>
                   </div>
                 </div>
-
               </div>
+            )}
+          </div>
 
               {/* Bottom Home Indicator Bar */}
               <div className="w-28 h-1 bg-slate-600 rounded-full mx-auto mt-2"></div>
