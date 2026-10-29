@@ -933,14 +933,22 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <a
+                        href="/assets/superjobgenie_short_01.mp4"
+                        download="SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4"
+                        className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-red-900/30"
+                      >
+                        <Video className="w-3.5 h-3.5" />
+                        <span>Download 9:16 Short Video (.mp4)</span>
+                      </a>
                       <a
                         href="/audio/short_38s_master_mix.wav"
                         download="SuperJobGenie_Short_Voiceover.wav"
                         className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition flex items-center gap-1.5"
                       >
                         <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>Download Voice Track</span>
+                        <span>Voice Track (.wav)</span>
                       </a>
                     </div>
                   </div>
