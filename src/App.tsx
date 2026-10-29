@@ -18,7 +18,8 @@ import {
   LayoutDashboard,
   Globe,
   Activity,
-  Bot
+  Bot,
+  Youtube
 } from 'lucide-react';
 import { HudWidget } from './components/HudWidget';
 import { IndeedSimulator } from './components/IndeedSimulator';
@@ -32,6 +33,7 @@ import { TelemetryDashboardModal } from './components/TelemetryDashboardModal';
 import { AutonomousRadarModal } from './components/AutonomousRadarModal';
 import { LandingPage } from './components/LandingPage';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
+import { ShortsStudioModal } from './components/ShortsStudioModal';
 import { TelemetryManager } from './services/telemetry';
 import { 
   DEFAULT_CANDIDATE, 
@@ -54,27 +56,30 @@ export default function App() {
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isInPageModalOpen, setIsInPageModalOpen] = useState<boolean>(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState<boolean>(false);
+  const [isShortsModalOpen, setIsShortsModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showHud, setShowHud] = useState<boolean>(true);
 
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState<boolean>(false);
   const [isRadarModalOpen, setIsRadarModalOpen] = useState<boolean>(false);
 
-  // Auto-handle external deep-links from Chrome Extension (e.g. ?tab=pivot, ?tab=coverletter, ?title=..., ?view=workstation)
+  // Auto-handle external deep-links from Chrome Extension (e.g. ?tab=pivot, ?tab=coverletter, ?title=..., ?view=workstation, ?view=shorts)
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const viewParam = params.get('view');
+      const tabParam = params.get('tab');
       const pathname = window.location.pathname.toLowerCase();
       if (viewParam === 'privacy' || pathname === '/privacy' || pathname.startsWith('/privacy')) {
         setIsPrivacyModalOpen(true);
+      } else if (viewParam === 'shorts' || tabParam === 'shorts' || pathname.includes('shorts')) {
+        setIsShortsModalOpen(true);
       } else if (viewParam === 'workstation' || viewParam === 'ingestion') {
         setActiveViewMode('ingestion');
       } else if (viewParam === 'simulator') {
         setActiveViewMode('simulator');
       }
 
-      const tabParam = params.get('tab');
       if (tabParam) {
         setDashboardTab(tabParam);
         setIsDashboardOpen(true);
@@ -357,10 +362,16 @@ export default function App() {
         <LandingPage 
           onEnterApp={() => setActiveViewMode('ingestion')}
           onOpenPrivacy={() => setIsPrivacyModalOpen(true)}
+          onOpenShortsStudio={() => setIsShortsModalOpen(true)}
         />
         <PrivacyPolicyModal
           isOpen={isPrivacyModalOpen}
           onClose={() => setIsPrivacyModalOpen(false)}
+        />
+        <ShortsStudioModal
+          isOpen={isShortsModalOpen}
+          onClose={() => setIsShortsModalOpen(false)}
+          onOpenMatcher={() => setActiveViewMode('ingestion')}
         />
       </>
     );
@@ -434,6 +445,17 @@ export default function App() {
 
           {/* Action Tools */}
           <div className="flex items-center gap-2.5">
+            {/* YouTube Shorts Studio Modal Trigger */}
+            <button
+              onClick={() => setIsShortsModalOpen(true)}
+              className="px-3 py-1.5 bg-gradient-to-r from-rose-600 via-pink-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold shadow-md shadow-rose-600/25 transition flex items-center gap-1.5 cursor-pointer"
+              title="Open YouTube Shorts Studio & Teleprompter (Sprint to 500 Subs)"
+            >
+              <Youtube className="w-3.5 h-3.5 text-white" />
+              <span className="hidden sm:inline">Shorts Studio</span>
+              <span className="bg-white/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">500 Sprint</span>
+            </button>
+
             {/* Quick Re-calculate */}
             <button
               onClick={() => runAnalysis(currentJob, candidate)}
@@ -556,6 +578,7 @@ export default function App() {
             onOpenEditCandidate={() => setIsCandidateModalOpen(true)}
             onSelectCandidatePreset={handleSelectCandidatePreset}
             onSelectJobPreset={handleSelectJobPreset}
+            onCustomExtract={handleCustomExtract}
             onReanalyze={() => runAnalysis(currentJob, candidate)}
             onOpenModal={() => setIsInPageModalOpen(true)}
             isLoading={isLoading}
@@ -687,6 +710,13 @@ export default function App() {
       <AutonomousRadarModal
         isOpen={isRadarModalOpen}
         onClose={() => setIsRadarModalOpen(false)}
+      />
+
+      {/* YouTube Shorts Studio Modal */}
+      <ShortsStudioModal
+        isOpen={isShortsModalOpen}
+        onClose={() => setIsShortsModalOpen(false)}
+        onOpenMatcher={() => setActiveViewMode('ingestion')}
       />
     </div>
   );

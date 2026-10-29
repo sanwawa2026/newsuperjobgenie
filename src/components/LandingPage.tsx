@@ -28,7 +28,7 @@ import {
 import { VoiceoverStudioModal } from './VoiceoverStudioModal';
 import { IndustrialHero } from './IndustrialHero';
 import { AutonomousRadarModal } from './AutonomousRadarModal';
-import { Bot, BellRing } from 'lucide-react';
+import { Bot, BellRing, Youtube, Play, Video } from 'lucide-react';
 
 const CHROME_STORE_URL =
   'https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb';
@@ -36,9 +36,14 @@ const CHROME_STORE_URL =
 interface LandingPageProps {
   onEnterApp: () => void;
   onOpenPrivacy: () => void;
+  onOpenShortsStudio?: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPrivacy }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ 
+  onEnterApp, 
+  onOpenPrivacy,
+  onOpenShortsStudio 
+}) => {
   const [lang, setLang] = useState<'zh' | 'en'>('zh');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activePlatformTab, setActivePlatformTab] = useState<'indeed' | 'linkedin' | 'glassdoor'>('indeed');
@@ -360,6 +365,115 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
                 <span>Launch Autonomous Radar &amp; Bot Mission Center</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* YouTube Shorts Studio & 500 Subscribers Sprint Section                     */}
+      {/* ========================================================================= */}
+      <section className="py-6 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-950/70 via-slate-900 to-indigo-950/70 border-2 border-rose-500/40 p-6 sm:p-8 shadow-2xl shadow-rose-500/10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-6">
+            <div className="space-y-3 max-w-2xl">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase tracking-widest flex items-center gap-1.5">
+                  <Youtube className="w-3.5 h-3.5 text-rose-400" />
+                  YouTube Intelligence Station · Sprint to 500 Subscribers
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-slate-950 text-rose-400 border border-rose-500/30 font-bold">
+                  ● 361 / 500 SUBS (72.2%)
+                </span>
+              </div>
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+                The 9:16 Shorts Engine: "Beat The ATS Bots"
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Empowering job seekers to conquer algorithmic rejections. Every Short exposes the 75% ATS rejection trap and delivers a 10-second solution pointing back to our free 0-install web tool &amp; Chrome extension.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+              {onOpenShortsStudio && (
+                <button
+                  onClick={onOpenShortsStudio}
+                  className="px-5 py-3.5 bg-gradient-to-r from-rose-600 via-pink-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-mono font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 transition hover:scale-[1.02] active:scale-95 cursor-pointer"
+                >
+                  <Video className="w-4 h-4" />
+                  <span>Launch 9:16 Shorts Studio &amp; Teleprompter</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* 4 Short Packages Preview Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative z-10">
+            <div 
+              onClick={onOpenShortsStudio}
+              className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-rose-500/50 transition cursor-pointer space-y-1.5 group"
+            >
+              <div className="flex items-center justify-between text-[10px] font-mono">
+                <span className="text-rose-400 font-bold">SHORT #01</span>
+                <span className="text-slate-400">22s Paced</span>
+              </div>
+              <div className="text-xs font-bold text-white group-hover:text-rose-300 transition">
+                The 10-Second ATS Bypass Hack
+              </div>
+              <p className="text-[11px] text-slate-400">
+                100 apps, 0 interviews? Workday 38% bot trap vs 94% instant match.
+              </p>
+            </div>
+
+            <div 
+              onClick={onOpenShortsStudio}
+              className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-amber-500/50 transition cursor-pointer space-y-1.5 group"
+            >
+              <div className="flex items-center justify-between text-[10px] font-mono">
+                <span className="text-amber-400 font-bold">SHORT #02</span>
+                <span className="text-slate-400">20s Fast</span>
+              </div>
+              <div className="text-xs font-bold text-white group-hover:text-amber-300 transition">
+                Stop Spending 30 Mins Per Job
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Frantic copy-paste between LinkedIn/Word vs 1-Click browser extraction.
+              </p>
+            </div>
+
+            <div 
+              onClick={onOpenShortsStudio}
+              className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-emerald-500/50 transition cursor-pointer space-y-1.5 group"
+            >
+              <div className="flex items-center justify-between text-[10px] font-mono">
+                <span className="text-emerald-400 font-bold">SHORT #03</span>
+                <span className="text-slate-400">24s Empathy</span>
+              </div>
+              <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition">
+                Built for Laid-off Tech Workers
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Solo Founder authenticity: 100% client-side privacy, zero paywalls.
+              </p>
+            </div>
+
+            <div 
+              onClick={onOpenShortsStudio}
+              className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-indigo-500/50 transition cursor-pointer space-y-1.5 group"
+            >
+              <div className="flex items-center justify-between text-[10px] font-mono">
+                <span className="text-indigo-400 font-bold">SHORT #04</span>
+                <span className="text-slate-400">22s Deep Tech</span>
+              </div>
+              <div className="text-xs font-bold text-white group-hover:text-indigo-300 transition">
+                The 153-Character Bug Exposed
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Why scrapers lose 90% of JD data vs SuperJobGenie's 11,000+ chars.
+              </p>
             </div>
           </div>
         </div>

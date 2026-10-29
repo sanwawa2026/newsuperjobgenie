@@ -19,7 +19,8 @@ import {
   DollarSign,
   Crown,
   Layers,
-  Code
+  Code,
+  Youtube
 } from 'lucide-react';
 import { ExtractedJobData, CandidateProfile, MatchAnalysisResult } from '../types';
 import { TelemetryManager } from '../services/telemetry';
@@ -41,6 +42,7 @@ interface ResumeJobIngestionViewProps {
   onOpenEditCandidate: () => void;
   onSelectCandidatePreset: (preset: CandidateProfile) => void;
   onSelectJobPreset: (job: ExtractedJobData) => void;
+  onCustomExtract?: (text: string) => void;
   onReanalyze: () => void;
   onOpenModal: () => void;
   isLoading: boolean;
@@ -55,6 +57,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
   onOpenEditCandidate,
   onSelectCandidatePreset,
   onSelectJobPreset,
+  onCustomExtract,
   onReanalyze,
   onOpenModal,
   isLoading,
@@ -70,6 +73,38 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
   return (
     <div className="space-y-6 font-sans">
       
+      {/* YouTube Shorts Community Welcome Banner */}
+      <div className="p-3.5 bg-gradient-to-r from-rose-950/80 via-slate-900 to-indigo-950/80 border border-rose-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-lg shadow-rose-950/30">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-rose-600/30">
+            <Youtube className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-white text-xs">👋 Welcome YouTube Community!</span>
+              <span className="bg-rose-500/20 text-rose-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-500/30">
+                As Promised in our Shorts: 100% Free
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-300">
+              No login, no credit card required. Test your resume against any job posting below to get your ATS match score &amp; tailored pitch in 10 seconds!
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <a
+            href="https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 bg-[#ff4d15] hover:bg-[#e63e07] text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-md shadow-orange-500/20"
+          >
+            <span>👉 Get Chrome Extension</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      </div>
+
       {/* Solution Banner */}
       <div className="p-4 bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border border-indigo-500/30 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-lg shadow-indigo-950/30">
         <div className="flex items-center gap-3">
@@ -321,23 +356,68 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
             <button
               onClick={() => {
                 setActiveSourceTab('manual');
-                setShowPasteBox(!showPasteBox);
+                setShowPasteBox(true);
               }}
               className={`px-3 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
-                activeSourceTab === 'manual'
+                activeSourceTab === 'manual' || showPasteBox
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
               <Code className="w-3 h-3" />
-              <span>Manual Paste</span>
+              <span>Paste Custom JD / URL</span>
             </button>
           </div>
         </div>
 
+        {/* Custom Paste Textarea Box (v1.0 Zero-Install Ingestion) */}
+        {(showPasteBox || activeSourceTab === 'manual') && (
+          <div className="p-4 bg-indigo-950/30 border border-indigo-500/40 rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                Paste Any Job Description or Posting URL (No Install Needed):
+              </span>
+              <button
+                onClick={() => setShowPasteBox(false)}
+                className="text-[11px] text-slate-400 hover:text-slate-200"
+              >
+                Close Box ✕
+              </button>
+            </div>
+            <textarea
+              value={customPasteText}
+              onChange={(e) => setCustomPasteText(e.target.value)}
+              placeholder="Paste raw JD text from LinkedIn / Indeed / Greenhouse / Workday, or paste a job URL..."
+              rows={4}
+              className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-400 font-mono"
+            />
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[11px] text-slate-400">
+                100% processed client-side. No credit card, no sign-in required.
+              </p>
+              <button
+                onClick={() => {
+                  if (customPasteText.trim() && onCustomExtract) {
+                    onCustomExtract(customPasteText.trim());
+                    TelemetryManager.track('custom_jd_pasted_and_analyzed', {
+                      charCount: customPasteText.trim().length
+                    });
+                  }
+                }}
+                disabled={!customPasteText.trim() || isLoading}
+                className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:opacity-50 text-white font-bold text-xs rounded-lg transition flex items-center gap-1.5 shadow-md shadow-indigo-600/30"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>✨ Calculate ATS Match Score Now</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Preset Selector Bar */}
         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
-          <span className="text-slate-400 font-semibold">Western Platform Job Presets:</span>
+          <span className="text-slate-400 font-semibold">Or Pick a Live Preset JD:</span>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => onSelectJobPreset(STRIPE_FRONTEND_ARCHITECT_JD)}
@@ -552,6 +632,60 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
             >
               <span>View Tailored Cover Letters & Bullets →</span>
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* STEP 4: High-Converting Conversion Hook (v1.0 -> v2.0 Chrome Extension) */}
+      <section className="relative overflow-hidden rounded-2xl border-2 border-orange-500/50 bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950/40 p-6 shadow-2xl shadow-orange-500/10">
+        <div className="absolute -top-16 -right-16 w-56 h-56 bg-orange-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/40 flex items-center gap-1.5 shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+                10x Faster Workflow · Official Chrome Extension
+              </span>
+              <span className="bg-emerald-500/20 text-emerald-300 text-[11px] font-mono px-2.5 py-0.5 rounded-full border border-emerald-500/30 font-bold">
+                ✓ 100% Client-Side Privacy (Zero Data Upload)
+              </span>
+            </div>
+
+            <h3 className="text-lg lg:text-xl font-black text-white tracking-tight flex items-center gap-2">
+              <span>💡 Tired of copy-pasting between LinkedIn / Indeed and this page?</span>
+            </h3>
+
+            <p className="text-slate-200 text-xs sm:text-sm leading-relaxed">
+              Install the official <strong className="text-orange-400 font-bold">SuperJobGenie Chrome Extension (v2.0)</strong> to auto-extract full job descriptions, calculate ATS match score, and generate interview-ready cover letters <strong className="text-white underline decoration-orange-500 decoration-2">with 1-Click directly inside your browser</strong> on LinkedIn, Indeed, Glassdoor, and Greenhouse!
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 pt-1">
+              <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 1-Click Auto Extraction
+              </span>
+              <span className="flex items-center gap-1.5 text-cyan-400 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-cyan-400" /> No More Manual Copy-Pasting
+              </span>
+              <span className="flex items-center gap-1.5 text-amber-400 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-amber-400" /> Free on Chrome Web Store
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 w-full lg:w-auto shrink-0">
+            <a
+              href="https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => TelemetryManager.track('cta_install_extension_clicked', { source: 'ingestion_bottom_banner' })}
+              className="px-6 py-3.5 bg-gradient-to-r from-[#ff4d15] to-orange-500 hover:from-[#e63e07] hover:to-orange-600 text-white font-black text-xs sm:text-sm rounded-xl shadow-xl shadow-orange-500/30 transition transform hover:scale-[1.02] flex items-center justify-center gap-2 group text-center"
+            >
+              <span>👉 Add to Chrome — Free on Web Store</span>
+              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
+            </a>
+            <p className="text-center text-[11px] text-slate-400 font-medium">
+              ⚡ Over 10x application speed boost · 100% Free
+            </p>
           </div>
         </div>
       </section>

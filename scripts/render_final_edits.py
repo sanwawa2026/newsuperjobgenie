@@ -1,138 +1,157 @@
 import subprocess
 import os
+import shutil
 
-font = "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"
+os.makedirs("temp_edit", exist_ok=True)
+font = "public/assets/fonts/jf-openhuninn-2.1.ttf"
 
-print("--- Step 1: Building Horizontal Video (1920x1080, ~50s) ---")
-# 1. Prepare Cat intro (1920x1080 padded, 14 seconds)
-# Cat clip: 00:23.0 to 00:29.0 (Mia saying '好餓喔') + 00:59.0 to 01:07.0 ('不如朕親自動手啦')
-cmd_cat_part1 = [
+print("==================================================")
+print("  CareerCat 24/7 - 台湾Looker Pets 原生粉圆体版 (Pro Render)")
+print("  1. 字体升级为台湾综艺圆体 (jf-openhuninn)，与原版猫片无缝契合")
+print("  2. 金黄+纯白双色描边，无违和感")
+print("  3. 前5秒震撼人话勾子，中段科技纯享无猫叫，尾段单个萌音收尾")
+print("==================================================")
+
+# ----------------------------------------------------
+# 1. Extract clean cute outro meow (0.8s)
+# ----------------------------------------------------
+subprocess.run([
     "ffmpeg", "-y",
-    "-ss", "00:00:22.5", "-to", "00:00:28.5",
+    "-ss", "00:00:23.0", "-to", "00:00:24.2",
     "-i", "public/assets/aistudio/30252242_133103250869431_4153680661716140032_n__1__dd2499ed.mp4",
-    "-vf", f"scale=1080:1080,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black,drawtext=fontfile='{font}':text='台灣爆紅成精貓：奴才忘記放飯...':fontcolor=white:fontsize=48:box=1:boxcolor=black@0.6:boxborderw=10:x=(w-text_w)/2:y=60",
-    "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-    "temp_edit/horiz_cat1.mp4"
-]
-subprocess.run(cmd_cat_part1, check=True)
+    "-vn", "-af", "afade=t=out:st=0.8:d=0.4,volume=1.2",
+    "temp_edit/cute_meow.wav"
+], check=True)
 
-cmd_cat_part2 = [
+# ----------------------------------------------------
+# 2. HORIZONTAL VIDEO (1920x1080, ~46 seconds)
+# ----------------------------------------------------
+print("--- [1/2] Rendering Horizontal Video with jf-openhuninn (1920x1080) ---")
+
+# Horiz Part 1: Mia walking in, "好餓喔" (4.5s)
+subprocess.run([
     "ffmpeg", "-y",
-    "-ss", "00:00:59.0", "-to", "00:01:06.5",
+    "-ss", "00:00:23.0", "-to", "00:00:27.5",
     "-i", "public/assets/aistudio/30252242_133103250869431_4153680661716140032_n__1__dd2499ed.mp4",
-    "-vf", f"scale=1080:1080,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black,drawtext=fontfile='{font}':text='「既然奴才賺不到罐罐錢，不如朕親自出馬！」':fontcolor=yellow:fontsize=48:box=1:boxcolor=black@0.7:boxborderw=10:x=(w-text_w)/2:y=60",
+    "-vf", f"scale=1080:1080,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black,drawtext=fontfile='{font}':text='台灣爆紅成精貓 Mia：奴才忘記餵罐罐...':fontcolor=white:fontsize=50:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=3:shadowy=3:x=(w-text_w)/2:y=50,drawtext=fontfile='{font}':text='喵：「噢～好餓喔～」(說人話)':fontcolor=0xffb800:fontsize=52:borderw=7:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-90",
     "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-    "temp_edit/horiz_cat2.mp4"
-]
-subprocess.run(cmd_cat_part2, check=True)
+    "temp_edit/h_cat1.mp4"
+], check=True)
 
-# 2. Prepare OBS screen clip (Indeed Hsinchu Cruise + Numbers Table)
-# 00:00 - 00:22 (Indeed Cruise) + 01:05 - 01:20 (Numbers table)
-# Add looping BGM to OBS parts
-cmd_obs_part1 = [
+# Horiz Part 2: Mia opens cabinet (4.0s)
+subprocess.run([
     "ffmpeg", "-y",
-    "-ss", "00:00:00.0", "-to", "00:00:22.0",
+    "-ss", "00:00:59.2", "-to", "01:03.2",
+    "-i", "public/assets/aistudio/30252242_133103250869431_4153680661716140032_n__1__dd2499ed.mp4",
+    "-vf", f"scale=1080:1080,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black,drawtext=fontfile='{font}':text='「既然奴才賺不到罐罐錢，不如朕親自出馬！」':fontcolor=0xffb800:fontsize=50:borderw=7:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=50",
+    "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
+    "temp_edit/h_cat2.mp4"
+], check=True)
+
+# Horiz Part 3: Indeed Cruise (18.0s) - Clean Tech BGM, NO Cat Meows!
+subprocess.run([
+    "ffmpeg", "-y",
+    "-ss", "00:00:01.0", "-to", "00:00:19.0",
     "-i", "public/assets/aistudio/20261029______b1290dce.mp4",
-    "-i", "temp_edit/bgm.aac",
-    "-filter_complex", f"[0:v]setpts=0.8*PTS,drawtext=fontfile='{font}':text='🐾 成精貓親自上 Indeed 巡航新竹外商軟體工程師職缺':fontcolor=white:fontsize=44:box=1:boxcolor=0x111827@0.85:boxborderw=12:x=(w-text_w)/2:y=30[v];[1:a]aloop=loop=-1:size=2e+09,atrim=0:17.6,volume=0.8[a]",
+    "-i", "public/audio/cyber_bgm_38s.wav",
+    "-filter_complex", f"[0:v]drawtext=fontfile='{font}':text='🐾 成精貓親自上 Indeed 巡航新竹外商軟體職缺':fontcolor=white:fontsize=46:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=3:shadowy=3:x=(w-text_w)/2:y=30,drawtext=fontfile='{font}':text='Cadence 97% · Brooks 95% 絕佳匹配度秒速捕捉':fontcolor=0x34d399:fontsize=42:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=3:shadowy=3:x=(w-text_w)/2:y=h-70[v];[1:a]atrim=0:18.0,afade=t=in:st=0:d=0.5,volume=0.45[a]",
     "-map", "[v]", "-map", "[a]",
     "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-    "temp_edit/horiz_obs1.mp4"
-]
-subprocess.run(cmd_obs_part1, check=True)
+    "temp_edit/h_obs1.mp4"
+], check=True)
 
-cmd_obs_part2 = [
+# Horiz Part 4: Numbers Spreadsheet & Outro (16.0s) - BGM + One cute outro meow at 13s
+subprocess.run([
     "ffmpeg", "-y",
-    "-ss", "00:01:05.0", "-to", "00:01:20.0",
+    "-ss", "00:01:05.0", "-to", "00:01:21.0",
     "-i", "public/assets/aistudio/20261029______b1290dce.mp4",
-    "-i", "temp_edit/bgm.aac",
-    "-filter_complex", f"[0:v]drawtext=fontfile='{font}':text='✨ 貓貓：5秒導出新竹外商高薪表(Lam 97% / Cadence 97% / KLA 95%)，罐罐錢有了！':fontcolor=0x10B981:fontsize=40:box=1:boxcolor=0x111827@0.85:boxborderw=12:x=(w-text_w)/2:y=30,drawtext=fontfile='{font}':text='📥 完整 Excel 下載見置頂留言 · Chrome 商店搜尋：SuperJobGenie 免費安裝':fontcolor=yellow:fontsize=36:box=1:boxcolor=black@0.8:boxborderw=10:x=(w-text_w)/2:y=h-70[v];[1:a]aloop=loop=-1:size=2e+09,atrim=0:15.0,volume=0.8[a]",
+    "-i", "public/audio/cyber_bgm_38s.wav",
+    "-i", "temp_edit/cute_meow.wav",
+    "-filter_complex", f"[0:v]drawtext=fontfile='{font}':text='✨ 貓貓：5秒導出新竹外商高薪表(Lam 97% / Cadence 97% / KLA 95%)':fontcolor=0x10B981:fontsize=42:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=3:shadowy=3:x=(w-text_w)/2:y=30,drawtext=fontfile='{font}':text='📥 完整 Excel 下載見置頂留言 · Chrome 商店搜尋：SuperJobGenie 免費安裝':fontcolor=0xffb800:fontsize=40:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=3:shadowy=3:x=(w-text_w)/2:y=h-70[v];[1:a]atrim=18.0:34.0,asetpts=PTS-STARTPTS,afade=t=out:st=14.5:d=1.5,volume=0.45[bgm];[2:a]adelay=12500|12500[meow];[bgm][meow]amix=inputs=2:duration=first[a]",
     "-map", "[v]", "-map", "[a]",
     "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-    "temp_edit/horiz_obs2.mp4"
-]
-subprocess.run(cmd_obs_part2, check=True)
+    "temp_edit/h_obs2.mp4"
+], check=True)
 
-# 3. Concatenate into final horizontal video
-with open("temp_edit/concat_horiz.txt", "w") as f:
-    f.write("file 'horiz_cat1.mp4'\n")
-    f.write("file 'horiz_cat2.mp4'\n")
-    f.write("file 'horiz_obs1.mp4'\n")
-    f.write("file 'horiz_obs2.mp4'\n")
+# Merge Horizontal Video
+with open("temp_edit/concat_h.txt", "w") as f:
+    f.write("file 'h_cat1.mp4'\n")
+    f.write("file 'h_cat2.mp4'\n")
+    f.write("file 'h_obs1.mp4'\n")
+    f.write("file 'h_obs2.mp4'\n")
 
-cmd_merge_horiz = [
+subprocess.run([
     "ffmpeg", "-y", "-f", "concat", "-safe", "0",
-    "-i", "temp_edit/concat_horiz.txt",
+    "-i", "temp_edit/concat_h.txt",
     "-c", "copy",
     "public/youtube_mia_hsinchu_jobs.mp4"
-]
-subprocess.run(cmd_merge_horiz, check=True)
-print(">>> Horizontal video rendered successfully: public/youtube_mia_hsinchu_jobs.mp4")
+], check=True)
+print(">>> Horizontal finished: public/youtube_mia_hsinchu_jobs.mp4")
 
-print("--- Step 2: Building Vertical Shorts Video (1080x1920, ~45s) ---")
-# Build a vertical 9:16 layout
-# Top half: Cat or title, Bottom half: screen recording
-# Or sequential cuts full 9:16 padded
-cmd_shorts1 = [
+# ----------------------------------------------------
+# 3. VERTICAL SHORTS (1080x1920, ~42 seconds)
+# ----------------------------------------------------
+print("--- [2/2] Rendering Vertical Shorts with jf-openhuninn (1080x1920) ---")
+
+# Shorts 1: Mia "好餓喔" (4.5s)
+subprocess.run([
     "ffmpeg", "-y",
-    "-ss", "00:00:22.5", "-to", "00:00:28.0",
+    "-ss", "00:00:23.0", "-to", "00:00:27.5",
     "-i", "public/assets/aistudio/30252242_133103250869431_4153680661716140032_n__1__dd2499ed.mp4",
-    "-vf", f"scale=1080:1080,pad=1080:1920:0:(oh-ih)/2:0x0f172a,drawtext=fontfile='{font}':text='台灣爆紅成精貓：奴才忘記放飯...':fontcolor=white:fontsize=52:box=1:boxcolor=black@0.7:boxborderw=12:x=(w-text_w)/2:y=240,drawtext=fontfile='{font}':text='喵：噢~ 好餓喔~ (說人話)':fontcolor=yellow:fontsize=48:box=1:boxcolor=black@0.7:boxborderw=10:x=(w-text_w)/2:y=h-300",
+    "-vf", f"scale=1080:1080,pad=1080:1920:0:(oh-ih)/2:0x0b0f19,drawtext=fontfile='{font}':text='台灣爆紅成精貓 Mia：奴才忘記餵罐罐...':fontcolor=white:fontsize=52:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=240,drawtext=fontfile='{font}':text='喵：「噢～好餓喔～」(說人話)':fontcolor=0xffb800:fontsize=58:borderw=8:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-300",
     "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-    "temp_edit/shorts_part1.mp4"
-]
-subprocess.run(cmd_shorts1, check=True)
+    "temp_edit/s_cat1.mp4"
+], check=True)
 
-cmd_shorts2 = [
+# Shorts 2: Mia opens cabinet (3.5s)
+subprocess.run([
     "ffmpeg", "-y",
-    "-ss", "00:00:59.0", "-to", "00:01:05.5",
+    "-ss", "00:00:59.5", "-to", "01:03.0",
     "-i", "public/assets/aistudio/30252242_133103250869431_4153680661716140032_n__1__dd2499ed.mp4",
-    "-vf", f"scale=1080:1080,pad=1080:1920:0:(oh-ih)/2:0x0f172a,drawtext=fontfile='{font}':text='「既然奴才賺不到罐罐錢...」':fontcolor=white:fontsize=52:box=1:boxcolor=black@0.7:boxborderw=12:x=(w-text_w)/2:y=240,drawtext=fontfile='{font}':text='「不如朕親自上工找工作！」':fontcolor=yellow:fontsize=52:box=1:boxcolor=0x1e3a8a@0.9:boxborderw=14:x=(w-text_w)/2:y=h-300",
+    "-vf", f"scale=1080:1080,pad=1080:1920:0:(oh-ih)/2:0x0b0f19,drawtext=fontfile='{font}':text='「既然奴才賺不到罐罐錢...」':fontcolor=white:fontsize=52:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=240,drawtext=fontfile='{font}':text='「不如朕親自上工找工作！」':fontcolor=0xffb800:fontsize=58:borderw=8:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-300",
     "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-    "temp_edit/shorts_part2.mp4"
-]
-subprocess.run(cmd_shorts2, check=True)
+    "temp_edit/s_cat2.mp4"
+], check=True)
 
-# Shorts part 3: Focus on SuperJobGenie HUD & Job card on Indeed
-# Scale 1920x1080 to fit width 1080, padded to 1920 height
-cmd_shorts3 = [
+# Shorts 3: Screen Indeed Cruise (18.0s) - Clean Tech BGM, NO Cat Meows
+subprocess.run([
     "ffmpeg", "-y",
-    "-ss", "00:00:00.0", "-to", "00:00:20.0",
+    "-ss", "00:00:01.0", "-to", "00:00:19.0",
     "-i", "public/assets/aistudio/20261029______b1290dce.mp4",
-    "-i", "temp_edit/bgm.aac",
-    "-filter_complex", f"[0:v]scale=1080:607,pad=1080:1920:0:(oh-ih)/2:0x0f172a,drawtext=fontfile='{font}':text='🐾 成精貓親自上 Indeed 巡航新竹外商':fontcolor=white:fontsize=48:box=1:boxcolor=0x1e1b4b@0.9:boxborderw=12:x=(w-text_w)/2:y=220,drawtext=fontfile='{font}':text='Cadence 97% / Brooks 95% 絕佳契合':fontcolor=0x34d399:fontsize=46:box=1:boxcolor=black@0.7:boxborderw=10:x=(w-text_w)/2:y=h-340[v];[1:a]aloop=loop=-1:size=2e+09,atrim=0:20.0,volume=0.8[a]",
+    "-i", "public/audio/cyber_bgm_38s.wav",
+    "-filter_complex", f"[0:v]scale=1080:607,pad=1080:1920:0:(oh-ih)/2:0x0b0f19,drawtext=fontfile='{font}':text='🐾 成精貓親自上 Indeed 巡航新竹外商':fontcolor=white:fontsize=50:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=220,drawtext=fontfile='{font}':text='Cadence 97% / Brooks 95% 絕佳契合':fontcolor=0x34d399:fontsize=48:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-340[v];[1:a]atrim=0:18.0,afade=t=in:st=0:d=0.5,volume=0.45[a]",
     "-map", "[v]", "-map", "[a]",
     "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-    "temp_edit/shorts_part3.mp4"
-]
-subprocess.run(cmd_shorts3, check=True)
+    "temp_edit/s_obs1.mp4"
+], check=True)
 
-# Shorts part 4: Numbers table + CTA
-cmd_shorts4 = [
+# Shorts 4: Numbers Table (16.0s) - BGM + single cute outro meow at 13s
+subprocess.run([
     "ffmpeg", "-y",
-    "-ss", "00:01:06.0", "-to", "00:01:19.0",
+    "-ss", "00:01:05.0", "-to", "00:01:21.0",
     "-i", "public/assets/aistudio/20261029______b1290dce.mp4",
-    "-i", "temp_edit/bgm.aac",
-    "-filter_complex", f"[0:v]scale=1080:607,pad=1080:1920:0:(oh-ih)/2:0x0f172a,drawtext=fontfile='{font}':text='🐱 5秒導出新竹外商高契合職缺表':fontcolor=yellow:fontsize=48:box=1:boxcolor=0x111827@0.85:boxborderw=12:x=(w-text_w)/2:y=200,drawtext=fontfile='{font}':text='罐罐錢有了！快拿去投！':fontcolor=0x10b981:fontsize=44:box=1:boxcolor=black@0.7:boxborderw=10:x=(w-text_w)/2:y=290,drawtext=fontfile='{font}':text='📥 完整 Excel 下載見留言區':fontcolor=white:fontsize=46:box=1:boxcolor=0x2563eb@0.9:boxborderw=12:x=(w-text_w)/2:y=h-340,drawtext=fontfile='{font}':text='Chrome 商店搜尋：SuperJobGenie':fontcolor=yellow:fontsize=42:box=1:boxcolor=black@0.8:boxborderw=10:x=(w-text_w)/2:y=h-240[v];[1:a]aloop=loop=-1:size=2e+09,atrim=0:13.0,volume=0.8[a]",
+    "-i", "public/audio/cyber_bgm_38s.wav",
+    "-i", "temp_edit/cute_meow.wav",
+    "-filter_complex", f"[0:v]scale=1080:607,pad=1080:1920:0:(oh-ih)/2:0x0b0f19,drawtext=fontfile='{font}':text='🐱 5秒導出新竹外商高契合職缺表':fontcolor=0xffb800:fontsize=52:borderw=7:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=200,drawtext=fontfile='{font}':text='罐罐錢有了！快拿去投！':fontcolor=0x10b981:fontsize=46:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=280,drawtext=fontfile='{font}':text='📥 完整 Excel 下載見留言區':fontcolor=white:fontsize=48:borderw=7:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-340,drawtext=fontfile='{font}':text='Chrome 商店搜尋：SuperJobGenie':fontcolor=0xffb800:fontsize=44:borderw=6:bordercolor=black:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-240[v];[1:a]atrim=18.0:34.0,asetpts=PTS-STARTPTS,afade=t=out:st=14.5:d=1.5,volume=0.45[bgm];[2:a]adelay=12500|12500[meow];[bgm][meow]amix=inputs=2:duration=first[a]",
     "-map", "[v]", "-map", "[a]",
     "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-    "temp_edit/shorts_part4.mp4"
-]
-subprocess.run(cmd_shorts4, check=True)
+    "temp_edit/s_obs2.mp4"
+], check=True)
 
-with open("temp_edit/concat_shorts.txt", "w") as f:
-    f.write("file 'shorts_part1.mp4'\n")
-    f.write("file 'shorts_part2.mp4'\n")
-    f.write("file 'shorts_part3.mp4'\n")
-    f.write("file 'shorts_part4.mp4'\n")
+# Merge Shorts
+with open("temp_edit/concat_s.txt", "w") as f:
+    f.write("file 's_cat1.mp4'\n")
+    f.write("file 's_cat2.mp4'\n")
+    f.write("file 's_obs1.mp4'\n")
+    f.write("file 's_obs2.mp4'\n")
 
-cmd_merge_shorts = [
+subprocess.run([
     "ffmpeg", "-y", "-f", "concat", "-safe", "0",
-    "-i", "temp_edit/concat_shorts.txt",
+    "-i", "temp_edit/concat_s.txt",
     "-c", "copy",
     "public/shorts_cat_hsinchu_engineer.mp4"
-]
-subprocess.run(cmd_merge_shorts, check=True)
-print(">>> Vertical Shorts rendered successfully: public/shorts_cat_hsinchu_engineer.mp4")
+], check=True)
+print(">>> Vertical Shorts finished: public/shorts_cat_hsinchu_engineer.mp4")
 
-print("All rendering complete!")
+shutil.rmtree("temp_edit", ignore_errors=True)
+print("ALL COMPLETED! Cleaned temp files.")

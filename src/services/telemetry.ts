@@ -14,7 +14,9 @@ export type TelemetryEventType =
   | 'bullet_rewrite_copied'
   | 'paywall_modal_hit'
   | 'decision_action_clicked'
-  | 'session_export_clicked';
+  | 'session_export_clicked'
+  | 'custom_jd_pasted_and_analyzed'
+  | 'cta_install_extension_clicked';
 
 export interface TelemetryEvent {
   id: string;

@@ -1,3 +1,4 @@
+# Temporary and build folders
 node_modules/
 build/
 dist/
@@ -6,19 +7,23 @@ coverage/
 *.log
 .env*
 !.env.example
-
-# Temporary working folders
 temp_edit/
 .tempmediaStorage/
 app/
 
-# Large release archives (exceed GitHub API commit payload limits)
+# Release archives and large binary archives
 *.zip
+**/*.zip
 *.tar.gz
+**/*.tar.gz
 
-# User raw video recordings and rendered exports (GitHub API has 25MB blob limit)
-public/assets/aistudio/*.mp4
-!public/assets/aistudio/___8s_d10be03c.mp4
-!public/assets/aistudio/SuperJobGenie-Trailer-v7-60s-16x9_564a3813.mp4
-public/shorts_cat_*.mp4
-public/youtube_mia_*.mp4
+# Video files (GitHub API limit is 25MB, large blobs fail commit tree creation)
+*.mp4
+**/*.mp4
+*.mov
+**/*.mov
+*.avi
+**/*.avi
+*.webm
+**/*.webm
+

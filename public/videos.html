@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerCat 视频下载与发布工作台 | SuperJobGenie</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #0b0f19;
+      color: #e2e8f0;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+  <div class="max-w-5xl mx-auto space-y-8">
+    
+    <!-- Header -->
+    <header class="border-b border-amber-500/30 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">🐱💼</span>
+          <h1 class="text-2xl md:text-3xl font-black text-amber-400 tracking-wider">
+            CareerCat 24/7 貓咪職缺情報局
+          </h1>
+        </div>
+        <p class="text-sm text-slate-400 mt-1">成精貓 Mia × 台灣新竹軟體工程師專場 · 專屬成片直下工作台</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm border border-slate-700 transition">
+          返回 SuperJobGenie 官網
+        </a>
+      </div>
+    </header>
+
+    <!-- Why Not on GitHub Notice -->
+    <div class="bg-amber-950/40 border border-amber-500/40 rounded-xl p-4 md:p-5 flex items-start gap-3">
+      <span class="text-2xl mt-0.5">💡</span>
+      <div class="text-sm leading-relaxed text-amber-200/90">
+        <strong class="text-amber-300 font-bold">关于 GitHub 报错「Request contains an invalid argument」与下载说明：</strong><br>
+        GitHub API 对单次代码提交有严格的 25MB 大小拦截。刚才报错正是因为录屏原片体积过大触发了 GitHub 的安全墙。军师已在后台全面更新了 <code class="text-amber-300">.gitignore</code> 过滤大文件，现在您再点 GitHub 即可顺利同步代码！而<strong>视频成片已直存于本站高速静态服务中，直接点击下方大按钮即可 1 秒免翻墙极速下载！</strong>
+      </div>
+    </div>
+
+    <!-- Video Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Card 1: 20s FAST SHORTS (THE WINNER) -->
+      <div class="bg-gradient-to-b from-amber-950/30 via-slate-900 to-slate-900 border-2 border-amber-400/80 rounded-2xl p-5 shadow-2xl flex flex-col relative overflow-hidden">
+        <div class="absolute top-0 right-0 bg-amber-400 text-slate-950 text-[10px] font-black px-3 py-1 rounded-bl-lg tracking-wider uppercase">
+          🔥 强烈推荐首发 · 完播率爆款
+        </div>
+
+        <div class="flex items-center justify-between mb-3 mt-1">
+          <div class="flex items-center gap-1.5">
+            <span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded text-xs font-bold mono">
+              9:16 VERTICAL
+            </span>
+            <span class="text-xs text-amber-400 font-bold">19.5 秒 (≤20s) · 爆款洗脑音乐</span>
+          </div>
+        </div>
+
+        <h2 class="text-lg font-black text-white mb-1 flex items-center gap-2">
+          ⚡ 20秒极速黄金版 Shorts (洗脑神曲+猫猫人声)
+        </h2>
+        <p class="text-xs text-slate-400 mb-3">🎵 洗脑上头BGM！片头猫猫「好饿喔」大声清晰 ➔ 7s高速雷达 ➔ CSV空白处金色醒目领取卡 ➔ 胜利喵叫收尾</p>
+
+        <!-- Video Player -->
+        <div class="w-full bg-black rounded-xl overflow-hidden mb-4 border border-amber-500/30 flex justify-center aspect-[9/16] max-h-[400px]">
+          <video controls preload="metadata" class="h-full w-auto object-contain">
+            <source src="/shorts_cat_hsinchu_20s_fast.mp4" type="video/mp4">
+            您的浏览器不支持视频播放。
+          </video>
+        </div>
+
+        <!-- Download Action -->
+        <a href="/shorts_cat_hsinchu_20s_fast.mp4" download="shorts_cat_mia_hsinchu_20s.mp4"
+           class="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] text-slate-950 text-center font-black rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-amber-900/40 text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          ⬇️ 极速下载 20秒爆款版 (.mp4)
+        </a>
+
+        <!-- Copy-Paste Kit -->
+        <div class="mt-4 space-y-2 bg-slate-950/70 p-3 rounded-xl border border-amber-500/20 text-xs">
+          <div>
+            <div class="flex justify-between items-center text-slate-400 mb-1">
+              <span class="text-amber-300 font-bold">20s 专属爆款标题：</span>
+              <button onclick="navigator.clipboard.writeText('成精貓餓到講人話！親自上Indeed幫竹科工程師找工作 🐱💼 #shorts #成精貓 #新竹工程師 #求職神器'); alert('已复制标题！')" class="text-amber-400 hover:underline">一键复制</button>
+            </div>
+            <p class="text-slate-200 select-all font-medium leading-relaxed">成精貓餓到講人話！親自上Indeed幫竹科工程師找工作 🐱💼 #shorts #成精貓 #新竹工程師 #求職神器</p>
+          </div>
+          <div class="border-t border-slate-800/80 pt-2 text-[11px] text-slate-400">
+            🎯 <strong>算法解析</strong>：20秒内时长完播率通常可超 90%，触发 Shorts 智能循环与大流量池！
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: 42s Standard Shorts -->
+      <div class="bg-slate-900/90 border border-slate-700/60 rounded-2xl p-5 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-1.5">
+            <span class="px-2 py-0.5 bg-slate-800 text-slate-300 border border-slate-700 rounded text-xs font-bold mono">
+              9:16 VERTICAL
+            </span>
+            <span class="text-xs text-slate-400">42 秒 · 3.6 MB</span>
+          </div>
+          <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-semibold">
+            完整剧情版
+          </span>
+        </div>
+
+        <h2 class="text-lg font-bold text-white mb-1">📱 42秒剧情完整版 Shorts</h2>
+        <p class="text-xs text-slate-400 mb-3">包含开柜子找零食、Indeed 细致巡航、Excel 报表完整展示</p>
+
+        <!-- Video Player -->
+        <div class="w-full bg-black rounded-xl overflow-hidden mb-4 border border-slate-800 flex justify-center aspect-[9/16] max-h-[400px]">
+          <video controls preload="metadata" class="h-full w-auto object-contain">
+            <source src="/shorts_cat_hsinchu_engineer.mp4" type="video/mp4">
+            您的浏览器不支持视频播放。
+          </video>
+        </div>
+
+        <!-- Download Action -->
+        <a href="/shorts_cat_hsinchu_engineer.mp4" download="shorts_cat_mia_hsinchu_42s.mp4"
+           class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-200 text-center font-bold rounded-xl transition flex items-center justify-center gap-2 border border-slate-600 text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          ⬇️ 下载 42秒剧情完整版
+        </a>
+
+        <!-- Copy-Paste Kit -->
+        <div class="mt-4 space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs">
+          <div class="flex justify-between items-center text-slate-400 mb-1">
+            <span>推荐置顶留言：</span>
+            <button onclick="navigator.clipboard.writeText('🐱 Mia 幫大家整理的新竹外商軟體缺 Excel 都在這！Chrome 搜尋「SuperJobGenie」即可免費自動抓職缺～'); alert('已复制留言！')" class="text-slate-300 hover:underline">一键复制</button>
+          </div>
+          <p class="text-slate-300 select-all font-medium leading-relaxed">🐱 Mia 幫大家整理的新竹外商軟體缺 Excel 都在這！Chrome 搜尋「SuperJobGenie」即可免費自動抓職缺～</p>
+        </div>
+      </div>
+
+      <!-- Card 3: Horizontal 16:9 Long Video -->
+      <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-1.5">
+            <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded text-xs font-bold mono">
+              16:9 HORIZONTAL
+            </span>
+            <span class="text-xs text-emerald-400 font-bold">26.5 秒 (≤30s) · 爆款洗脑音乐</span>
+          </div>
+          <span class="text-xs bg-red-600/30 text-red-300 px-2.5 py-0.5 rounded-full border border-red-500/40 font-semibold">
+            YouTube 正片
+          </span>
+        </div>
+
+        <h2 class="text-lg font-bold text-white mb-1">🖥️ 橫屏 26 秒極速精華長片 (洗脑神曲+猫猫人声)</h2>
+        <p class="text-xs text-slate-400 mb-3">30秒內完播！片头猫猫人声 ➔ 欢快洗脑BGM ➔ CSV空白處自帶醒目大字「表格哪裡領 & 插件下載網址」</p>
+
+        <!-- Video Player -->
+        <div class="w-full bg-black rounded-xl overflow-hidden mb-4 border border-slate-800 flex justify-center aspect-video max-h-[400px] items-center">
+          <video controls preload="metadata" class="w-full h-auto object-contain">
+            <source src="/youtube_mia_hsinchu_jobs.mp4" type="video/mp4">
+            您的浏览器不支持视频播放。
+          </video>
+        </div>
+
+        <!-- Download Action -->
+        <a href="/youtube_mia_hsinchu_jobs.mp4" download="youtube_mia_hsinchu_jobs_1080p.mp4"
+           class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-center font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          ⬇️ 下载 16:9 高清横屏片
+        </a>
+
+        <!-- Copy-Paste Kit -->
+        <div class="mt-4 space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs">
+          <div>
+            <div class="flex justify-between items-center text-slate-400 mb-1">
+              <span>长视频标题：</span>
+              <button onclick="navigator.clipboard.writeText('【新竹專場】成精貓Mia親自幫工程師找工作？Indeed 95%+高薪軟體缺全公開！'); alert('已复制标题！')" class="text-emerald-400 hover:underline">一键复制</button>
+            </div>
+            <p class="text-slate-200 select-all font-medium">【新竹專場】成精貓Mia親自幫工程師找工作？Indeed 95%+高薪軟體缺全公開！</p>
+          </div>
+          <div class="border-t border-slate-800 pt-2 text-[11px] text-slate-400">
+            💡 上传 20秒 Shorts 后，在 YouTube 后台将此横屏片设为<strong>「关联长视频」</strong>，引流闭环即刻成型！
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>
