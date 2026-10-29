@@ -259,7 +259,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
   return (
     <div className="min-h-screen bg-[#080b11] text-slate-100 flex flex-col font-sans selection:bg-[#ff4d15] selection:text-white pt-4 sm:pt-8">
 
-      {/* Beloved First Version: Tactile Industrial Hardware Hero with Retro Person ("复古人") & Rotary Dial */}
+      {/* Beloved First Version: Tactile Industrial Hardware Hero with Retro Person & Rotary Dial */}
       <IndustrialHero
         onEnterApp={onEnterApp}
         onOpenPrivacy={onOpenPrivacy}
@@ -344,10 +344,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-                无人值守自动化巡航求职雷达 &amp; Telegram Bot 实时秒推
+                Autonomous Scout Radar &amp; Telegram Bot Instant Dispatch
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                厌倦了每天手动刷招聘网？设定好你的履历与目标，SuperJobGenie 静默在后台自动巡航全球职位源。一旦发现匹配度达到 <strong>≥85%</strong> 的高分契合岗位，毫秒级将职位卡片与定制敲门砖推送到你的 <strong>Telegram / 邮箱</strong>！
+                Tired of manually refreshing job boards every day? Set your profile and target criteria once, and SuperJobGenie silently scouts global job streams 24/7. When a high-alignment position (<strong>≥85% Match</strong>) is detected, it dispatches the vetted job card and tailored pitch straight to your <strong>Telegram &amp; Inbox</strong> in milliseconds!
               </p>
             </div>
 
@@ -357,7 +357,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
                 className="px-5 py-3.5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-mono font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition hover:scale-[1.02] active:scale-95 cursor-pointer"
               >
                 <Bot className="w-4 h-4" />
-                <span>进入自动化雷达与 Bot 演练中心</span>
+                <span>Launch Autonomous Radar &amp; Bot Mission Center</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -660,20 +660,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
       </section>
 
       {/* ========================================================================= */}
-      {/* 5 Unfair Strategic Advantages vs Incumbents (军师战略护城河对比)           */}
+      {/* 5 Unfair Strategic Advantages vs Incumbents (Moats) */}
       {/* ========================================================================= */}
       <section className="py-20 px-4 sm:px-6 bg-gradient-to-b from-slate-900/60 via-slate-950 to-slate-900/80 border-y border-slate-800/80">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#ff4d15]/10 text-[#ff4d15] border border-[#ff4d15]/30 uppercase tracking-widest inline-flex items-center gap-1.5">
               <Award className="w-3.5 h-3.5" />
-              Strategic Moats · 降维打击分析
+              Strategic Moats · Competitive Advantage
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight mt-3 mb-3">
-              Why SuperJobGenie? 5 个竞品做不到的降维杀手锏
+              Why SuperJobGenie? 5 Asymmetric Advantages Legacy Tools Can't Match
             </h2>
             <p className="text-xs sm:text-sm text-slate-400">
-              市面传统工具（Jobscan、Teal、LazyApply）大多停留在死板关键词扫描或无脑海投封号。军师为求职者打造的是真正的高维副驾驶。
+              Traditional tools (Jobscan, Teal, LazyApply) rely on naive keyword counts or blind spam scripts that trigger account bans. SuperJobGenie provides an elite cognitive cockpit for high-caliber professionals.
             </p>
           </div>
 
@@ -685,23 +685,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
               <div className="flex items-center justify-between mb-4">
                 <span className="text-2xl">✨</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                  行业首创 · 独家
+                  Industry First · Proprietary
                 </span>
               </div>
               <h3 className="text-base font-bold text-white mb-2 group-hover:text-amber-400 transition">
-                智能跨界转行挖掘 (Career Pivot)
+                Autonomous Career Pivot Discovery
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                传统工具只做死板字面匹配，换个行业直接给你打 20 分劝退；军师挖掘<strong className="text-amber-300">底层可迁移元能力</strong>，给出桥接话术，助你推开以前不敢投的高薪大门。
+                Legacy matchers rely on rigid literal string matches—switch domains and they instantly assign a misleading 20% score. SuperJobGenie unearths <strong className="text-amber-300">transferable meta-capabilities</strong> with bridge narratives to unlock premium adjacent roles.
               </p>
               <div className="pt-3 border-t border-slate-800 text-[11px] space-y-1.5 text-slate-400">
                 <div className="flex items-center gap-2 text-rose-400">
                   <X className="w-3.5 h-3.5 shrink-0" />
-                  <span>Jobscan: 缺少行业字面术语直接标红打压</span>
+                  <span>Jobscan: Red-flags missing jargon and penalizes score</span>
                 </div>
                 <div className="flex items-center gap-2 text-emerald-400 font-semibold">
                   <Check className="w-3.5 h-3.5 shrink-0" />
-                  <span>军师: 提取75%+隐藏可迁移实力与叙事策略</span>
+                  <span>SuperJobGenie: Extracts 75%+ hidden transferable superpowers</span>
                 </div>
               </div>
             </div>
@@ -712,23 +712,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
               <div className="flex items-center justify-between mb-4">
                 <span className="text-2xl">⚡</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                  零跳出体验
+                  Zero Tab-Switching
                 </span>
               </div>
               <h3 className="text-base font-bold text-white mb-2 group-hover:text-cyan-400 transition">
-                零跳出即时驻留 HUD 驾驶舱
+                Zero-Friction In-Situ HUD Cockpit
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                人在岗位上，决策在眼皮下。直接在 Indeed / LinkedIn 招聘卡片右侧以 Shadow DOM 注入，滚动即透视，<strong className="text-cyan-300">无需切屏、无需多开 10 个标签页</strong>。
+                Decisions happen where you browse. Injected via isolated Shadow DOM directly beside job listings on Indeed, LinkedIn, and Glassdoor—<strong className="text-cyan-300">no page switching, no 20 open tabs</strong>.
               </p>
               <div className="pt-3 border-t border-slate-800 text-[11px] space-y-1.5 text-slate-400">
                 <div className="flex items-center gap-2 text-rose-400">
                   <X className="w-3.5 h-3.5 shrink-0" />
-                  <span>传统插件: 必须复制粘贴到外部网页等待</span>
+                  <span>Legacy Plugins: Force copy-pasting to external portals</span>
                 </div>
                 <div className="flex items-center gap-2 text-emerald-400 font-semibold">
                   <Check className="w-3.5 h-3.5 shrink-0" />
-                  <span>军师: 50毫秒就地就绪，全景透析一览无余</span>
+                  <span>SuperJobGenie: 50ms instant on-page deep X-ray analysis</span>
                 </div>
               </div>
             </div>
@@ -739,23 +739,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
               <div className="flex items-center justify-between mb-4">
                 <span className="text-2xl">👑</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                  高管级公关
+                  Executive Caliber
                 </span>
               </div>
               <h3 className="text-base font-bold text-white mb-2 group-hover:text-purple-400 transition">
-                3-Tier &amp; 4-Tier 战略定制求职信
+                3-Tier &amp; 4-Tier Strategic Cover Letters
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                拒绝千篇一律的 AI 乞求模板套话。3-Tier 直击 HR/ATS 数字化战果对标；4-Tier 直击部门高管，提供<strong className="text-purple-300">行业洞察与前 90 天落地路线图</strong>。
+                Say goodbye to generic AI begging templates. 3-Tier targets recruiter ATS criteria; 4-Tier addresses hiring executives with <strong className="text-purple-300">strategic industry insights and a 90-day execution roadmap</strong>.
               </p>
               <div className="pt-3 border-t border-slate-800 text-[11px] space-y-1.5 text-slate-400">
                 <div className="flex items-center gap-2 text-rose-400">
                   <X className="w-3.5 h-3.5 shrink-0" />
-                  <span>竞品AI: "我怀着极大热情申请..." (HR秒扔)</span>
+                  <span>Generic AI: "I am writing with great excitement..." (Trash)</span>
                 </div>
                 <div className="flex items-center gap-2 text-emerald-400 font-semibold">
                   <Check className="w-3.5 h-3.5 shrink-0" />
-                  <span>军师: 顾问式破局方案，让面试官主动约聊</span>
+                  <span>SuperJobGenie: Consultative value proposition that wins calls</span>
                 </div>
               </div>
             </div>
@@ -766,23 +766,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
               <div className="flex items-center justify-between mb-4">
                 <span className="text-2xl">🌐</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                  亚太与全球无缝
+                  Global &amp; APAC Native
                 </span>
               </div>
               <h3 className="text-base font-bold text-white mb-2 group-hover:text-emerald-400 transition">
-                中英双语与亚太职场语义透析
+                Multi-Lingual &amp; APAC Workplace Semantic Engine
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                欧美工具在遇到中英混合（新加坡）、繁体中文（台湾）或日韩招聘时分词彻底失效。军师具备跨文化职场语境理解，精准解读<strong className="text-emerald-300">权责范围与真实潜台词</strong>。
+                Western tools fail completely on mixed bilingual (Singapore), Traditional Chinese (Taiwan/HK), or Japanese JDs. SuperJobGenie understands cross-cultural workplace context, extracting <strong className="text-emerald-300">true responsibilities and hidden nuances</strong>.
               </p>
               <div className="pt-3 border-t border-slate-800 text-[11px] space-y-1.5 text-slate-400">
                 <div className="flex items-center gap-2 text-rose-400">
                   <X className="w-3.5 h-3.5 shrink-0" />
-                  <span>欧美SaaS: 中文分词错乱，无法理解本地职场</span>
+                  <span>Western SaaS: Broken tokenization on international JDs</span>
                 </div>
                 <div className="flex items-center gap-2 text-emerald-400 font-semibold">
                   <Check className="w-3.5 h-3.5 shrink-0" />
-                  <span>军师: 中英双语原生透析，亚太与欧美全通吃</span>
+                  <span>SuperJobGenie: Native parsing across US, EU, and APAC markets</span>
                 </div>
               </div>
             </div>
@@ -793,24 +793,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onOpenPriv
               <div className="flex items-center justify-between mb-4">
                 <span className="text-2xl">🎯</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40">
-                  狙击手精准打击 vs 盲目滥投封号
+                  Sniper Precision vs Blind Spam
                 </span>
               </div>
               <h3 className="text-base font-bold text-white mb-2 group-hover:text-blue-400 transition">
-                隐私安全架构 &amp; 狙击手式精准投递 (Sniper vs Spam Bot)
+                Privacy-First Architecture &amp; Sniper Targeting (Sniper vs Spam Bot)
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                部分竞品（如 LazyApply）诱导用户一键盲投几千家，导致求职者邮箱被 HR 标记为垃圾邮件甚至 LinkedIn 账号被官方封号。军师坚持<strong>“高命中副驾驶”</strong>路线：
-                100% 浏览器本地计算，简历隐私绝不泄露，只锁定匹配度 ≥ 85% 的高价值岗位做精准狙击，面试转化率提升 5~10 倍。
+                Certain competitors (like LazyApply) blast thousands of unreviewed applications, getting candidate emails marked as spam and LinkedIn accounts banned. SuperJobGenie enforces the <strong>"High-Conversion Co-pilot"</strong> ethos:
+                100% local browser execution, zero resume leaks, focusing exclusively on ≥85% top-alignment roles for 5-10x higher interview callback rates.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-800 text-[11px]">
                 <div className="flex items-center gap-2 text-rose-400">
                   <X className="w-3.5 h-3.5 shrink-0" />
-                  <span>盲投脚本: 造成求职名誉污染与平台封号</span>
+                  <span>Spam Scripts: Burn candidate reputation and trigger platform bans</span>
                 </div>
                 <div className="flex items-center gap-2 text-emerald-400 font-semibold">
                   <Check className="w-3.5 h-3.5 shrink-0" />
-                  <span>军师副驾驶: 稳健精准狙击，把控权始终在用户手中</span>
+                  <span>SuperJobGenie: High-probability sniper precision with user in full control</span>
                 </div>
               </div>
             </div>
