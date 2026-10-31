@@ -34,6 +34,7 @@ import { AutonomousRadarModal } from './components/AutonomousRadarModal';
 import { LandingPage } from './components/LandingPage';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { ShortsStudioModal } from './components/ShortsStudioModal';
+import { JobCardsModal } from './components/JobCardsModal';
 import { TelemetryManager } from './services/telemetry';
 import { 
   DEFAULT_CANDIDATE, 
@@ -57,13 +58,14 @@ export default function App() {
   const [isInPageModalOpen, setIsInPageModalOpen] = useState<boolean>(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState<boolean>(false);
   const [isShortsModalOpen, setIsShortsModalOpen] = useState<boolean>(false);
+  const [isJobCardsModalOpen, setIsJobCardsModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showHud, setShowHud] = useState<boolean>(true);
 
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState<boolean>(false);
   const [isRadarModalOpen, setIsRadarModalOpen] = useState<boolean>(false);
 
-  // Auto-handle external deep-links from Chrome Extension (e.g. ?tab=pivot, ?tab=coverletter, ?title=..., ?view=workstation, ?view=shorts)
+  // Auto-handle external deep-links from Chrome Extension (e.g. ?tab=pivot, ?tab=coverletter, ?title=..., ?view=workstation, ?view=shorts, ?view=cards)
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -74,7 +76,9 @@ export default function App() {
         setIsPrivacyModalOpen(true);
       } else if (viewParam === 'shorts' || tabParam === 'shorts' || pathname.includes('shorts')) {
         setIsShortsModalOpen(true);
-      } else if (viewParam === 'workstation' || viewParam === 'ingestion') {
+      } else if (viewParam === 'cards' || tabParam === 'cards' || pathname.includes('cards')) {
+        setIsJobCardsModalOpen(true);
+      } else if (viewParam === 'workstation' || viewParam === 'ingestion' || viewParam === 'matcher' || params.get('ref') === 'shorts') {
         setActiveViewMode('ingestion');
       } else if (viewParam === 'simulator') {
         setActiveViewMode('simulator');
@@ -456,6 +460,17 @@ export default function App() {
               <span className="bg-white/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">500 Sprint</span>
             </button>
 
+            {/* Job Cards Studio Trigger (15 California Leads) */}
+            <button
+              onClick={() => setIsJobCardsModalOpen(true)}
+              className="px-3 py-1.5 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold shadow-md shadow-cyan-600/25 transition flex items-center gap-1.5 cursor-pointer"
+              title="Open Job Cards Studio (Indeed California Leads & Screenshot Studio)"
+            >
+              <Layers className="w-3.5 h-3.5 text-cyan-200" />
+              <span className="hidden sm:inline">Job Cards</span>
+              <span className="bg-emerald-400 text-slate-950 font-black text-[10px] px-1.5 py-0.2 rounded-full font-mono">15 Leads</span>
+            </button>
+
             {/* Quick Re-calculate */}
             <button
               onClick={() => runAnalysis(currentJob, candidate)}
@@ -581,6 +596,7 @@ export default function App() {
             onCustomExtract={handleCustomExtract}
             onReanalyze={() => runAnalysis(currentJob, candidate)}
             onOpenModal={() => setIsInPageModalOpen(true)}
+            onOpenJobCards={() => setIsJobCardsModalOpen(true)}
             isLoading={isLoading}
           />
         ) : (
@@ -717,6 +733,13 @@ export default function App() {
         isOpen={isShortsModalOpen}
         onClose={() => setIsShortsModalOpen(false)}
         onOpenMatcher={() => setActiveViewMode('ingestion')}
+      />
+
+      {/* Job Cards Studio Modal */}
+      <JobCardsModal
+        isOpen={isJobCardsModalOpen}
+        onClose={() => setIsJobCardsModalOpen(false)}
+        candidateTargetRole={candidate.targetRole || candidate.title}
       />
     </div>
   );

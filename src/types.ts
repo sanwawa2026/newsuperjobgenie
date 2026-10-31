@@ -103,3 +103,18 @@ export interface CandidateProfile {
   uploadedFileName?: string;
   uploadedFileSize?: string;
 }
+
+export interface JobLeadCard {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  matchScore: number;
+  matchTier: string;
+  postingFreshness: string;
+  keyMatchedSkills: string[];
+  jobUrl: string;
+  scannedDate: string;
+  salary?: string;
+  notes?: string;
+}

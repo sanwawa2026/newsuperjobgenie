@@ -76,8 +76,31 @@ export const ShortsStudioModal: React.FC<ShortsStudioModalProps> = ({
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'simulator' | 'script' | 'metadata' | 'rebrand'>('simulator');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [isRecordingMode, setIsRecordingMode] = useState<boolean>(false);
   const [previewMode, setPreviewMode] = useState<'mp4' | 'simulator'>('mp4');
+  const [isRecordingMode, setIsRecordingMode] = useState<boolean>(false);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+
+  const handleDownloadVideoDirectly = async () => {
+    try {
+      setIsDownloading(true);
+      const res = await fetch('/api/download-short');
+      if (!res.ok) throw new Error('Download request failed');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Blob download failed, using direct stream:', err);
+      window.location.href = '/api/download-short';
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<any>(null);
@@ -508,6 +531,16 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
 
           <div className="flex items-center gap-2">
             <button
+              onClick={handleDownloadVideoDirectly}
+              disabled={isDownloading}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-lg shadow-rose-900/40"
+              title="Download full 9:16 vertical 1080x1920 MP4 video directly"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>{isDownloading ? '正在保存视频...' : '💾 下载 Short #1 视频 (MP4)'}</span>
+            </button>
+
+            <button
               onClick={() => setIsRecordingMode(!isRecordingMode)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
                 isRecordingMode 
@@ -531,6 +564,24 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
               <X className="w-5 h-5" />
             </button>
           </div>
+        </div>
+
+        {/* Global Quick Download Callout */}
+        <div className="bg-gradient-to-r from-rose-950/80 via-slate-900 to-indigo-950/80 border-b border-rose-500/40 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-rose-200">
+            <Video className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>
+              <strong>🎬 Short #1 (The 10-Second ATS Bypass Hack) 已烘焙就绪：</strong> 1080×1920 竖屏 · 24 秒黄金完播率 · 母带配音
+            </span>
+          </div>
+          <button
+            onClick={handleDownloadVideoDirectly}
+            disabled={isDownloading}
+            className="px-3.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold shadow-md shadow-rose-950 flex items-center gap-1.5 transition text-xs"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>{isDownloading ? '正在保存到本地...' : '一键下载成品视频 (.mp4)'}</span>
+          </button>
         </div>
 
         {/* Studio Sub-Header: Script Selector & Channel Subscriber Milestone */}

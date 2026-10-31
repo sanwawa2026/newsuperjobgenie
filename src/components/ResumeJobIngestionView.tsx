@@ -45,6 +45,7 @@ interface ResumeJobIngestionViewProps {
   onCustomExtract?: (text: string) => void;
   onReanalyze: () => void;
   onOpenModal: () => void;
+  onOpenJobCards?: () => void;
   isLoading: boolean;
 }
 
@@ -60,6 +61,7 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
   onCustomExtract,
   onReanalyze,
   onOpenModal,
+  onOpenJobCards,
   isLoading,
 }) => {
   const [activeSourceTab, setActiveSourceTab] = useState<'indeed' | 'linkedin' | 'glassdoor' | 'ats' | 'manual'>('indeed');
@@ -136,6 +138,17 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
             {isBuggyMode ? <AlertTriangle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
             <span>{isBuggyMode ? 'Current: 153-Char Truncated (Fake 98%)' : 'Current: 8,000+ Chars Full Extraction'}</span>
           </button>
+
+          {onOpenJobCards && (
+            <button
+              onClick={onOpenJobCards}
+              className="px-3.5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-cyan-600/25 transition flex items-center gap-1.5 cursor-pointer"
+              title="Open Job Cards Studio (Indeed California Leads & Screenshot Studio)"
+            >
+              <Layers className="w-4 h-4 text-cyan-200" />
+              <span>Job Cards (15 Leads)</span>
+            </button>
+          )}
 
           <button
             onClick={onOpenModal}

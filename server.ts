@@ -221,6 +221,19 @@ app.get(['/api/download-extension-zip', '/api/download-standalone-html', '/api/d
   return res.redirect(302, CHROME_STORE_OFFICIAL_URL);
 });
 
+// Dedicated endpoint to download Short #1 MP4 directly
+app.get('/api/download-short', (_req: Request, res: Response) => {
+  const filePath = path.join(__dirname, 'public/assets/superjobgenie_short_01.mp4');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Disposition', 'attachment; filename="SuperJobGenie_Short_01_ATS_Hack.mp4"');
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+  } else {
+    res.status(404).send('Short video file not found');
+  }
+});
+
 // POST /api/analyze-match: Gemini 3.8 Flash Multi-Dimensional Skill Match & Career Pivot Analysis
 app.post('/api/analyze-match', async (req: Request, res: Response) => {
   try {
