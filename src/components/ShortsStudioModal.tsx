@@ -70,7 +70,7 @@ export const ShortsStudioModal: React.FC<ShortsStudioModalProps> = ({
   onClose,
   onOpenMatcher
 }) => {
-  const [selectedScriptId, setSelectedScriptId] = useState<string>('hack_10s');
+  const [selectedScriptId, setSelectedScriptId] = useState<string>('cover_letter_viral');
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -83,20 +83,19 @@ export const ShortsStudioModal: React.FC<ShortsStudioModalProps> = ({
   const handleDownloadVideoDirectly = async () => {
     try {
       setIsDownloading(true);
-      const res = await fetch('/api/download-short');
-      if (!res.ok) throw new Error('Download request failed');
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
+      const endpoint = selectedScriptId === 'cover_letter_viral' ? '/download/viral-short' : '/api/download-short';
+      const filename = selectedScriptId === 'cover_letter_viral' 
+        ? 'SuperJobGenie_Cover_Letter_Viral_Short_1080x1920.mp4' 
+        : 'SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4';
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4';
+      a.href = endpoint;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
       console.error('Blob download failed, using direct stream:', err);
-      window.location.href = '/api/download-short';
+      window.location.href = selectedScriptId === 'cover_letter_viral' ? '/download/viral-short' : '/api/download-short';
     } finally {
       setIsDownloading(false);
     }
@@ -109,6 +108,102 @@ export const ShortsStudioModal: React.FC<ShortsStudioModalProps> = ({
     'https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb';
 
   const scriptPackages: ScriptPackage[] = [
+    {
+      id: 'cover_letter_viral',
+      badge: '🔥 3.1M Views Viral Formula (HR Screams "NO! NO!")',
+      badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+      title: 'Looking for a Job? Need a Cover Letter? NO! NO!',
+      hookThreeSec: 'Looking for a job? Another generic cover letter? NO! NO!',
+      targetAudience: 'Job seekers tired of writing repetitive cover letters & getting ghosted',
+      duration: '11.5 Seconds (Ultra-Fast Viral Hook)',
+      voiceoverTrack: '/assets/aistudio/tts_hr_no.wav',
+      masterTrack: '/assets/aistudio/superjobgenie_cover_letter_viral_short.mp4',
+      timeline: [
+        {
+          time: '0:00 - 0:02',
+          seconds: [0, 2],
+          stage: 'HOOK (0-2s)',
+          caption: 'LOOKING FOR A JOB? 💼',
+          voiceover: 'Looking for a job?',
+          visual: 'High-contrast bold question on deep navy backdrop, instant audience filtering.',
+          sfx: 'Rising anticipation synth tone'
+        },
+        {
+          time: '0:02 - 0:03',
+          seconds: [2, 3],
+          stage: 'PAIN POINT (2-3s)',
+          caption: 'NEED A COVER LETTER? 📝',
+          voiceover: 'Another generic cover letter?',
+          visual: 'Document icon with question mark, hitting the most tedious part of job hunt.',
+          sfx: 'Subtle typewriter rhythm'
+        },
+        {
+          time: '0:03 - 0:05',
+          seconds: [3, 5],
+          stage: 'HR VERDICT (3-5s)',
+          caption: '❌ NO! NO! ❌ AUTO-REJECTED',
+          voiceover: 'NO! NO!',
+          visual: 'Stark red alert stamp with pulsing double cross, echoing the 3.1M viral recruiter short.',
+          sfx: 'Double loud rejection buzzer + bass slam'
+        },
+        {
+          time: '0:05 - 0:08',
+          seconds: [5, 8],
+          stage: 'AI SOLUTION (5-8s)',
+          caption: 'SUPERJOBGENIE ⚡ 98% SMART MATCH',
+          voiceover: 'SuperJobGenie! Tailored to live job descriptions in 3 seconds.',
+          visual: 'Transparent HUD radar overlaying live 8,441 chars BlackRock posting, 98% match verified.',
+          sfx: 'Sci-fi scan sweep + power-up chime'
+        },
+        {
+          time: '0:08 - 0:11',
+          seconds: [8, 11],
+          stage: 'VALUE ANCHOR (8-11s)',
+          caption: '🔥 100% FREE! 🔥 LINK IN PINNED COMMENT',
+          voiceover: '100% FREE!',
+          visual: 'Gold glowing badge, 0-install guarantee, animated arrow pointing to pinned comment.',
+          sfx: 'Cash register cha-ching + triumphant horn'
+        }
+      ],
+      youtubeMetadata: {
+        title: 'Need a Cover Letter? HR says NO! NO! 🚫 (Here’s the Free 3-Sec Fix) #Shorts',
+        description: `Stop sending generic AI cover letters that recruiters reject on sight.
+Generate customized, ATS-aligned cover letters matched to any live job description in 3 seconds.
+
+⚡ Free 0-Install Web Matcher:
+👉 https://superjobgenie-web.run.app?ref=shorts
+
+🚀 Free Chrome Extension (1-Click on LinkedIn & Indeed):
+👉 https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne
+
+✅ 100% Free
+✅ 0 Installation Required
+✅ Zero Data Stored
+
+#Shorts #CoverLetter #JobSearch #ResumeTips #TechJobs #CareerAdvice #InterviewTips #SuperJobGenie`,
+        pinnedComment: `📌 Stop writing cover letters manually! 
+Try the 100% Free Live Matcher right in your browser:
+👉 https://superjobgenie-web.run.app?ref=shorts
+(No sign-up, no credit card, 100% free forever!)`,
+        tags: [
+          '#Shorts',
+          '#CoverLetter',
+          '#CoverLetterTips',
+          '#JobSearch',
+          '#ResumeHacks',
+          '#RecruiterAdvice',
+          '#ATSResume',
+          '#TechJobs',
+          '#SuperJobGenie',
+          '#FreeAI'
+        ]
+      },
+      socialPush: {
+        redditTitle: 'Recruiters reject generic cover letters in 2 seconds — so I built a 100% free live matcher',
+        redditPost: `If you have applied for jobs recently, you know generic cover letters get thrown into the trash immediately. 
+I built SuperJobGenie — completely client-side and free. You paste any job description, and it generates a tailored letter highlighting exact skill matches in 3 seconds.`
+      }
+    },
     {
       id: 'hack_10s',
       badge: '🔥 Highest Viral Potential (CTR 18%+)',
@@ -688,16 +783,18 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
                 {previewMode === 'mp4' ? (
                   <div className="w-full h-full flex flex-col justify-center items-center relative bg-black">
                     <video
-                      src="/assets/superjobgenie_short_01.mp4"
+                      key={selectedScriptId}
+                      src={selectedScriptId === 'cover_letter_viral' ? "/assets/aistudio/superjobgenie_cover_letter_viral_short.mp4" : "/assets/superjobgenie_short_01.mp4"}
                       controls
                       playsInline
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-3 right-3 z-30">
+                    <div className="absolute top-3 right-3 z-30 flex items-center gap-1.5">
                       <a
-                        href="/assets/superjobgenie_short_01.mp4"
-                        download="SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4"
-                        className="px-2.5 py-1 bg-rose-600/90 hover:bg-rose-500 text-white rounded-lg text-xs font-bold shadow flex items-center gap-1"
+                        href={selectedScriptId === 'cover_letter_viral' ? "/download/viral-short" : "/api/download-short"}
+                        download={selectedScriptId === 'cover_letter_viral' ? "SuperJobGenie_Cover_Letter_Viral_Short_1080x1920.mp4" : "SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4"}
+                        className="px-2.5 py-1 bg-rose-600/90 hover:bg-rose-500 text-white rounded-lg text-xs font-bold shadow-lg flex items-center gap-1 cursor-pointer"
+                        title="Download full 1080x1920 60fps MP4"
                       >
                         <Download className="w-3.5 h-3.5" />
                         <span>Save MP4</span>
@@ -1034,20 +1131,148 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
 
                     <div className="flex items-center gap-2 flex-wrap">
                       <a
-                        href="/assets/superjobgenie_short_01.mp4"
-                        download="SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4"
-                        className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-red-900/30"
+                        href={selectedScriptId === 'cover_letter_viral' ? "/download/viral-short" : "/api/download-short"}
+                        download={selectedScriptId === 'cover_letter_viral' ? "SuperJobGenie_Cover_Letter_Viral_Short_1080x1920.mp4" : "SuperJobGenie_Short_01_ATS_Hack_1080x1920.mp4"}
+                        className="px-3.5 py-2 bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-red-900/30 cursor-pointer"
                       >
                         <Video className="w-3.5 h-3.5" />
                         <span>Download 9:16 Short Video (.mp4)</span>
                       </a>
                       <a
-                        href="/audio/short_38s_master_mix.wav"
-                        download="SuperJobGenie_Short_Voiceover.wav"
+                        href={selectedScriptId === 'cover_letter_viral' ? "/assets/aistudio/tts_hr_no.wav" : "/audio/short_38s_master_mix.wav"}
+                        download={selectedScriptId === 'cover_letter_viral' ? "TTS_HR_Voice.wav" : "SuperJobGenie_Short_Voiceover.wav"}
                         className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition flex items-center gap-1.5"
                       >
                         <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
                         <span>Voice Track (.wav)</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Dedicated YouTube Shorts Thumbnail Selection Guide */}
+                  <div className="p-4 bg-slate-900/90 border border-slate-800 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Flame className="w-4 h-4 text-rose-500" />
+                        <h5 className="text-xs font-bold text-white uppercase tracking-wider">
+                          YouTube Shorts 封面/缩略图推荐 (点击下载高清原图)
+                        </h5>
+                      </div>
+                      <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                        首推 Option 1 (爆款杀手锏)
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      手机端上传 YouTube Shorts 时，点击左上角<strong>「铅笔编辑封面」</strong>滑动到 <strong>第 3.5 ~ 4 秒</strong>，或直接下载下方 1080x1920 封面原图上传：
+                    </p>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                      {/* Option 1: HR Screams NO! NO! */}
+                      <a
+                        href="/assets/aistudio/thumbnail_option1_hr_no_no.png"
+                        download="Thumbnail_Option1_HR_NO_NO_1080x1920.png"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group relative bg-slate-950 border-2 border-rose-500/80 hover:border-rose-400 rounded-xl overflow-hidden p-1 flex flex-col transition hover:scale-[1.02] shadow-lg shadow-rose-950/40"
+                      >
+                        <div className="aspect-[9/16] w-full rounded-lg overflow-hidden bg-slate-900 relative">
+                          <img
+                            src="/assets/aistudio/thumbnail_option1_hr_no_no.png"
+                            alt="Option 1: HR Screams NO NO"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute top-1.5 left-1.5 bg-rose-600 text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow">
+                            👑 强烈推荐
+                          </div>
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                            <span className="px-2 py-1 bg-rose-600 text-white text-[10px] font-bold rounded flex items-center gap-1 shadow">
+                              <Download className="w-3 h-3" /> 下载原图
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-1.5 text-center">
+                          <div className="text-[11px] font-bold text-rose-300">Option 1: ❌ NO! NO!</div>
+                          <div className="text-[9px] text-slate-400">3.5-5.0s (3.1M同款冲击力)</div>
+                        </div>
+                      </a>
+
+                      {/* Option 2: Target Audience Hook */}
+                      <a
+                        href="/assets/aistudio/thumbnail_option2_job_hook.png"
+                        download="Thumbnail_Option2_Looking_For_Job_1080x1920.png"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group relative bg-slate-950 border border-slate-700 hover:border-cyan-500 rounded-xl overflow-hidden p-1 flex flex-col transition hover:scale-[1.02]"
+                      >
+                        <div className="aspect-[9/16] w-full rounded-lg overflow-hidden bg-slate-900 relative">
+                          <img
+                            src="/assets/aistudio/thumbnail_option2_job_hook.png"
+                            alt="Option 2: Looking for a job hook"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                            <span className="px-2 py-1 bg-cyan-600 text-white text-[10px] font-bold rounded flex items-center gap-1 shadow">
+                              <Download className="w-3 h-3" /> 下载原图
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-1.5 text-center">
+                          <div className="text-[11px] font-bold text-cyan-300">Option 2: 💼 找工作痛点</div>
+                          <div className="text-[9px] text-slate-400">0.0-1.8s (精准过滤人群)</div>
+                        </div>
+                      </a>
+
+                      {/* Option 3: HUD Tech Match */}
+                      <a
+                        href="/assets/aistudio/thumbnail_option3_hud_98percent.png"
+                        download="Thumbnail_Option3_HUD_98Percent_1080x1920.png"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group relative bg-slate-950 border border-slate-700 hover:border-emerald-500 rounded-xl overflow-hidden p-1 flex flex-col transition hover:scale-[1.02]"
+                      >
+                        <div className="aspect-[9/16] w-full rounded-lg overflow-hidden bg-slate-900 relative">
+                          <img
+                            src="/assets/aistudio/thumbnail_option3_hud_98percent.png"
+                            alt="Option 3: HUD 98% Match"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                            <span className="px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded flex items-center gap-1 shadow">
+                              <Download className="w-3 h-3" /> 下载原图
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-1.5 text-center">
+                          <div className="text-[11px] font-bold text-emerald-300">Option 3: ⚡ 98% 绿标破局</div>
+                          <div className="text-[9px] text-slate-400">5.1-8.3s (黑石JD真实扫描)</div>
+                        </div>
+                      </a>
+
+                      {/* Option 4: 100% Free Anchor */}
+                      <a
+                        href="/assets/aistudio/thumbnail_option4_100percent_free.png"
+                        download="Thumbnail_Option4_100Percent_Free_1080x1920.png"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group relative bg-slate-950 border border-slate-700 hover:border-amber-500 rounded-xl overflow-hidden p-1 flex flex-col transition hover:scale-[1.02]"
+                      >
+                        <div className="aspect-[9/16] w-full rounded-lg overflow-hidden bg-slate-900 relative">
+                          <img
+                            src="/assets/aistudio/thumbnail_option4_100percent_free.png"
+                            alt="Option 4: 100% Free Anchor"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                            <span className="px-2 py-1 bg-amber-600 text-white text-[10px] font-bold rounded flex items-center gap-1 shadow">
+                              <Download className="w-3 h-3" /> 下载原图
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-1.5 text-center">
+                          <div className="text-[11px] font-bold text-amber-300">Option 4: 🔥 100% FREE!</div>
+                          <div className="text-[9px] text-slate-400">8.3-11.5s (零成本白嫖转化)</div>
+                        </div>
                       </a>
                     </div>
                   </div>

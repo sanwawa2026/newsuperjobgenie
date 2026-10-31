@@ -246,6 +246,33 @@ app.get(['/api/download-bgm-video', '/api/download-video', '/download/bgm-video'
   }
 });
 
+// Dedicated endpoint to stream & download the 11.5s Cover Letter Viral Short
+app.get([
+  '/assets/aistudio/superjobgenie_cover_letter_viral_short.mp4',
+  '/assets/superjobgenie_cover_letter_viral_short.mp4',
+  '/api/download-viral-short',
+  '/api/download-cover-letter-short',
+  '/download/viral-short'
+], (req: Request, res: Response) => {
+  const possiblePaths = [
+    path.join(__dirname, 'public/assets/aistudio/superjobgenie_cover_letter_viral_short.mp4'),
+    path.join(__dirname, 'public/assets/superjobgenie_cover_letter_viral_short.mp4'),
+    path.join(__dirname, 'dist/assets/aistudio/superjobgenie_cover_letter_viral_short.mp4'),
+    path.join(__dirname, 'dist/assets/superjobgenie_cover_letter_viral_short.mp4'),
+  ];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      if (req.path.includes('download')) {
+        return res.download(p, 'SuperJobGenie_Cover_Letter_Viral_Short.mp4');
+      }
+      res.setHeader('Content-Type', 'video/mp4');
+      res.setHeader('Accept-Ranges', 'bytes');
+      return res.sendFile(p);
+    }
+  }
+  return res.status(404).send('Cover Letter Viral Short video file not found');
+});
+
 // POST /api/analyze-match: Gemini 3.8 Flash Multi-Dimensional Skill Match & Career Pivot Analysis
 app.post('/api/analyze-match', async (req: Request, res: Response) => {
   try {
