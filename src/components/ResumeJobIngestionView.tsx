@@ -20,7 +20,8 @@ import {
   Crown,
   Layers,
   Code,
-  Youtube
+  Youtube,
+  Music
 } from 'lucide-react';
 import { ExtractedJobData, CandidateProfile, MatchAnalysisResult } from '../types';
 import { TelemetryManager } from '../services/telemetry';
@@ -149,6 +150,16 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
               <span>Job Cards (15 Leads)</span>
             </button>
           )}
+
+          <a
+            href="/assets/aistudio/fullstck_cloud_engineer_with_bgm.mp4"
+            download="fullstck_cloud_engineer_with_tech_bgm.mp4"
+            className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/25 transition flex items-center gap-1.5 cursor-pointer"
+            title="Download 55s Full-Stack Cloud Engineer video with Cyberpunk Tech BGM"
+          >
+            <Music className="w-4 h-4 text-emerald-200" />
+            <span>Video + BGM (55s)</span>
+          </a>
 
           <button
             onClick={onOpenModal}

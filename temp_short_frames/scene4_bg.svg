@@ -1,0 +1,29 @@
+
+  <svg width="1080" height="1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg4" cx="50%" cy="30%" r="70%">
+        <stop offset="0%" stop-color="#0c2540" />
+        <stop offset="100%" stop-color="#040812" />
+      </radialGradient>
+      <filter id="glow4" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="20" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+    <rect width="1080" height="1920" fill="url(#bg4)" />
+
+    <!-- Top Glow Header -->
+    <g transform="translate(540, 140)" text-anchor="middle">
+      <rect x="-320" y="0" width="640" height="56" rx="28" fill="#0f2b48" stroke="#38bdf8" stroke-width="2" />
+      <text y="38" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="26" fill="#38bdf8">⚡ THE SECRET TO 100% REPLIES ⚡</text>
+
+      <text y="130" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="82" fill="#38BDF8" filter="url(#glow4)" letter-spacing="3">SuperJobGenie</text>
+      <text y="195" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="44" fill="#FACC15" letter-spacing="2">TAILORED IN 3 SECONDS ⚡</text>
+    </g>
+
+    <!-- Bottom Highlights -->
+    <g transform="translate(540, 1720)" text-anchor="middle">
+      <rect x="-420" y="0" width="840" height="90" rx="45" fill="#0c1e33" stroke="#00f2fe" stroke-width="3" />
+      <text y="58" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="36" fill="#38bdf8">🚀 Scans Live JD &amp; Matches Real ATS Keys</text>
+    </g>
+  </svg>

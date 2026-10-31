@@ -1,0 +1,45 @@
+
+  <svg width="1080" height="1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg5" cx="50%" cy="40%" r="70%">
+        <stop offset="0%" stop-color="#1e1b4b" />
+        <stop offset="100%" stop-color="#09071c" />
+      </radialGradient>
+      <filter id="goldglow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="25" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+    <rect width="1080" height="1920" fill="url(#bg5)" />
+
+    <!-- Top Badge -->
+    <rect x="250" y="240" width="580" height="60" rx="30" fill="#2e1065" stroke="#a855f7" stroke-width="2" />
+    <text x="540" y="280" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="28" fill="#d8b4fe" text-anchor="middle">🚫 STOP PAYING $40/MO FOR AI TOOLS</text>
+
+    <!-- Brand & 100% FREE -->
+    <g transform="translate(540, 620)" text-anchor="middle">
+      <text y="0" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="90" fill="#FFFFFF" letter-spacing="3">SuperJobGenie</text>
+      
+      <!-- GIANT 100% FREE -->
+      <text y="190" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="160" fill="#F59E0B" filter="url(#goldglow)" letter-spacing="6">100% FREE! 🔥</text>
+      <text y="280" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="44" fill="#38BDF8">NO SUBSCRIPTION • NO CATCH</text>
+    </g>
+
+    <!-- Feature Checklist -->
+    <g transform="translate(540, 1080)" text-anchor="middle">
+      <rect x="-380" y="0" width="760" height="80" rx="40" fill="#1e1b4b" stroke="#4ade80" stroke-width="2" />
+      <text y="52" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="34" fill="#4ade80">✅ 0-Install Instant Web Matcher</text>
+
+      <rect x="-380" y="110" width="760" height="80" rx="40" fill="#1e1b4b" stroke="#38bdf8" stroke-width="2" />
+      <text y="162" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="34" fill="#38bdf8">✅ Official Chrome Store Extension</text>
+
+      <rect x="-380" y="220" width="760" height="80" rx="40" fill="#1e1b4b" stroke="#facc15" stroke-width="2" />
+      <text y="272" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="34" fill="#facc15">✅ 1-Click Cover Letter Generator</text>
+    </g>
+
+    <!-- Big Action Button CTA -->
+    <g transform="translate(540, 1600)" text-anchor="middle">
+      <rect x="-420" y="0" width="840" height="110" rx="55" fill="#0284c7" stroke="#38bdf8" stroke-width="4" filter="url(#goldglow)" />
+      <text y="70" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="44" fill="#FFFFFF">👇 LINK IN PINNED COMMENT 👇</text>
+    </g>
+  </svg>

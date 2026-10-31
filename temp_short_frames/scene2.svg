@@ -1,0 +1,30 @@
+
+  <svg width="1080" height="1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg2" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#241426" />
+        <stop offset="100%" stop-color="#09050b" />
+      </radialGradient>
+      <filter id="glow2" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="15" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+    <rect width="1080" height="1920" fill="url(#bg2)" />
+
+    <!-- Top Badge -->
+    <rect x="310" y="320" width="460" height="60" rx="30" fill="#2d132c" stroke="#f43f5e" stroke-width="3" />
+    <text x="540" y="360" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="28" fill="#fb7185" text-anchor="middle">⚠️ THE #1 APPLICATION TRAP</text>
+
+    <!-- Main Typography -->
+    <g transform="translate(540, 750)" text-anchor="middle">
+      <text y="0" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="110" fill="#FFFFFF" letter-spacing="3">ANOTHER</text>
+      <text y="130" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="120" fill="#FB7185" filter="url(#glow2)" letter-spacing="3">GENERIC</text>
+      <text y="260" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="95" fill="#FFFFFF" letter-spacing="3">COVER</text>
+      <text y="390" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="110" fill="#FFFFFF" letter-spacing="3">LETTER? 📝</text>
+    </g>
+
+    <!-- Sub warning -->
+    <rect x="240" y="1450" width="600" height="90" rx="45" fill="#1f0a1c" stroke="#f43f5e" stroke-width="2" />
+    <text x="540" y="1505" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="32" fill="#fda4af" text-anchor="middle">❌ ChatGPT templates get detected in 2s</text>
+  </svg>

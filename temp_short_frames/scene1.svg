@@ -1,0 +1,33 @@
+
+  <svg width="1080" height="1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg1" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#141e33" />
+        <stop offset="100%" stop-color="#07090e" />
+      </radialGradient>
+      <filter id="glow1" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="15" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+    <rect width="1080" height="1920" fill="url(#bg1)" />
+    
+    <!-- Cyber Grid Lines -->
+    <path d="M 0 300 L 1080 300 M 0 600 L 1080 600 M 0 1300 L 1080 1300 M 0 1600 L 1080 1600" stroke="#1e293b" stroke-width="2" opacity="0.4" />
+    <path d="M 270 0 L 270 1920 M 540 0 L 540 1920 M 810 0 L 810 1920" stroke="#1e293b" stroke-width="2" opacity="0.3" />
+
+    <!-- Top Badge -->
+    <rect x="340" y="320" width="400" height="60" rx="30" fill="#1e293b" stroke="#38bdf8" stroke-width="3" />
+    <text x="540" y="360" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="28" fill="#38bdf8" text-anchor="middle">💼 2026 JOB MARKET</text>
+
+    <!-- Main Typography -->
+    <g transform="translate(540, 780)" text-anchor="middle">
+      <text y="0" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="125" fill="#FFFFFF" letter-spacing="4">LOOKING</text>
+      <text y="140" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="125" fill="#FFFFFF" letter-spacing="4">FOR A</text>
+      <text y="300" font-family="Liberation Sans, Arial, sans-serif" font-weight="900" font-size="145" fill="#FACC15" filter="url(#glow1)" letter-spacing="4">JOB? 💼</text>
+    </g>
+
+    <!-- Bottom Pulse Indicator -->
+    <rect x="290" y="1450" width="500" height="90" rx="45" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+    <text x="540" y="1505" font-family="Liberation Sans, Arial, sans-serif" font-weight="bold" font-size="34" fill="#94a3b8" text-anchor="middle">⚡ STOP GETTING GHOSTED</text>
+  </svg>

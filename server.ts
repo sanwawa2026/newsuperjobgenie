@@ -234,6 +234,18 @@ app.get('/api/download-short', (_req: Request, res: Response) => {
   }
 });
 
+// Dedicated endpoint to download 55s Full-Stack Cloud Engineer with Tech BGM MP4
+app.get(['/api/download-bgm-video', '/api/download-video', '/download/bgm-video'], (_req: Request, res: Response) => {
+  const filePath = path.join(__dirname, 'public/assets/aistudio/fullstck_cloud_engineer_with_bgm.mp4');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Disposition', 'attachment; filename="fullstck_cloud_engineer_with_tech_bgm.mp4"');
+    return res.download(filePath, 'fullstck_cloud_engineer_with_tech_bgm.mp4');
+  } else {
+    return res.status(404).send('BGM video file not found');
+  }
+});
+
 // POST /api/analyze-match: Gemini 3.8 Flash Multi-Dimensional Skill Match & Career Pivot Analysis
 app.post('/api/analyze-match', async (req: Request, res: Response) => {
   try {

@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
+import { toPng } from 'html-to-image';
 import { 
   X, 
   Sparkles, 
@@ -23,7 +24,8 @@ import {
   TrendingUp,
   Cpu,
   MonitorPlay,
-  RotateCcw
+  RotateCcw,
+  Music
 } from 'lucide-react';
 import { JobLeadCard } from '../types';
 import { 
@@ -69,10 +71,37 @@ export function JobCardsModal({ isOpen, onClose, candidateTargetRole = 'Full Sta
   }, [leads, searchQuery, selectedTier]);
 
   const activeLead = filteredLeads[activeCardIndex] || filteredLeads[0] || leads[0];
+  const cardCanvasRef = useRef<HTMLDivElement>(null);
+  const [isExportingPNG, setIsExportingPNG] = useState<boolean>(false);
 
   const handleCopyNotice = (msg: string) => {
     setCopiedNotice(msg);
     setTimeout(() => setCopiedNotice(null), 2500);
+  };
+
+  const handleDownloadCardPNG = async () => {
+    if (!cardCanvasRef.current) return;
+    setIsExportingPNG(true);
+    try {
+      const dataUrl = await toPng(cardCanvasRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: '#020617'
+      });
+      const link = document.createElement('a');
+      const filename = studioAspect === 'podium-trio'
+        ? `SuperJobGenie_Top3_Podium_California_Leads.png`
+        : `${activeLead.company.replace(/[^a-zA-Z0-9]/g, '_')}_ATS_${activeLead.matchScore}pct_JobCard.png`;
+      link.download = filename;
+      link.href = dataUrl;
+      link.click();
+      handleCopyNotice(`✓ Saved ${filename} to Downloads!`);
+    } catch (err) {
+      console.error('Failed to export PNG:', err);
+      handleCopyNotice('Auto-export error. Please use shortcut: Win+Shift+S / Cmd+Shift+4');
+    } finally {
+      setIsExportingPNG(false);
+    }
   };
 
   const handleCopyText = (text: string, label: string) => {
@@ -260,6 +289,16 @@ export function JobCardsModal({ isOpen, onClose, candidateTargetRole = 'Full Sta
               <Copy className="w-3.5 h-3.5" />
               <span>Copy Community Text</span>
             </button>
+
+            <a
+              href="/api/download-bgm-video"
+              download="fullstck_cloud_engineer_with_tech_bgm.mp4"
+              className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-600/20"
+              title="Download 55s video with studio-mastered Cyberpunk Tech BGM"
+            >
+              <Music className="w-3.5 h-3.5 text-emerald-200" />
+              <span>Video + BGM (55s)</span>
+            </a>
           </div>
         </div>
 
@@ -269,6 +308,42 @@ export function JobCardsModal({ isOpen, onClose, candidateTargetRole = 'Full Sta
           {/* ================= MODE 1: CARDS GRID ================= */}
           {viewMode === 'grid' && (
             <div className="space-y-4">
+              {/* Tech BGM Banner & Audio Player */}
+              <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-indigo-950/60 border border-emerald-500/30 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                    <Music className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-white flex items-center gap-2">
+                       <span>Cyberpunk Tech BGM Video Track Ready (55s)</span>
+                       <span className="bg-emerald-500/20 text-emerald-300 font-mono text-[10px] px-2 py-0.5 rounded-full border border-emerald-500/30">
+                         -17.4 dB Broadcast Mastered
+                       </span>
+                     </div>
+                     <p className="text-[11px] text-slate-400">
+                       118 BPM Synthwave ambient groove (16th rolling bass, punchy drums, shimmer plucks) mixed losslessly into the 0:55 video.
+                     </p>
+                   </div>
+                 </div>
+
+                 <div className="flex items-center gap-2">
+                   <audio 
+                     controls 
+                     className="h-8 w-44 rounded-lg opacity-90"
+                     src="/assets/aistudio/fullstck_cloud_engineer_with_bgm.mp4"
+                   />
+                   <a
+                     href="/api/download-bgm-video"
+                     download="fullstck_cloud_engineer_with_tech_bgm.mp4"
+                     className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                   >
+                     <Download className="w-3.5 h-3.5" />
+                     <span>Download MP4</span>
+                   </a>
+                 </div>
+               </div>
+
               <div className="flex items-center justify-between text-xs text-slate-400">
                 <span>Showing {filteredLeads.length} of {leads.length} California tech jobs</span>
                 <span className="text-[11px] text-cyan-400">💡 Click "Focus &amp; Snapshot" on any card to view high-res capture mode</span>
@@ -452,47 +527,68 @@ export function JobCardsModal({ isOpen, onClose, candidateTargetRole = 'Full Sta
                   </div>
                 </div>
 
-                {/* Card Navigator */}
-                {studioAspect !== 'podium-trio' && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400">Card:</span>
-                    <select
-                      value={activeCardIndex}
-                      onChange={(e) => setActiveCardIndex(Number(e.target.value))}
-                      className="bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-cyan-500"
-                    >
-                      {filteredLeads.map((c, i) => (
-                        <option key={c.id} value={i}>
-                          #{i + 1} - {c.company} ({c.matchScore}%)
-                        </option>
-                      ))}
-                    </select>
+                {/* Card Navigator & Download Action */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {studioAspect !== 'podium-trio' && (
+                    <>
+                      <span className="text-slate-400">Card:</span>
+                      <select
+                        value={activeCardIndex}
+                        onChange={(e) => setActiveCardIndex(Number(e.target.value))}
+                        className="bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-cyan-500"
+                      >
+                        {filteredLeads.map((c, i) => (
+                          <option key={c.id} value={i}>
+                            #{i + 1} - {c.company} ({c.matchScore}%)
+                          </option>
+                        ))}
+                      </select>
 
-                    <button
-                      onClick={() => {
-                        handleCopyText(
-                          `🔥 [${activeLead.matchScore}% Match] ${activeLead.company} — ${activeLead.title}\n📍 ${activeLead.location}\n⚡ Key Skills: ${activeLead.keyMatchedSkills.join(', ')}\n🔗 Test your resume: ${webMatcherUrl}`,
-                          `${activeLead.company} snapshot caption`
-                        );
-                      }}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-md font-medium flex items-center gap-1 cursor-pointer"
-                    >
-                      <Copy className="w-3 h-3 text-cyan-400" />
-                      <span>Copy Caption</span>
-                    </button>
-                  </div>
-                )}
+                      <button
+                        onClick={() => {
+                          handleCopyText(
+                            `🔥 [${activeLead.matchScore}% Match] ${activeLead.company} — ${activeLead.title}\n📍 ${activeLead.location}\n⚡ Key Skills: ${activeLead.keyMatchedSkills.join(', ')}\n🔗 Test your resume: ${webMatcherUrl}`,
+                            `${activeLead.company} snapshot caption`
+                          );
+                        }}
+                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-md font-medium flex items-center gap-1 cursor-pointer"
+                        title="Copy text caption for social media"
+                      >
+                        <Copy className="w-3 h-3 text-cyan-400" />
+                        <span>Copy Caption</span>
+                      </button>
+                    </>
+                  )}
+
+                  {/* 1-Click High-Res PNG Download Button */}
+                  <button
+                    onClick={handleDownloadCardPNG}
+                    disabled={isExportingPNG}
+                    className="px-3 py-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black rounded-lg text-xs shadow-lg shadow-emerald-500/25 transition flex items-center gap-1.5 cursor-pointer"
+                    title="1-Click Download High-Res PNG Image directly to computer"
+                  >
+                    <Download className={`w-3.5 h-3.5 text-slate-950 ${isExportingPNG ? 'animate-bounce' : ''}`} />
+                    <span>{isExportingPNG ? 'Generating PNG...' : '📥 Download Card (PNG)'}</span>
+                  </button>
+                </div>
               </div>
 
               {/* Instructions Pill for User */}
-              <div className="bg-indigo-950/40 border border-indigo-500/30 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs text-indigo-300">
+              <div className="bg-indigo-950/40 border border-indigo-500/30 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-indigo-300">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
                   <span>
-                    <strong>Screenshot Tip for YouTube Community &amp; Video:</strong> Use <kbd className="px-1.5 py-0.5 bg-slate-900 border border-indigo-400/40 rounded font-mono text-white text-[11px]">Win + Shift + S</kbd> (Windows) or <kbd className="px-1.5 py-0.5 bg-slate-900 border border-indigo-400/40 rounded font-mono text-white text-[11px]">Cmd + Shift + 4</kbd> (Mac) to capture lossless PNGs directly.
+                    <strong>How to save image:</strong> Click the green <strong>"📥 Download Card (PNG)"</strong> button above, or press <kbd className="px-1.5 py-0.5 bg-slate-900 border border-indigo-400/40 rounded font-mono text-white text-[11px]">Win + Shift + S</kbd> (Windows) / <kbd className="px-1.5 py-0.5 bg-slate-900 border border-indigo-400/40 rounded font-mono text-white text-[11px]">Cmd + Shift + 4</kbd> (Mac) to clip lossless PNG.
                   </span>
                 </div>
-                <span className="text-[11px] text-slate-400 font-mono">100% Crisp 2X Retina Layout</span>
+                <button
+                  onClick={handleDownloadCardPNG}
+                  disabled={isExportingPNG}
+                  className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Image Now</span>
+                </button>
               </div>
 
               {/* Stage Canvas */}
@@ -500,7 +596,10 @@ export function JobCardsModal({ isOpen, onClose, candidateTargetRole = 'Full Sta
                 
                 {/* 1. COMMUNITY POST 16:9 / 4:3 CARD */}
                 {studioAspect === 'community-16-9' && (
-                  <div className="w-full max-w-2xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-cyan-500/50 rounded-3xl p-7 shadow-2xl shadow-cyan-500/20 relative overflow-hidden">
+                  <div
+                    ref={cardCanvasRef}
+                    className="w-full max-w-2xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-cyan-500/50 rounded-3xl p-7 shadow-2xl shadow-cyan-500/20 relative overflow-hidden"
+                  >
                     {/* Glowing Top Ambient Ribbon */}
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-500"></div>
 
@@ -515,9 +614,20 @@ export function JobCardsModal({ isOpen, onClose, candidateTargetRole = 'Full Sta
                           <span className="text-[10px] text-cyan-400 font-mono ml-2">ATS MATCH RADAR • CA TECH</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full text-xs font-semibold">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>100% Real Scanned Indeed Posting</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full text-xs font-semibold">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                          <span>100% Real Scanned Indeed Posting</span>
+                        </div>
+                        <button
+                          onClick={handleDownloadCardPNG}
+                          disabled={isExportingPNG}
+                          className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black px-2.5 py-1 rounded-lg text-xs shadow-md shadow-cyan-500/20 transition flex items-center gap-1 cursor-pointer"
+                          title="Download this card as PNG"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{isExportingPNG ? '...' : 'Save PNG'}</span>
+                        </button>
                       </div>
                     </div>
 
@@ -615,7 +725,10 @@ export function JobCardsModal({ isOpen, onClose, candidateTargetRole = 'Full Sta
 
                 {/* 2. SHORTS / MOBILE 9:16 VERTICAL OVERLAY */}
                 {studioAspect === 'shorts-9-16' && (
-                  <div className="w-full max-w-[340px] bg-slate-950 border-2 border-cyan-500/60 rounded-3xl p-5 shadow-2xl shadow-cyan-500/25 flex flex-col justify-between aspect-[9/16] relative overflow-hidden">
+                  <div
+                    ref={cardCanvasRef}
+                    className="w-full max-w-[340px] bg-slate-950 border-2 border-cyan-500/60 rounded-3xl p-5 shadow-2xl shadow-cyan-500/25 flex flex-col justify-between aspect-[9/16] relative overflow-hidden"
+                  >
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-cyan-400 to-indigo-500"></div>
 
                     {/* Top Tag */}
@@ -695,7 +808,7 @@ export function JobCardsModal({ isOpen, onClose, candidateTargetRole = 'Full Sta
 
                 {/* 3. TOP 3 PODIUM (SpaceX, Vivodyne, Superhuman) */}
                 {studioAspect === 'podium-trio' && (
-                  <div className="w-full max-w-4xl space-y-6">
+                  <div ref={cardCanvasRef} className="w-full max-w-4xl space-y-6 p-4 rounded-3xl bg-slate-950">
                     <div className="text-center space-y-1">
                       <h3 className="text-xl font-black text-white tracking-tight">
                         California Top 3 Championship Match (Full Stack Engineering)
