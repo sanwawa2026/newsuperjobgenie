@@ -14,9 +14,9 @@ const CHECKS = [
     run: () => fs.existsSync(path.join(ROOT, 'src/components/IndustrialHero.tsx'))
   },
   {
-    name: '复古显示屏人 8s 循环视频 (___8s_d10be03c.mp4) 存在于 public',
+    name: '复古显示屏人 8s 原生视频 (retro_person_avatar_pure.mp4) 存在于 public',
     run: () => {
-      const p = path.join(ROOT, 'public/assets/aistudio/___8s_d10be03c.mp4');
+      const p = path.join(ROOT, 'public/assets/aistudio/retro_person_avatar_pure.mp4');
       return fs.existsSync(p) && fs.statSync(p).size > 100000;
     }
   },
@@ -24,7 +24,7 @@ const CHECKS = [
     name: 'IndustrialHero.tsx 正确引用原生 8s 循环视频',
     run: () => {
       const content = fs.readFileSync(path.join(ROOT, 'src/components/IndustrialHero.tsx'), 'utf-8');
-      return content.includes('/assets/aistudio/retro_person_avatar_pure.mp4') || content.includes('/assets/aistudio/___8s_d10be03c.mp4');
+      return content.includes('/assets/aistudio/retro_person_avatar_pure.mp4');
     }
   },
   {
@@ -35,10 +35,10 @@ const CHECKS = [
     }
   },
   {
-    name: '禁止载入录屏/截图 (绝不允许网页套网页)',
+    name: '禁止载入录屏/截图或被小鬼篡改的错误视频 (绝不允许网页套网页)',
     run: () => {
       const content = fs.readFileSync(path.join(ROOT, 'src/components/IndustrialHero.tsx'), 'utf-8');
-      const badPatterns = ['1024_b2e6a274.mp4', 'image_da002281.png', 'image_8272a58e.png'];
+      const badPatterns = ['1024_b2e6a274.mp4', 'image_da002281.png', 'image_8272a58e.png', '___8s_d10be03c.mp4'];
       return !badPatterns.some(bp => content.includes(bp));
     }
   },
@@ -60,7 +60,7 @@ const CHECKS = [
     name: '黄金版本保全镜像 (.golden_v1) 处于待命状态',
     run: () => {
       return fs.existsSync(path.join(ROOT, '.golden_v1/src/components/IndustrialHero.tsx')) &&
-             fs.existsSync(path.join(ROOT, '.golden_v1/public/assets/aistudio/___8s_d10be03c.mp4'));
+             fs.existsSync(path.join(ROOT, '.golden_v1/public/assets/aistudio/retro_person_avatar_pure.mp4'));
     }
   }
 ];

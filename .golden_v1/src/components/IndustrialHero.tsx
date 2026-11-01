@@ -271,7 +271,7 @@ export const IndustrialHero: React.FC<IndustrialHeroProps> = ({
                       
                       {/* High-res CRT Frame of the Retro Computer-Head Person */}
                       <video
-                        src="/assets/aistudio/___8s_d10be03c.mp4"
+                        src="/assets/aistudio/retro_person_avatar_pure.mp4"
                         autoPlay
                         loop
                         muted

@@ -70,7 +70,7 @@ export const ShortsStudioModal: React.FC<ShortsStudioModalProps> = ({
   onClose,
   onOpenMatcher
 }) => {
-  const [selectedScriptId, setSelectedScriptId] = useState<string>('hack_10s');
+  const [selectedScriptId, setSelectedScriptId] = useState<string>('ultra_loop_4s');
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -109,6 +109,87 @@ export const ShortsStudioModal: React.FC<ShortsStudioModalProps> = ({
     'https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb';
 
   const scriptPackages: ScriptPackage[] = [
+    {
+      id: 'ultra_loop_4s',
+      badge: '🔥 100% Seamless Loop (Retention 120%+ 完播率破表)',
+      badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+      title: '4-Second Ultra Viral Loop: Looking for a job? Need a cover letter?',
+      hookThreeSec: 'Looking for a job? 💼 Need a cover letter? 📄 SuperJobGenie ⚡ 100% FREE! 🔥',
+      targetAudience: 'YouTube Shorts & TikTok 算法推流极品 (120%+ 完播率无缝死循环)',
+      duration: '4.0 Seconds (Infinite Seamless Loop)',
+      voiceoverTrack: '/audio/short_38s_voiceover.wav',
+      masterTrack: '/audio/short_38s_master_mix.wav',
+      timeline: [
+        {
+          time: '0:00 - 0:01',
+          seconds: [0, 1],
+          stage: 'HOOK 1 (0-1s)',
+          caption: 'LOOKING FOR A JOB? 💼',
+          voiceover: 'Looking for a job? ↗️ (上扬语调，抛出痛点)',
+          visual: '画面特写探头/眼神聚焦，纯白加黑边字幕弹出。与尾句动作口型100%无缝闭环。',
+          sfx: 'Subtle Bass Up + Pop'
+        },
+        {
+          time: '0:01 - 0:02',
+          seconds: [1, 2],
+          stage: 'HOOK 2 (1-2s)',
+          caption: 'NEED A COVER LETTER? 📄',
+          voiceover: 'Need a cover letter? ↗️ (节奏紧凑，直戳刚需)',
+          visual: '切出求职信空白痛点或一键生成界面，纯白加黑边卡拉OK逐词弹出。',
+          sfx: 'Snap + Paper Swish'
+        },
+        {
+          time: '0:02 - 0:03',
+          stage: 'BRAND (2-3s)',
+          seconds: [2, 3],
+          caption: 'SUPERJOBGENIE ⚡',
+          voiceover: 'SuperJobGenie ⚡ (声音沉稳有力，亮出品牌)',
+          visual: '亮出品牌 Logo 与赛博雷达，黄色/科技蓝字幕，声音沉稳树立信任。',
+          sfx: 'Electric Zap + Radar Beep'
+        },
+        {
+          time: '0:03 - 0:04',
+          stage: 'CTA LOOP (3-4s)',
+          seconds: [3, 4],
+          caption: '100% FREE! 🔥',
+          voiceover: '100% FREE! 🔥 💥 (声音放大干脆，爆炸音效配合)',
+          visual: '醒目亮红色/荧光黄震动字幕(Shake)，画面末尾动作口型丝滑归位回到 0s！',
+          sfx: 'Explosion Boom + Bass Drop'
+        }
+      ],
+      youtubeMetadata: {
+        title: 'Looking for a job? Need a cover letter? (100% FREE!) #Shorts',
+        description: `Looking for a job? Need a tailored cover letter in seconds?
+SuperJobGenie is the 100% FREE 1-click ATS optimizer & cover letter generator for LinkedIn and Indeed.
+
+⚡ Free Web Matcher (0 Install):
+👉 https://ais-pre-dpehhkspkblknqvlwnko6m-423633136396.europe-west2.run.app?ref=shorts
+
+🚀 Free Chrome Extension:
+👉 https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb
+
+Client-side privacy. Zero data tracking. Beat the bots!`,
+        pinnedComment: `🔥 100% FREE 1-Click Cover Letter Generator & ATS Matcher:
+👉 Web Version: https://ais-pre-dpehhkspkblknqvlwnko6m-423633136396.europe-west2.run.app?ref=shorts
+👉 Chrome Extension: https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne
+
+(No credit card, no signup needed to test!)`,
+        tags: [
+          '#Shorts',
+          '#JobSearch',
+          '#CoverLetter',
+          '#ResumeTips',
+          '#TechJobs',
+          '#SuperJobGenie',
+          '#FreeTools',
+          '#CareerHacks'
+        ]
+      },
+      socialPush: {
+        redditTitle: 'Looking for a job? Need a cover letter? I made a 100% free tool',
+        redditPost: 'Tired of paying $20/month for resume and cover letter tools. Built SuperJobGenie for free.'
+      }
+    },
     {
       id: 'hack_10s',
       badge: '🔥 Highest Viral Potential (CTR 18%+)',
@@ -422,13 +503,18 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
   ];
 
   const currentPackage = scriptPackages.find(p => p.id === selectedScriptId) || scriptPackages[0];
+  const maxDuration = selectedScriptId === 'ultra_loop_4s' ? 4 : 22;
 
   // Playback timer loop
   useEffect(() => {
     if (isPlaying) {
       timerRef.current = setInterval(() => {
         setCurrentTime(prev => {
-          if (prev >= 22) {
+          if (prev >= maxDuration) {
+            if (selectedScriptId === 'ultra_loop_4s') {
+              // Seamless infinite loop without pausing
+              return 0;
+            }
             setIsPlaying(false);
             return 0;
           }
@@ -441,7 +527,7 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPlaying]);
+  }, [isPlaying, maxDuration, selectedScriptId]);
 
   // Handle Audio Sync
   const togglePlayAudio = () => {
@@ -454,10 +540,14 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
       if (!audioRef.current) {
         audioRef.current = new Audio(currentPackage.masterTrack || '/audio/short_38s_master_mix.wav');
         audioRef.current.muted = isMuted;
-        audioRef.current.onended = () => {
-          setIsPlaying(false);
-          setCurrentTime(0);
-        };
+        if (selectedScriptId === 'ultra_loop_4s') {
+          audioRef.current.loop = true;
+        } else {
+          audioRef.current.onended = () => {
+            setIsPlaying(false);
+            setCurrentTime(0);
+          };
+        }
       }
       audioRef.current.currentTime = currentTime;
       audioRef.current.play().catch(e => console.log('Audio autoplay prevented:', e));
@@ -609,7 +699,7 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
                   }`}
                 >
                   <Sparkles className="w-3 h-3" />
-                  <span>{pkg.id === 'hack_10s' ? '#1 10-Sec ATS Hack' : pkg.id === 'thirty_min' ? '#2 Stop 30 Mins' : pkg.id === 'founder_story' ? '#3 Founder Story' : '#4 153-Char Bug'}</span>
+                  <span>{pkg.id === 'ultra_loop_4s' ? '🔥 4s 无限循环 (Seamless Loop)' : pkg.id === 'hack_10s' ? '#1 10-Sec ATS Hack' : pkg.id === 'thirty_min' ? '#2 Stop 30 Mins' : pkg.id === 'founder_story' ? '#3 Founder Story' : '#4 153-Char Bug'}</span>
                 </button>
               ))}
             </div>
@@ -708,76 +798,149 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
                   <div className="relative w-full h-full flex flex-col justify-between p-4">
                     {/* Background visual simulation layer based on active timeline */}
                     <div className="absolute inset-0 z-0">
-                  {currentTime < 3 ? (
-                    <div className="w-full h-full bg-gradient-to-b from-red-950/80 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
-                      <div className="w-16 h-16 rounded-2xl bg-red-500/20 border-2 border-red-500 flex items-center justify-center animate-bounce">
-                        <X className="w-10 h-10 text-red-400" />
-                      </div>
-                      <div className="bg-red-950/90 border border-red-500/50 p-2.5 rounded-xl text-left text-[11px] text-red-200 w-full space-y-1">
-                        <div className="font-bold flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                          <span>Status: Rejected by ATS Bot</span>
+                  {selectedScriptId === 'ultra_loop_4s' ? (
+                    currentTime < 1 ? (
+                      <div className="w-full h-full bg-gradient-to-b from-indigo-950 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 border-2 border-indigo-400 flex items-center justify-center animate-bounce shadow-lg shadow-indigo-500/30">
+                          <span className="text-3xl">💼</span>
                         </div>
-                        <p className="text-[10px] text-slate-300">
-                          "Unfortunately, after algorithmic parsing, we will not be moving forward..."
-                        </p>
-                      </div>
-                      <div className="text-[11px] font-mono text-red-300 animate-pulse">
-                        50+ Applications Discarded
-                      </div>
-                    </div>
-                  ) : currentTime < 8 ? (
-                    <div className="w-full h-full bg-gradient-to-b from-amber-950/80 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
-                      <div className="w-20 h-20 rounded-full border-4 border-amber-500/40 flex items-center justify-center relative">
-                        <span className="text-2xl font-black text-amber-400 font-mono">38%</span>
-                        <div className="absolute -top-2 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">
-                          BOT TRAP
+                        <div className="bg-slate-950/90 border border-indigo-500/40 p-2.5 rounded-xl text-center text-xs text-indigo-200 w-full space-y-1">
+                          <div className="font-extrabold text-white flex items-center justify-center gap-1.5">
+                            <span>🎯 痛点抛出 · 上扬提问</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300">
+                            "Looking for a job?" ↗️ (直戳求职者第一刚需)
+                          </p>
+                        </div>
+                        <div className="text-[10px] font-mono text-cyan-300 bg-indigo-950/90 border border-indigo-500/50 px-2 py-0.5 rounded-full">
+                          0-1s ↗️ 上扬语调 · 抛出痛点
                         </div>
                       </div>
-                      <div className="bg-slate-950/90 border border-amber-500/40 p-2 rounded-xl text-left text-[10px] text-amber-200 w-full space-y-1 font-mono">
-                        <div className="text-slate-400">MISSING ATS KEYWORDS:</div>
-                        <div className="text-red-400 font-bold">• Microfrontend decoupling</div>
-                        <div className="text-red-400 font-bold">• Latency optimization &lt;100ms</div>
-                        <div className="text-red-400 font-bold">• Automated Playwright CI/CD</div>
-                      </div>
-                    </div>
-                  ) : currentTime < 16 ? (
-                    <div className="w-full h-full bg-gradient-to-b from-indigo-950/90 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-2">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30 animate-pulse">
-                        <Sparkles className="w-6 h-6" />
-                      </div>
-                      <div className="w-20 h-20 rounded-full border-4 border-emerald-500 flex items-center justify-center relative shadow-lg shadow-emerald-500/20">
-                        <span className="text-2xl font-black text-emerald-400 font-mono">94%</span>
-                        <div className="absolute -bottom-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full">
-                          TOP 1%
+                    ) : currentTime < 2 ? (
+                      <div className="w-full h-full bg-gradient-to-b from-cyan-950 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center animate-pulse shadow-lg shadow-cyan-500/30">
+                          <span className="text-3xl">📄</span>
+                        </div>
+                        <div className="bg-slate-950/90 border border-cyan-500/40 p-2.5 rounded-xl text-center text-xs text-cyan-200 w-full space-y-1">
+                          <div className="font-extrabold text-white flex items-center justify-center gap-1.5">
+                            <span>⚡ 三段式 / 四段式求职信</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300">
+                            "Need a cover letter?" ↗️ (节奏紧凑，直戳刚需)
+                          </p>
+                        </div>
+                        <div className="text-[10px] font-mono text-cyan-300 bg-cyan-950/90 border border-cyan-500/50 px-2 py-0.5 rounded-full">
+                          1-2s ↗️ 节奏紧凑 · 直戳刚需
                         </div>
                       </div>
-                      <div className="bg-slate-950/90 border border-emerald-500/40 p-2 rounded-xl text-left text-[10px] text-emerald-200 w-full space-y-1">
-                        <div className="font-bold text-white flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>4-Tier Executive Pitch Ready</span>
+                    ) : currentTime < 3 ? (
+                      <div className="w-full h-full bg-gradient-to-b from-yellow-950/80 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-yellow-500/20 border-2 border-yellow-400 flex items-center justify-center shadow-lg shadow-yellow-500/30 animate-pulse">
+                          <span className="text-3xl">🧞‍♂️⚡</span>
                         </div>
-                        <p className="text-[9px] text-slate-300">
-                          Tailored with 1-Click to Stripe / LinkedIn / Indeed job descriptions!
-                        </p>
+                        <div className="bg-slate-950/90 border border-yellow-500/40 p-2.5 rounded-xl text-center text-xs text-yellow-200 w-full space-y-1">
+                          <div className="font-extrabold text-yellow-300 flex items-center justify-center gap-1.5 text-sm tracking-wider">
+                            <span>SUPERJOBGENIE</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300">
+                            8,000+ 字符全文深度解析 · 一键智能匹配
+                          </p>
+                        </div>
+                        <div className="text-[10px] font-mono text-yellow-300 bg-yellow-950/90 border border-yellow-500/50 px-2 py-0.5 rounded-full">
+                          2-3s ⚡ 沉稳有力 · 亮出品牌
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-b from-rose-950 via-red-950/80 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center shadow-lg shadow-rose-500/40 animate-sub-shake">
+                          <span className="text-3xl">🔥💥</span>
+                        </div>
+                        <div className="bg-slate-950/90 border border-rose-500/60 p-2.5 rounded-xl text-center text-xs text-rose-200 w-full space-y-1">
+                          <div className="font-black text-rose-400 flex items-center justify-center gap-1.5 text-sm tracking-wider">
+                            <span>100% FREE NO CREDIT CARD</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300">
+                            免安装网页端 + Chrome 商店极速扩展
+                          </p>
+                        </div>
+                        <div className="text-[10px] font-mono text-rose-300 bg-rose-950/90 border border-rose-500/50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping" />
+                          <span>3-4s 💥 强音效 · 瞬间无缝衔接 0s</span>
+                        </div>
+                      </div>
+                    )
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-b from-orange-950/90 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
-                      <div className="w-16 h-16 rounded-2xl bg-orange-500/20 border-2 border-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/25">
-                        <Zap className="w-8 h-8 text-orange-400" />
+                    currentTime < 3 ? (
+                      <div className="w-full h-full bg-gradient-to-b from-red-950/80 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-red-500/20 border-2 border-red-500 flex items-center justify-center animate-bounce">
+                          <X className="w-10 h-10 text-red-400" />
+                        </div>
+                        <div className="bg-red-950/90 border border-red-500/50 p-2.5 rounded-xl text-left text-[11px] text-red-200 w-full space-y-1">
+                          <div className="font-bold flex items-center gap-1">
+                            <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                            <span>Status: Rejected by ATS Bot</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300">
+                            "Unfortunately, after algorithmic parsing, we will not be moving forward..."
+                          </p>
+                        </div>
+                        <div className="text-[11px] font-mono text-red-300 animate-pulse">
+                          50+ Applications Discarded
+                        </div>
                       </div>
-                      <div className="text-sm font-black text-white">
-                        SUPERJOBGENIE
+                    ) : currentTime < 8 ? (
+                      <div className="w-full h-full bg-gradient-to-b from-amber-950/80 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-20 h-20 rounded-full border-4 border-amber-500/40 flex items-center justify-center relative">
+                          <span className="text-2xl font-black text-amber-400 font-mono">38%</span>
+                          <div className="absolute -top-2 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">
+                            BOT TRAP
+                          </div>
+                        </div>
+                        <div className="bg-slate-950/90 border border-amber-500/40 p-2 rounded-xl text-left text-[10px] text-amber-200 w-full space-y-1 font-mono">
+                          <div className="text-slate-400">MISSING ATS KEYWORDS:</div>
+                          <div className="text-red-400 font-bold">• Microfrontend decoupling</div>
+                          <div className="text-red-400 font-bold">• Latency optimization &lt;100ms</div>
+                          <div className="text-red-400 font-bold">• Automated Playwright CI/CD</div>
+                        </div>
                       </div>
-                      <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xs px-4 py-2 rounded-xl shadow-lg shadow-orange-500/30 animate-bounce">
-                        👉 FREE IN PINNED COMMENT
+                    ) : currentTime < 16 ? (
+                      <div className="w-full h-full bg-gradient-to-b from-indigo-950/90 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-2">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30 animate-pulse">
+                          <Sparkles className="w-6 h-6" />
+                        </div>
+                        <div className="w-20 h-20 rounded-full border-4 border-emerald-500 flex items-center justify-center relative shadow-lg shadow-emerald-500/20">
+                          <span className="text-2xl font-black text-emerald-400 font-mono">94%</span>
+                          <div className="absolute -bottom-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full">
+                            TOP 1%
+                          </div>
+                        </div>
+                        <div className="bg-slate-950/90 border border-emerald-500/40 p-2 rounded-xl text-left text-[10px] text-emerald-200 w-full space-y-1">
+                          <div className="font-bold text-white flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>4-Tier Executive Pitch Ready</span>
+                          </div>
+                          <p className="text-[9px] text-slate-300">
+                            Tailored with 1-Click to Stripe / LinkedIn / Indeed job descriptions!
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-[10px] text-amber-400 font-bold">
-                        <span>★★★★★</span>
-                        <span className="text-slate-300">Chrome Web Store · 100% Free</span>
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-b from-orange-950/90 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-orange-500/20 border-2 border-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/25">
+                          <Zap className="w-8 h-8 text-orange-400" />
+                        </div>
+                        <div className="text-sm font-black text-white">
+                          SUPERJOBGENIE
+                        </div>
+                        <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xs px-4 py-2 rounded-xl shadow-lg shadow-orange-500/30 animate-bounce">
+                          👉 FREE IN PINNED COMMENT
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] text-amber-400 font-bold">
+                          <span>★★★★★</span>
+                          <span className="text-slate-300">Chrome Web Store · 100% Free</span>
+                        </div>
                       </div>
-                    </div>
+                    )
                   )}
                 </div>
 
@@ -786,22 +949,59 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
                   <div className="bg-black/70 backdrop-blur-md border border-white/10 px-2 py-1 rounded-lg flex items-center gap-1.5 text-[10px] font-bold text-white">
                     <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
                     <span>{activeTimelineItem.stage}</span>
+                    {selectedScriptId === 'ultra_loop_4s' && (
+                      <span className="ml-1 text-[9px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-500/40">
+                        🔄 100% Loop
+                      </span>
+                    )}
                   </div>
                   <div className="bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-md text-[10px] font-mono text-cyan-300">
-                    {currentTime.toFixed(1)}s / 22.0s
+                    {currentTime.toFixed(1)}s / {selectedScriptId === 'ultra_loop_4s' ? '4.0s' : '22.0s'}
                   </div>
                 </div>
 
                 {/* Center Dynamic Typography (Viral Creator Style Subtitles) */}
                 <div className="relative z-10 my-auto text-center px-1">
-                  <div className="inline-block bg-black/85 backdrop-blur-md border-2 border-yellow-400/80 px-3 py-1.5 rounded-xl shadow-2xl">
-                    <span className="font-black text-base sm:text-lg tracking-tight uppercase text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                      {activeTimelineItem.caption}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs font-semibold text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] line-clamp-2 px-2 bg-black/40 rounded-lg py-1">
-                    "{activeTimelineItem.voiceover}"
-                  </p>
+                  {selectedScriptId === 'ultra_loop_4s' ? (
+                    <div className="space-y-2">
+                      {currentTime < 2 ? (
+                        /* 0-2s: Pure white with solid black stroke/drop-shadow */
+                        <div className="inline-block animate-karaoke-pop bg-black/85 backdrop-blur-md border-2 border-white px-3.5 py-2 rounded-2xl shadow-2xl">
+                          <span className="font-black text-lg sm:text-xl tracking-wide uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] [text-shadow:_0_2px_4px_#000,_0_0_8px_#000]">
+                            {activeTimelineItem.caption}
+                          </span>
+                        </div>
+                      ) : currentTime < 3 ? (
+                        /* 2-3s: Electric yellow / cyber brand name */
+                        <div className="inline-block animate-karaoke-pop bg-black/90 backdrop-blur-md border-2 border-yellow-400 px-4 py-2 rounded-2xl shadow-2xl shadow-yellow-500/30">
+                          <span className="font-black text-xl sm:text-2xl tracking-tight uppercase text-yellow-300 drop-shadow-[0_2px_8px_rgba(234,179,8,0.8)] [text-shadow:_0_0_12px_rgba(234,179,8,0.8),_0_2px_4px_#000]">
+                            {activeTimelineItem.caption}
+                          </span>
+                        </div>
+                      ) : (
+                        /* 3-4s: Neon Bright Red with Shake vibration effect */
+                        <div className="inline-block animate-sub-shake bg-red-950/90 backdrop-blur-md border-2 border-rose-500 px-4 py-2.5 rounded-2xl shadow-2xl shadow-rose-600/50">
+                          <span className="font-black text-2xl sm:text-3xl tracking-tight uppercase text-rose-400 drop-shadow-[0_0_15px_rgba(244,63,94,0.9)] [text-shadow:_0_0_20px_#f43f5e,_0_2px_4px_#000]">
+                            {activeTimelineItem.caption}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-xs font-semibold text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] px-2 bg-black/60 backdrop-blur-sm rounded-lg py-1 border border-white/10">
+                        "{activeTimelineItem.voiceover}"
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="inline-block bg-black/85 backdrop-blur-md border-2 border-yellow-400/80 px-3 py-1.5 rounded-xl shadow-2xl">
+                        <span className="font-black text-base sm:text-lg tracking-tight uppercase text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                          {activeTimelineItem.caption}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs font-semibold text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] line-clamp-2 px-2 bg-black/40 rounded-lg py-1">
+                        "{activeTimelineItem.voiceover}"
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Bottom Overlay Actions inside Phone Simulator */}
@@ -844,42 +1044,73 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
               <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
                 <span>0:00</span>
                 <span className="text-cyan-400 font-bold">{currentTime.toFixed(1)}s</span>
-                <span>0:22</span>
+                <span>{selectedScriptId === 'ultra_loop_4s' ? '0:04' : '0:22'}</span>
               </div>
               <input
                 type="range"
                 min="0"
-                max="22"
+                max={selectedScriptId === 'ultra_loop_4s' ? 4 : 22}
                 step="0.1"
                 value={currentTime}
                 onChange={e => handleSeek(parseFloat(e.target.value))}
                 className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
               />
               <div className="grid grid-cols-4 gap-1 text-[10px] text-center font-bold">
-                <button
-                  onClick={() => handleSeek(1)}
-                  className={`py-1 rounded border transition ${currentTime < 3 ? 'bg-red-500/20 text-red-300 border-red-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
-                >
-                  01 Hook
-                </button>
-                <button
-                  onClick={() => handleSeek(5)}
-                  className={`py-1 rounded border transition ${currentTime >= 3 && currentTime < 8 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
-                >
-                  02 Trap
-                </button>
-                <button
-                  onClick={() => handleSeek(11)}
-                  className={`py-1 rounded border transition ${currentTime >= 8 && currentTime < 16 ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
-                >
-                  03 Equalizer
-                </button>
-                <button
-                  onClick={() => handleSeek(18)}
-                  className={`py-1 rounded border transition ${currentTime >= 16 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
-                >
-                  04 CTA
-                </button>
+                {selectedScriptId === 'ultra_loop_4s' ? (
+                  <>
+                    <button
+                      onClick={() => handleSeek(0.2)}
+                      className={`py-1 rounded border transition ${currentTime < 1 ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                    >
+                      01 Job ↗️
+                    </button>
+                    <button
+                      onClick={() => handleSeek(1.2)}
+                      className={`py-1 rounded border transition ${currentTime >= 1 && currentTime < 2 ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                    >
+                      02 Letter ↗️
+                    </button>
+                    <button
+                      onClick={() => handleSeek(2.2)}
+                      className={`py-1 rounded border transition ${currentTime >= 2 && currentTime < 3 ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                    >
+                      03 Genie ⚡
+                    </button>
+                    <button
+                      onClick={() => handleSeek(3.2)}
+                      className={`py-1 rounded border transition ${currentTime >= 3 ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                    >
+                      04 Free! 🔥
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleSeek(1)}
+                      className={`py-1 rounded border transition ${currentTime < 3 ? 'bg-red-500/20 text-red-300 border-red-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                    >
+                      01 Hook
+                    </button>
+                    <button
+                      onClick={() => handleSeek(5)}
+                      className={`py-1 rounded border transition ${currentTime >= 3 && currentTime < 8 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                    >
+                      02 Trap
+                    </button>
+                    <button
+                      onClick={() => handleSeek(11)}
+                      className={`py-1 rounded border transition ${currentTime >= 8 && currentTime < 16 ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                    >
+                      03 Equalizer
+                    </button>
+                    <button
+                      onClick={() => handleSeek(18)}
+                      className={`py-1 rounded border transition ${currentTime >= 16 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}
+                    >
+                      04 CTA
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -970,6 +1201,47 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
                       <strong>Target:</strong> {currentPackage.targetAudience}
                     </p>
                   </div>
+
+                  {/* 4s Ultra Viral Loop Special Execution Card */}
+                  {currentPackage.id === 'ultra_loop_4s' && (
+                    <div className="p-3.5 bg-gradient-to-r from-rose-950/70 via-slate-900 to-amber-950/70 border border-rose-500/40 rounded-xl space-y-2.5 text-xs">
+                      <div className="flex items-center gap-2 text-rose-300 font-bold uppercase tracking-wider text-[11px]">
+                        <Flame className="w-4 h-4 text-rose-400" />
+                        <span>Shorts 剪辑与节奏执行表 · 军师实操三大军规</span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                        <div className="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 space-y-1">
+                          <div className="font-bold text-white flex items-center gap-1.5">
+                            <span>🔄 画面循环设计 (Seamless Loop)</span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 leading-relaxed">
+                            尾句 <span className="text-rose-400 font-bold">"100% FREE! 🔥"</span> 画面末尾，与开头 <span className="text-indigo-300 font-bold">"Looking for a job? 💼"</span> 口型与动作100%无缝咬合，观众未反应即进入下一轮，实现 120%+ 超高完播率！
+                          </p>
+                        </div>
+
+                        <div className="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 space-y-1">
+                          <div className="font-bold text-white flex items-center gap-1.5">
+                            <span>🎙️ 配音与语气 (Voiceover Cues)</span>
+                          </div>
+                          <div className="text-[10px] text-slate-300 space-y-0.5 font-mono">
+                            <div>• 0-1s: <strong>"Looking for a job?" ↗️</strong> (上扬抛痛点)</div>
+                            <div>• 1-2s: <strong>"Need a cover letter?" ↗️</strong> (紧凑直戳刚需)</div>
+                            <div>• 2-3s: <strong>"SuperJobGenie" ⚡</strong> (沉稳亮品牌)</div>
+                            <div>• 3-4s: <strong>"100% FREE! 🔥" 💥</strong> (干脆利落+爆炸音效)</div>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 space-y-1">
+                          <div className="font-bold text-white flex items-center gap-1.5">
+                            <span>✨ 字幕动效 (Dynamic Subtitles)</span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 leading-relaxed">
+                            海外主流卡拉OK逐词放大跳跃动效：前两句<strong>纯白加黑边</strong>，中间品牌名用<strong>亮黄/科技蓝</strong>，末句 "100% FREE!" 采用<strong>荧光亮红伴随轻微震动 (Shake) 特效</strong>！
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Scene Timeline Table */}
                   <div className="space-y-2">
