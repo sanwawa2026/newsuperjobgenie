@@ -9,7 +9,7 @@ async function run() {
   const prompt = "Speak with punchy authority, memorable closing: SuperJobGenie. Move faster. Land better. Add to Chrome — it's free. Available now on the Chrome Web Store.";
   console.log("Generating scene5.wav...");
   const res = await ai.models.generateContent({
-    model: "gemini-3.8-flash-tts",
+    model: "gemini-2.5-flash-tts",
     contents: prompt,
     config: {
       responseModalities: ["AUDIO"]

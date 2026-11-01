@@ -39,12 +39,15 @@ import { TelemetryManager } from './services/telemetry';
 import { 
   DEFAULT_CANDIDATE, 
   TANG_CANDIDATE_PROFILE,
+  FINANCIAL_ACQUISITIONS_CANDIDATE_PROFILE,
   STRIPE_FRONTEND_ARCHITECT_JD,
+  STANDARD_PROPERTY_ACQUISITIONS_JD,
   FULL_INDEED_AI_TRAINER_JD, 
   FULL_INDEED_SENIOR_BACKEND_JD 
 } from './data/sampleData';
 import { ExtractedJobData, MatchAnalysisResult, CandidateProfile } from './types';
 import { analyzeJobMatch, extractJobContent } from './services/api';
+import { generateSynchronizedCoverLetters } from './utils/coverLetterGenerator';
 
 export default function App() {
   const [candidate, setCandidate] = useState<CandidateProfile>(TANG_CANDIDATE_PROFILE);
@@ -97,11 +100,20 @@ export default function App() {
       if (titleParam) {
         const decodedTitle = decodeURIComponent(titleParam);
         const decodedCompany = companyParam ? decodeURIComponent(companyParam) : 'Target Company';
-        setCurrentJob(prev => ({
-          ...prev,
-          title: decodedTitle,
-          company: decodedCompany
-        }));
+        setCurrentJob(prev => {
+          const nextJob = {
+            ...prev,
+            title: decodedTitle,
+            company: decodedCompany
+          };
+          setMatchResult(mPrev => ({
+            ...mPrev,
+            jobTitle: decodedTitle,
+            company: decodedCompany,
+            coverLetters: generateSynchronizedCoverLetters(nextJob, mPrev, candidate)
+          }));
+          return nextJob;
+        });
       }
 
       if (scoreParam && tierParam) {
@@ -253,6 +265,7 @@ export default function App() {
 
   const candidatePresets = [
     TANG_CANDIDATE_PROFILE,
+    FINANCIAL_ACQUISITIONS_CANDIDATE_PROFILE,
     DEFAULT_CANDIDATE,
     {
       id: 'ai-quant-engineer',
@@ -280,7 +293,20 @@ export default function App() {
         jobDescription: jdText,
         resumeText: cand.rawResumeText,
         candidateSkills: cand.skills,
+        jobTitle: job.title,
+        company: job.company
       });
+      // 军师核心保障：确保求职信与当前检测到的职位和公司 100% 绝对同步
+      result.jobTitle = job.title;
+      result.company = job.company;
+      if (job.location) result.location = job.location;
+      const rawTier3 = result.coverLetters?.tier3Free || '';
+      if (
+        !rawTier3.includes(job.company) ||
+        (rawTier3.includes('Stripe') && !job.company.toLowerCase().includes('stripe'))
+      ) {
+        result.coverLetters = generateSynchronizedCoverLetters(job, result, cand);
+      }
       setMatchResult(result);
       TelemetryManager.track('match_score_viewed', {
         jobTitle: job.title,
@@ -303,7 +329,15 @@ export default function App() {
       company: preset.company,
       charCount: preset.characterCount
     });
-    runAnalysis(preset, candidate);
+
+    // 军师联动保全：若选中的是用户实战的 Standard Property 职位，自动联动高保真金融分析师档案
+    let targetCandidate = candidate;
+    if (preset.company.includes('Standard Property') || preset.title.toLowerCase().includes('acquisitions')) {
+      targetCandidate = FINANCIAL_ACQUISITIONS_CANDIDATE_PROFILE;
+      setCandidate(FINANCIAL_ACQUISITIONS_CANDIDATE_PROFILE);
+    }
+
+    runAnalysis(preset, targetCandidate);
   };
 
   const handleSelectCandidatePreset = (preset: CandidateProfile) => {

@@ -14,7 +14,7 @@ if (!fs.existsSync(outDir)) {
 async function generateAudio(filename: string, prompt: string) {
   console.log(`Generating ${filename}...`);
   const res = await ai.models.generateContent({
-    model: "gemini-3.8-flash-tts",
+    model: "gemini-2.5-flash-tts",
     contents: prompt,
     config: {
       responseModalities: ["AUDIO"]

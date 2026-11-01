@@ -15,10 +15,13 @@ import {
   Trash2,
   Bug,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
+  Copy,
+  Check
 } from 'lucide-react';
 import { MatchAnalysisResult, ExtractedJobData, CandidateProfile } from '../types';
 import { TelemetryManager } from '../services/telemetry';
+import { generateSynchronizedCoverLetters } from '../utils/coverLetterGenerator';
 
 interface HudWidgetProps {
   jobData: ExtractedJobData;
@@ -47,6 +50,23 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isCandidateExpanded, setIsCandidateExpanded] = useState(false);
+  const [previewLetterTier, setPreviewLetterTier] = useState<'3tier' | '4tier' | null>(null);
+  const [copiedLetter, setCopiedLetter] = useState(false);
+
+  // 军师核心保障：确保 HUD 浮板生成的求职信与当前插件检测职位 100% 实时同步
+  const activeHudLetters = React.useMemo(() => {
+    return generateSynchronizedCoverLetters(jobData, matchResult, candidate);
+  }, [jobData, matchResult, candidate]);
+
+  const handleCopyLetter = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedLetter(true);
+    setTimeout(() => setCopiedLetter(false), 2000);
+    TelemetryManager.track('cover_letter_copied', {
+      source: 'hud_widget',
+      tier: previewLetterTier
+    });
+  };
 
   // If in buggy mode, simulate the exact broken state from user's screenshot
   const displayChars = isBuggyMode ? 153 : matchResult.charCountCaptured;
@@ -433,26 +453,108 @@ export const HudWidget: React.FC<HudWidgetProps> = ({
             <span>Open in Executive Dashboard (PRO)</span>
           </button>
 
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => {
-                TelemetryManager.track('panel_expanded', { source: 'hud_letter_free' });
-                onOpenDashboard('cover-letter');
-              }}
-              className="py-1.5 px-2 rounded-lg font-semibold text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1 transition"
-            >
-              <span>📨 3-Tier Letter (Free)</span>
-            </button>
-            <button
-              onClick={() => {
-                TelemetryManager.track('paywall_modal_hit', { source: 'hud_letter_pro' });
-                onOpenDashboard('cover-letter-pro');
-              }}
-              className="py-1.5 px-2 rounded-lg font-semibold text-[11px] bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-500/40 flex items-center justify-center gap-1 transition"
-            >
-              <Crown className="w-3 h-3 text-amber-300" />
-              <span>👑 4-Tier FAANG (Pro)</span>
-            </button>
+          {/* GENERATE TAILORED APPLICATION */}
+          <div className="space-y-2 pt-1 border-t border-slate-800/80">
+            <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <span>GENERATE TAILORED APPLICATION</span>
+              {previewLetterTier && (
+                <button
+                  onClick={() => setPreviewLetterTier(null)}
+                  className="text-slate-400 hover:text-white text-[10px] px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
+                >
+                  Close
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  TelemetryManager.track('cover_letter_generated', { tier: '3tier', source: 'hud_widget' });
+                  setPreviewLetterTier(previewLetterTier === '3tier' ? null : '3tier');
+                }}
+                className={`py-1.5 px-2 rounded-lg font-semibold text-[11px] border flex items-center justify-center gap-1 transition cursor-pointer ${
+                  previewLetterTier === '3tier'
+                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                    : 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 border-slate-700'
+                }`}
+              >
+                <span>✉️ 3-Tier Professional</span>
+              </button>
+              <button
+                onClick={() => {
+                  TelemetryManager.track('cover_letter_generated', { tier: '4tier', source: 'hud_widget' });
+                  setPreviewLetterTier(previewLetterTier === '4tier' ? null : '4tier');
+                }}
+                className={`py-1.5 px-2 rounded-lg font-semibold text-[11px] border flex items-center justify-center gap-1 transition cursor-pointer ${
+                  previewLetterTier === '4tier'
+                    ? 'bg-purple-600 text-white border-purple-400 shadow-md'
+                    : 'bg-purple-950/80 hover:bg-purple-900 text-purple-200 border-purple-500/40'
+                }`}
+              >
+                <Crown className="w-3 h-3 text-amber-300" />
+                <span>👑 4-Tier Executive</span>
+              </button>
+            </div>
+
+            {/* Inline Synchronized Cover Letter Preview within HUD */}
+            {previewLetterTier && (
+              <div className="p-3 bg-slate-950 border border-indigo-500/40 rounded-xl space-y-2.5 animate-fadeIn text-xs">
+                <div className="flex items-center justify-between text-[11px]">
+                  <div className="flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                    <span className="font-bold text-white">
+                      {previewLetterTier === '3tier' ? '3-Tier Professional' : '4-Tier Executive Pitch'}
+                    </span>
+                    <span className="text-[10px] text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                      100% Synced
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleCopyLetter(
+                        previewLetterTier === '3tier' 
+                          ? activeHudLetters.tier3Free 
+                          : activeHudLetters.tier4Pro
+                      )}
+                      className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer"
+                    >
+                      {copiedLetter ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedLetter ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="text-[10px] text-slate-400">
+                  Target: <strong className="text-white">{jobData.title}</strong> @ <span className="text-cyan-300 font-semibold">{jobData.company}</span>
+                </div>
+
+                <textarea
+                  readOnly
+                  rows={8}
+                  value={previewLetterTier === '3tier' ? activeHudLetters.tier3Free : activeHudLetters.tier4Pro}
+                  className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-slate-200 font-sans text-[11px] leading-relaxed resize-none focus:outline-none"
+                />
+
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    onClick={() => {
+                      onOpenDashboard(previewLetterTier === '3tier' ? 'cover-letter' : 'cover-letter-pro');
+                    }}
+                    className="text-[10px] font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Open in Executive Dashboard</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={() => setPreviewLetterTier(null)}
+                    className="text-[10px] text-slate-400 hover:text-slate-200 cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ export type TelemetryEventType =
   | 'panel_expanded'
   | 'gap_matrix_inspected'
   | 'pivot_analysis_viewed'
+  | 'cover_letter_generated'
   | 'cover_letter_copied'
   | 'bullet_rewrite_copied'
   | 'paywall_modal_hit'

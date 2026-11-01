@@ -24,6 +24,8 @@ export async function analyzeJobMatch(payload: {
   jobDescription: string;
   resumeText: string;
   candidateSkills: string[];
+  jobTitle?: string;
+  company?: string;
 }): Promise<MatchAnalysisResult> {
   const res = await fetch('/api/analyze-match', {
     method: 'POST',

@@ -19,7 +19,8 @@ import {
   FULL_INDEED_AI_TRAINER_JD, 
   FULL_INDEED_SENIOR_BACKEND_JD,
   TAIWAN_SENIOR_BACKEND_JD,
-  SINGAPORE_FINTECH_LEAD_JD
+  SINGAPORE_FINTECH_LEAD_JD,
+  STANDARD_PROPERTY_ACQUISITIONS_JD
 } from '../data/sampleData';
 
 interface IndeedSimulatorProps {
@@ -97,6 +98,17 @@ export const IndeedSimulator: React.FC<IndeedSimulatorProps> = ({
             title="Taiwan Microservices Cloud Role (Bilingual Matching Verified)"
           >
             <span>🇹🇼 Taiwan Microservices Backend</span>
+          </button>
+          <button
+            onClick={() => onSelectPreset(STANDARD_PROPERTY_ACQUISITIONS_JD)}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition flex items-center gap-1 ${
+              currentJob.company.includes('Standard Property')
+                ? 'bg-amber-600 text-white shadow-sm'
+                : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+            }`}
+            title="Real Estate Investment Acquisitions Analyst (Live Indeed Match)"
+          >
+            <span>🏢 Standard Property (Analyst)</span>
           </button>
           <button
             onClick={() => onSelectPreset(SINGAPORE_FINTECH_LEAD_JD)}

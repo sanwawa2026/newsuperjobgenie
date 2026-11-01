@@ -43,13 +43,13 @@ async function run() {
     fs.mkdirSync(outDir, { recursive: true });
   }
 
-  console.log("Generating 5-scene master voiceover via gemini-3.8-flash-tts...");
+  console.log("Generating 5-scene master voiceover via gemini-2.5-flash-tts...");
 
   for (const scene of scenes) {
     console.log(`Generating ${scene.filename} (${scene.time})...`);
     try {
       const res = await ai.models.generateContent({
-        model: "gemini-3.8-flash-tts",
+        model: "gemini-2.5-flash-tts",
         contents: scene.prompt,
         config: {
           responseModalities: ["AUDIO"]

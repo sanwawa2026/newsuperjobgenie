@@ -29,6 +29,7 @@ import {
   STRIPE_FRONTEND_ARCHITECT_JD, 
   FULL_INDEED_AI_TRAINER_JD, 
   FULL_INDEED_SENIOR_BACKEND_JD,
+  STANDARD_PROPERTY_ACQUISITIONS_JD,
   LINKEDIN_STAFF_INFRA_JD,
   GLASSDOOR_FINTECH_LEAD_JD,
   GREENHOUSE_AI_RESEARCH_JD
@@ -443,6 +444,16 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
           <span className="text-slate-400 font-semibold">Or Pick a Live Preset JD:</span>
           <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => onSelectJobPreset(STANDARD_PROPERTY_ACQUISITIONS_JD)}
+              className={`px-3 py-1 rounded-lg font-semibold border transition ${
+                jobData.company.includes('Standard Property')
+                  ? 'bg-amber-600 text-white border-amber-500 shadow-sm'
+                  : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+              }`}
+            >
+              🏢 Standard Property (Analyst, Acquisitions)
+            </button>
             <button
               onClick={() => onSelectJobPreset(STRIPE_FRONTEND_ARCHITECT_JD)}
               className={`px-3 py-1 rounded-lg font-semibold border transition ${

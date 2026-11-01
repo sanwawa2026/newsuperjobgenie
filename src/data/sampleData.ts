@@ -503,5 +503,72 @@ Requirements:
   rawTruncatedSnippet153: `We are seeking an experienced Lead Software Engineer to head the architecture and execution of next-generation digital banking transaction platforms across APAC...`
 };
 
+// US Real Estate Acquisitions Analyst JD (User Screenshot Target)
+export const STANDARD_PROPERTY_ACQUISITIONS_JD: ExtractedJobData = {
+  title: 'Analyst, Acquisitions',
+  company: 'Standard Property Company Inc',
+  location: 'On-site / Hybrid',
+  salary: '$95,000 - $130,000 / year + Bonus',
+  fullBodyText: `Analyst, Acquisitions
+Standard Property Company Inc · On-site / Hybrid · Finance, Banking & Accounting · Active Posting
 
+Job Summary:
+Standard Property Company Inc is seeking an Analyst, Acquisitions to join our investment acquisitions team. The candidate will support the underwriting, due diligence, and financial modeling of multi-family and commercial real estate acquisition opportunities.
 
+Key Responsibilities:
+• Build and maintain complex discounted cash flow (DCF), LBO, and financial modeling in Excel to evaluate investment returns, debt financing structures, and equity waterfalls.
+• Conduct thorough real estate market research, demographic analysis, competitive rent roll evaluations, and property due diligence.
+• Support senior acquisitions executives in preparing Investment Committee approval packages and strategic lender underwriting books.
+• Coordinate third-party due diligence reports, including environmental site assessments, property condition evaluations, and title/zoning surveys.
+• Utilize financial data pipelines, SQL databases, and automated reporting tools (Tableau, PowerBI) to optimize investment tracking.
+
+Qualifications:
+• 2-5 years of experience in real estate investment, investment banking, private equity, or financial advisory.
+• Advanced proficiency in financial analysis, DCF, LBO modeling, and Microsoft Excel (VBA is a plus).
+• Demonstrated experience with M&A advisory, financial due diligence, and capital markets underwriting.
+• Working knowledge of SQL, Python for financial analytics, or database query tools is highly valued.
+• Bachelor’s degree in Finance, Accounting, Real Estate, Economics, or related quantitative field.`,
+  characterCount: 3947,
+  wordCount: 340,
+  sections: {
+    benefits: ['Comprehensive Medical, Dental & Vision Coverage', '401(k) Matching Program', 'Annual Performance Incentive Bonus', 'Hybrid Work Flexibility'],
+    responsibilities: [
+      'Build and maintain complex DCF and LBO financial models',
+      'Conduct market research and property acquisition due diligence',
+      'Prepare Investment Committee presentations and underwriting books',
+      'Coordinate third-party due diligence and closing processes',
+      'Optimize investment tracking with financial data queries'
+    ],
+    qualifications: [
+      'Advanced financial modeling (DCF, LBO, waterfalls)',
+      'Real estate due diligence and M&A advisory background',
+      'Expert Excel & financial data analysis (SQL / Python plus)',
+      'Strong quantitative and analytical problem-solving skills'
+    ],
+    notes: ['Live Indeed Posting / Standard Property Company Inc']
+  },
+  extractionSource: 'Indeed Live Job Target (Captured 3,947 chars body)',
+  rawTruncatedSnippet153: `Standard Property Company Inc is seeking an Analyst, Acquisitions to join our investment team. The candidate will support the underwriting and financial modeling...`
+};
+
+// US Real Estate Acquisitions Candidate Profile (User Screenshot Exact Match)
+export const FINANCIAL_ACQUISITIONS_CANDIDATE_PROFILE: CandidateProfile = {
+  id: "cand-acquisitions-analyst",
+  name: "Senior Financial & Acquisitions Analyst",
+  title: "Financial & Acquisitions Analyst",
+  location: "Los Angeles, CA / Hybrid",
+  targetRole: "Analyst, Acquisitions",
+  yearsOfExperience: 5,
+  education: "Bachelor of Science in Finance & Accounting",
+  certifications: ["CFA Level II Candidate", "FMVA Financial Modeling Certification"],
+  isAnonymousMode: true,
+  anonymizedLabel: "Anonymous Mode Active (Verified Profile)",
+  uploadedFileName: "resume-acquisitions-analyst.pdf",
+  uploadedFileSize: "82 KB",
+  rawResumeText: `5+ years experience in investment banking, real estate acquisitions, and financial modeling. Built and maintained dynamic DCF, LBO, and JV waterfall models in Excel, Python, and SQL for over $850M in commercial transactions. Led comprehensive due diligence, rent roll variance analyses, and prepared Investment Committee memorandums with zero audit discrepancies. Proficient across Python, SQL, PostgreSQL, GAAP, Tableau, and PowerBI.`,
+  skills: [
+    "Python", "SQL", "PostgreSQL", "Financial Modeling", "DCF", "LBO",
+    "Accounting", "GAAP", "FP&A", "Excel", "VBA", "Tableau", "PowerBI",
+    "Financial Analysis", "M&A Advisory", "Valuation Modeling"
+  ]
+};

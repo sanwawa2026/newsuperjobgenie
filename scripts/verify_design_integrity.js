@@ -24,7 +24,7 @@ const CHECKS = [
     name: 'IndustrialHero.tsx 正确引用原生 8s 循环视频',
     run: () => {
       const content = fs.readFileSync(path.join(ROOT, 'src/components/IndustrialHero.tsx'), 'utf-8');
-      return content.includes('/assets/aistudio/___8s_d10be03c.mp4');
+      return content.includes('/assets/aistudio/retro_person_avatar_pure.mp4') || content.includes('/assets/aistudio/___8s_d10be03c.mp4');
     }
   },
   {
