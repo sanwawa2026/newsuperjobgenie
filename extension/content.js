@@ -2786,11 +2786,34 @@
    * Export all scanned leads in session to clean CSV with UTF-8 BOM
    */
   function exportScannedLeadsToCSV() {
-    if (scannedLeadsRegistry.size === 0) {
+    // 1. Force a synchronous scan to capture all visible cards on page
+    try {
       runAutoPageScan(true);
+    } catch (e) {}
+
+    // 2. Guarantee that currently active job is in registry if valid
+    const currentJob = cachedJobData || extractFullIndeedJob();
+    if (currentJob && currentJob.title && !currentJob.title.startsWith('Select a Job')) {
+      const activeEval = evaluateJobMatch(currentJob, candidateProfile);
+      const leadKey = currentJob.jk ? `jk_${currentJob.jk}` : `${currentJob.title}::${currentJob.company}`;
+      scannedLeadsRegistry.set(leadKey, {
+        key: leadKey,
+        title: currentJob.title,
+        company: currentJob.company || 'Target Employer',
+        location: currentJob.location || 'On-site / Hybrid',
+        score: activeEval.overallMatchScore,
+        jk: currentJob.jk || '',
+        url: window.location.href,
+        snippet: (currentJob.fullBodyText || '').slice(0, 300),
+        isExpired: Boolean(currentJob.freshness?.isExpired),
+        isStale: Boolean(currentJob.freshness?.isStale),
+        verifiedSkills: activeEval.verifiedSkills || [],
+        scannedAt: Date.now()
+      });
     }
+
     if (scannedLeadsRegistry.size === 0) {
-      alert('No job leads detected on current page yet. Please run Scan Page Jobs first.');
+      alert('No job leads detected on current page yet. Please click or select any job posting first.');
       return;
     }
 
@@ -2908,6 +2931,27 @@
 
       const evaluation = evaluateJobMatch(job, candidateProfile);
       const displayChars = isBuggyMode ? 153 : (job.characterCount || 0);
+
+      // Auto-save active evaluated job into scannedLeadsRegistry so it is always exportable to CSV
+      if (job && job.title && !job.title.startsWith('Select a Job') && job.company && !job.company.startsWith('Click any')) {
+        const leadKey = job.jk ? `jk_${job.jk}` : `${job.title}::${job.company}`;
+        if (!scannedLeadsRegistry.has(leadKey) || job.hasRealBody) {
+          scannedLeadsRegistry.set(leadKey, {
+            key: leadKey,
+            title: job.title,
+            company: job.company,
+            location: job.location || 'On-site / Hybrid',
+            score: evaluation.overallMatchScore,
+            jk: job.jk || '',
+            url: window.location.href,
+            snippet: (job.fullBodyText || '').slice(0, 300),
+            isExpired: Boolean(job.freshness?.isExpired),
+            isStale: Boolean(job.freshness?.isStale),
+            verifiedSkills: evaluation.verifiedSkills || [],
+            scannedAt: Date.now()
+          });
+        }
+      }
 
       let wrapper = sRoot.querySelector('#sjg-shadow-wrapper');
       if (!wrapper) {
@@ -3828,13 +3872,28 @@ ${candidateDisplayName}`;
         'div[data-job-id]',
         'div.job-card-list__entity-lockup',
         'div.job-card-list',
-        'li.artdeco-list__item:has(a[href*="/jobs/view/"])',
-        'div.base-card:has(a[href*="/jobs/view/"])',
         'div.job-search-card',
         'div[data-entity-urn*="urn:li:jobPosting:"]'
       ];
       
-      const rawCards = Array.from(document.querySelectorAll(cardSelectors.join(', ')));
+      let rawCards = [];
+      try {
+        rawCards = Array.from(document.querySelectorAll(cardSelectors.join(', ')));
+      } catch (e) {
+        console.warn('[SuperJobGenie] Selector error:', e);
+      }
+
+      // LinkedIn Semantic Deep Discovery: find any container wrapping a job link reliably
+      if (detectPlatform() === 'LinkedIn' || window.location.hostname.includes('linkedin.com')) {
+        const lnLinks = document.querySelectorAll('a[href*="/jobs/view/"], a.job-card-list__title, a.job-card-container__link');
+        lnLinks.forEach(lnk => {
+          const c = lnk.closest('li, div.job-card-container, div.jobs-search-results-list__list-item, div.base-card, .artdeco-list__item, [data-occludable-job-id]');
+          if (c && !rawCards.includes(c) && c !== document.body && !c.closest('#sjg-shadow-host-root')) {
+            rawCards.push(c);
+          }
+        });
+      }
+
       const allCards = rawCards.filter(el => {
         if (el.classList.contains('jobsearch-ResultsList') || el.id === 'mosaic-provider-jobcards') return false;
         const parentCard = el.parentElement?.closest(cardSelectors.join(', '));
