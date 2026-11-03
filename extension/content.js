@@ -294,9 +294,11 @@
       document.querySelector('.jobs-search__job-details') ||
       document.querySelector('.jobs-details') ||
       document.querySelector('.job-view-layout') ||
+      document.querySelector('.scaffold-layout__detail') ||
       document.querySelector('.jobs-search-results-list__list-item--active') ||
       document.querySelector('.job-details-jobs-unified-top-card__container--two-pane') ||
       document.querySelector('.jobs-description') ||
+      document.querySelector('.jobs-search__job-details--container') ||
       // Fallback
       document.querySelector('.fastviewjob') ||
       document;
@@ -359,7 +361,9 @@
       '#job-details',
       '.jobs-box__html-content',
       '.jobs-unified-description__content',
-      '[data-testid="job-details"]'
+      '[data-testid="job-details"]',
+      '.scaffold-layout__detail .jobs-description-content',
+      '.jobs-search__job-details--container'
     ];
 
     // Priority 1: Check active pane first
