@@ -134,6 +134,8 @@
   function isSearchHeader(str) {
     if (!str) return true;
     const s = str.trim().toLowerCase();
+    if (s.length < 2) return true;
+    if (s.startsWith('about ') || s.startsWith('who we are') || s.startsWith('the role') || s.startsWith('your skills') || s.startsWith('what you') || s.startsWith('what we') || s.startsWith('w2 only') || s.startsWith('why join')) return true;
     return s.includes(' jobs in ') || 
            s.includes(' jobs near ') || 
            s.includes(' jobs, employment') || 
@@ -146,6 +148,9 @@
            s.includes('job details') ||
            s.includes('full job description') ||
            s.includes('about the company') ||
+           s.includes('about the role') ||
+           s.includes('who we are') ||
+           s.includes('the role') ||
            s.includes('company overview') ||
            s.includes('工作職缺') ||
            s.includes('職缺列表') ||
@@ -154,6 +159,10 @@
            s.includes('職務說明') ||
            s === 'job description' ||
            s === 'overview' ||
+           s === 'summary' ||
+           s === 'responsibilities' ||
+           s === 'qualifications' ||
+           s === 'requirements' ||
            s === 'faq' ||
            s === 'faqs';
   }
@@ -784,27 +793,29 @@
             title = cleanH1;
           }
         }
-        // If still no title, inspect the first 3 lines of fullBodyText (e.g. "We're looking for a Senior Fullstack Software Engineer...")
-        if (!title || title.startsWith('Select a Job')) {
-          const roleMatch = fullBodyText.match(/(?:looking for|hiring|seeking)\s+(?:an?\s+)?([A-Za-z0-9\s/&,.-]{3,60}?(?:Engineer|Developer|Manager|Analyst|Scientist|Architect|Specialist|Director|Lead|Consultant|Designer))/i);
-          if (roleMatch && roleMatch[1]) {
-            title = roleMatch[1].trim();
+        // If still no title, prefer lastClickedCard.title or look for standard role patterns
+        if (!title || title.startsWith('Select a Job') || isSearchHeader(title)) {
+          if (lastClickedCard?.title && !isSearchHeader(lastClickedCard.title)) {
+            title = lastClickedCard.title;
           } else {
-            const firstLines = fullBodyText.split('\n').map(l => l.trim()).filter(l => l.length >= 5 && l.length <= 80 && !isSearchHeader(l));
-            if (firstLines.length > 0) {
-              title = firstLines[0];
+            const roleMatch = fullBodyText.match(/(?:looking for|hiring|seeking)\s+(?:an?\s+)?([A-Za-z0-9\s/&,.-]{3,60}?(?:Engineer|Developer|Manager|Analyst|Scientist|Architect|Specialist|Director|Lead|Consultant|Designer))/i);
+            if (roleMatch && roleMatch[1] && !isSearchHeader(roleMatch[1])) {
+              title = roleMatch[1].trim();
             }
           }
         }
       }
 
       if (!company || isJunkCompany(company)) {
-        const topComp = document.querySelector('.job-details-jobs-unified-top-card__company-name, .jobs-unified-top-card__company-name, .job-details-jobs-unified-top-card__primary-description a, .jobs-unified-top-card__primary-description a');
+        const topComp = document.querySelector('.job-details-jobs-unified-top-card a[href*="/company/"], .scaffold-layout__detail a[href*="/company/"], a[href*="/company/"], .job-details-jobs-unified-top-card__company-name, .jobs-unified-top-card__company-name, .job-details-jobs-unified-top-card__primary-description a');
         if (topComp && topComp.innerText.trim()) {
           const cleanComp = topComp.innerText.replace(/[\d.]+\s*[★*]+.*$/g, '').trim();
           if (!isJunkCompany(cleanComp)) {
             company = cleanComp;
           }
+        }
+        if ((!company || isJunkCompany(company)) && lastClickedCard?.company) {
+          company = lastClickedCard.company;
         }
         if (!company || isJunkCompany(company)) {
           company = 'Target Employer';
@@ -2824,12 +2835,9 @@
       'Job Title',
       'Company',
       'Location',
-      'Match Score (%)',
-      'Match Tier',
-      'Posting Freshness',
-      'Key Matched Skills',
-      'Job URL',
-      'Scanned Date'
+      'Match',
+      'Key Skills',
+      'Apply Link'
     ];
 
     const escapeCsv = (str) => {
@@ -2838,17 +2846,48 @@
       return `"${s}"`;
     };
 
-    const rows = leads.map(l => [
-      escapeCsv(l.title),
-      escapeCsv(l.company),
-      escapeCsv(l.location || 'N/A'),
-      l.score,
-      escapeCsv(l.score >= 90 ? 'Top 1% Exceptional' : (l.score >= 75 ? 'Competitive Strong' : (l.score >= 60 ? 'Transferable' : 'Cross-Track'))),
-      escapeCsv(l.isExpired ? 'Closed / Expired' : (l.isStale ? '30+ Days Old' : 'Active Posting')),
-      escapeCsv((l.verifiedSkills || []).map(s => s.name || s).join(', ')),
-      escapeCsv(l.url || window.location.href),
-      escapeCsv(new Date(l.scannedAt || Date.now()).toISOString().split('T')[0])
-    ]);
+    const cleanSkillTag = (skill) => {
+      const raw = typeof skill === 'string' ? skill : (skill.name || skill.skill || '');
+      const clean = raw.replace(/^[-•*]\s*/, '').trim();
+      return clean.length > 20 ? clean.slice(0, 20) + '…' : clean;
+    };
+
+    const cleanJobUrl = (rawUrl, jk) => {
+      if (!rawUrl && !jk) return '';
+      if (jk && (detectPlatform() === 'LinkedIn' || window.location.hostname.includes('linkedin.com'))) {
+        return `https://www.linkedin.com/jobs/view/${jk}/`;
+      }
+      try {
+        const u = new URL(rawUrl);
+        if (u.hostname.includes('linkedin.com')) {
+          const m = u.pathname.match(/\/jobs\/view\/(\d+)/);
+          if (m) return `https://www.linkedin.com/jobs/view/${m[1]}/`;
+        }
+        return `${u.origin}${u.pathname}`;
+      } catch (e) {
+        return rawUrl ? rawUrl.split('?')[0] : '';
+      }
+    };
+
+    const rows = leads.map(l => {
+      const tierShort = l.score >= 90 ? 'Top 1%' : (l.score >= 75 ? 'Strong' : (l.score >= 60 ? 'Fit' : 'Cross'));
+      const skillsShort = (l.verifiedSkills || [])
+        .slice(0, 4)
+        .map(cleanSkillTag)
+        .filter(Boolean)
+        .join(', ');
+      const cleanUrl = cleanJobUrl(l.url, l.jk);
+      const locClean = l.location ? l.location.replace(/[\n\r]+/g, ' ').split('•')[0].trim() : 'On-site / Hybrid';
+
+      return [
+        escapeCsv(l.title),
+        escapeCsv(l.company),
+        escapeCsv(locClean),
+        escapeCsv(`${l.score}% (${tierShort})`),
+        escapeCsv(skillsShort || 'Core Stack'),
+        escapeCsv(cleanUrl)
+      ];
+    });
 
     const csvContent = '\uFEFF' + [
       headers.map(h => `"${h}"`).join(','),
@@ -3934,6 +3973,28 @@ ${candidateDisplayName}`;
         if (existingBadge && !force && !isCurrentActive) {
           const score = parseInt(existingBadge.getAttribute('data-score') || '0', 10);
           if (score >= 80) pageHighMatches++;
+          // Guarantee card is in session registry even if already visually badged
+          const leadKey = jk ? `jk_${jk}` : `${title}::${company}`;
+          if (!scannedLeadsRegistry.has(leadKey)) {
+            let cardUrl = card.querySelector('a[href*="/jobs/view/"], a')?.href || '';
+            if (!cardUrl && jk) {
+              cardUrl = detectPlatform() === 'LinkedIn' ? `https://www.linkedin.com/jobs/view/${jk}/` : `${window.location.origin}/viewjob?jk=${jk}`;
+            }
+            scannedLeadsRegistry.set(leadKey, {
+              key: leadKey,
+              title,
+              company: company || 'Target Employer',
+              location: 'On-site / Hybrid',
+              score,
+              jk,
+              url: cardUrl,
+              snippet,
+              isExpired: false,
+              isStale: false,
+              verifiedSkills: [],
+              scannedAt: Date.now()
+            });
+          }
           return;
         }
 
@@ -3963,7 +4024,7 @@ ${candidateDisplayName}`;
         const linkEl = card.querySelector('a.jcs-JobTitle, a.job_link, a[data-test="job-title"], a[data-test="job-link"], a[id^="job_"], a.job-card-list__title, a');
         let cardUrl = linkEl?.href || '';
         if (!cardUrl && jk) {
-          cardUrl = `${window.location.origin}/viewjob?jk=${jk}`;
+          cardUrl = detectPlatform() === 'LinkedIn' ? `https://www.linkedin.com/jobs/view/${jk}/` : `${window.location.origin}/viewjob?jk=${jk}`;
         }
 
         const leadKey = jk ? `jk_${jk}` : `${title}::${company}`;
