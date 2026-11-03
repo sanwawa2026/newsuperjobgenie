@@ -305,14 +305,16 @@
       document;
     }
 
-    // Forceful Injection Observer for LinkedIn (handles extreme lazy loading)
+    // Forceful Injection Observer for LinkedIn (handles extreme lazy loading with debounce)
     if (detectPlatform() === 'LinkedIn') {
+      let debounceTimer = null;
       const observer = new MutationObserver(() => {
-        if (!extractFullIndeedJob().hasRealBody) {
-          // Attempt to re-scan if body is still empty
-          console.log('[SuperJobGenie] Forcing re-scan due to dynamic content injection.');
-          renderShadowUI(); // Re-trigger UI render to force re-extraction
-        }
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          if (!extractFullIndeedJob().hasRealBody) {
+            renderShadowUI(); // Re-trigger UI render to force re-extraction
+          }
+        }, 500); // 500ms debounce
       });
       observer.observe(document.body, { childList: true, subtree: true });
     }
