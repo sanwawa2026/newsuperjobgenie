@@ -67,6 +67,7 @@ Most job scrapers choke on modern Single-Page Applications (SPAs) and only captu
 • Indeed (US, UK, CA, DE, FR, JP, etc.)
 • LinkedIn Jobs
 • Glassdoor
+• Handshake (joinhandshake.com / Early Career & University Jobs)
 • ZipRecruiter & Dice
 • Greenhouse ATS, Lever ATS, and Workday ATS
 • Wellfound (AngelList Talent)

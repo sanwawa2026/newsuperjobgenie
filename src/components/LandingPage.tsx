@@ -144,7 +144,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const platforms = [
     { name: 'Indeed', desc: 'SpaceX, Anduril 10,980+ Chars Depth Parsed', color: 'from-indigo-500/20 to-indigo-600/10', border: 'border-indigo-500/30' },
     { name: 'LinkedIn', desc: '6,500+ Chars Full Job Body Verified', color: 'from-blue-500/20 to-blue-600/10', border: 'border-blue-500/30' },
-    { name: 'Glassdoor', desc: 'Base Salary Range + Deep Requirements', color: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/30' }
+    { name: 'Glassdoor', desc: 'Base Salary Range + Deep Requirements', color: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/30' },
+    { name: 'Handshake', desc: 'Campus & Early-Career Tech Postings Verified', color: 'from-amber-500/20 to-amber-600/10', border: 'border-amber-500/30' }
   ];
 
   // Authentic battle-tested showcase presets extracted from real user videos & sessions
@@ -253,7 +254,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     },
     {
       q: 'Which platforms are supported right now?',
-      a: 'SuperJobGenie is fully optimized for LinkedIn, Indeed, and Glassdoor, with experimental support for Greenhouse and Lever ATS boards.'
+      a: 'SuperJobGenie is fully optimized for LinkedIn, Indeed, Glassdoor, and Handshake, with extended support for Greenhouse, Lever, and Workday ATS boards.'
     },
     {
       q: 'How do I install the extension in Google Chrome?',

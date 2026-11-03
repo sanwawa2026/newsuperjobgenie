@@ -1,7 +1,7 @@
 # SuperJobGenie Chrome Extension (v2.6.0)
 
 ## Overview
-SuperJobGenie is a professional AI Career Copilot Chrome Extension featuring an isolated Shadow DOM in-page HUD and deep job description extraction across Indeed, LinkedIn, Glassdoor, ZipRecruiter, Greenhouse, Lever, and Workday.
+SuperJobGenie is a professional AI Career Copilot Chrome Extension featuring an isolated Shadow DOM in-page HUD and deep job description extraction across Indeed, LinkedIn, Glassdoor, Handshake (joinhandshake.com), ZipRecruiter, Greenhouse, Lever, and Workday.
 
 ## Key Features
 - **Deep Extraction**: Captures 3,000+ character unabridged job descriptions from complex DOMs, shadow trees, iframes, and Schema.org JSON-LD.

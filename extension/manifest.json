@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SuperJobGenie - AI Career Intelligence & Deep JD Matcher",
-  "version": "4.0.5",
-  "description": "Deep JD extractor and AI match analyzer across global & APAC job boards (Indeed, LinkedIn, Glassdoor, 104, CakeResume).",
+  "version": "4.0.7",
+  "description": "Deep JD extractor and AI match analyzer across global & APAC job boards (Indeed, LinkedIn, Glassdoor, Handshake, 104, CakeResume).",
   "permissions": [
     "storage",
     "activeTab",
@@ -40,7 +40,11 @@
     "https://jobs.lever.co/*",
     "https://*.myworkdayjobs.com/*",
     "https://myworkdayjobs.com/*",
-    "https://*.wellfound.com/*"
+    "https://*.wellfound.com/*",
+    "https://*.joinhandshake.com/*",
+    "https://joinhandshake.com/*",
+    "https://*.joinhandshake.co.uk/*",
+    "https://*.handshake.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -86,7 +90,11 @@
         "https://jobs.lever.co/*",
         "https://*.myworkdayjobs.com/*",
         "https://myworkdayjobs.com/*",
-        "https://*.wellfound.com/*"
+        "https://*.wellfound.com/*",
+        "https://*.joinhandshake.com/*",
+        "https://joinhandshake.com/*",
+        "https://*.joinhandshake.co.uk/*",
+        "https://*.handshake.com/*"
       ],
       "js": [
         "resume-parser.js",
