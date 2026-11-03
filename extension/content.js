@@ -299,9 +299,23 @@
       document.querySelector('.job-details-jobs-unified-top-card__container--two-pane') ||
       document.querySelector('.jobs-description') ||
       document.querySelector('.jobs-search__job-details--container') ||
-      // Fallback
+      document.querySelector('.scaffold-layout__detail-content') ||
+  // Fallback
       document.querySelector('.fastviewjob') ||
       document;
+    }
+
+    // Forceful Injection Observer for LinkedIn (handles extreme lazy loading)
+    if (detectPlatform() === 'LinkedIn') {
+      const observer = new MutationObserver(() => {
+        if (!extractFullIndeedJob().hasRealBody) {
+          // Attempt to re-scan if body is still empty
+          console.log('[SuperJobGenie] Forcing re-scan due to dynamic content injection.');
+          renderShadowUI(); // Re-trigger UI render to force re-extraction
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
 
     // 3. Channel 1: Native Live DOM Traversal (Right pane + Document-wide multi-candidate traversal)
     const candidateSelectors = [
@@ -363,7 +377,8 @@
       '.jobs-unified-description__content',
       '[data-testid="job-details"]',
       '.scaffold-layout__detail .jobs-description-content',
-      '.jobs-search__job-details--container'
+      '.jobs-search__job-details--container',
+      '.scaffold-layout__detail-content'
     ];
 
     // Priority 1: Check active pane first
