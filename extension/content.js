@@ -13,6 +13,9 @@
     return;
   }
   window.__SUPER_JOB_GENIE_INITIALIZED__ = true;
+  
+  // Force UI render after a short delay to ensure DOM is ready
+  setTimeout(renderShadowUI, 1000);
 
   console.log('[SuperJobGenie v2.9.8 Pro] Executive HUD initialized.');
 
