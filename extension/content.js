@@ -13,9 +13,6 @@
     return;
   }
   window.__SUPER_JOB_GENIE_INITIALIZED__ = true;
-  
-  // Force UI render after a short delay to ensure DOM is ready
-  setTimeout(renderShadowUI, 1000);
 
   console.log('[SuperJobGenie v2.9.8 Pro] Executive HUD initialized.');
 
@@ -303,24 +300,9 @@
       document.querySelector('.jobs-description') ||
       document.querySelector('.jobs-search__job-details--container') ||
       document.querySelector('.scaffold-layout__detail-content') ||
-  // Fallback
+      // Fallback
       document.querySelector('.fastviewjob') ||
       document;
-    }
-
-    // Forceful Injection Observer for LinkedIn (handles extreme lazy loading with debounce)
-    if (detectPlatform() === 'LinkedIn') {
-      let debounceTimer = null;
-      const observer = new MutationObserver(() => {
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          if (!extractFullIndeedJob().hasRealBody) {
-            renderShadowUI(); // Re-trigger UI render to force re-extraction
-          }
-        }, 500); // 500ms debounce
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-    }
 
     // 3. Channel 1: Native Live DOM Traversal (Right pane + Document-wide multi-candidate traversal)
     const candidateSelectors = [
@@ -3827,15 +3809,29 @@ ${candidateDisplayName}`;
   function runAutoPageScan(force = false) {
     try {
       const cardSelectors = [
+        // Indeed
         'div.job_seen_beacon',
         'div[data-jk]',
         'div.cardOutline',
+        // Glassdoor & ZipRecruiter
         '[data-testid="job-card"]',
         '[data-testid="job-result"]',
         '[data-test="job-listing-item"]',
         'li[data-test="jobListing"]',
+        // LinkedIn
         'li.jobs-search-results__list-item',
-        'div.job-card-container'
+        'li.jobs-search-results-list__list-item',
+        'div.job-card-container',
+        'div.jobs-search-results-list__list-item',
+        'li.job-card-container--clickable',
+        'li[data-occludable-job-id]',
+        'div[data-job-id]',
+        'div.job-card-list__entity-lockup',
+        'div.job-card-list',
+        'li.artdeco-list__item:has(a[href*="/jobs/view/"])',
+        'div.base-card:has(a[href*="/jobs/view/"])',
+        'div.job-search-card',
+        'div[data-entity-urn*="urn:li:jobPosting:"]'
       ];
       
       const rawCards = Array.from(document.querySelectorAll(cardSelectors.join(', ')));
@@ -3849,11 +3845,17 @@ ${candidateDisplayName}`;
       let pageHighMatches = 0;
 
       allCards.forEach(card => {
-        const titleEl = card.querySelector('h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], a.job-card-list__title, [class*="job-card-list__title"], h2, h3, a');
+        const titleEl = card.querySelector(
+          'a.job-card-list__title span[aria-hidden="true"], a.job-card-container__link span[aria-hidden="true"], .artdeco-entity-lockup__title a, a.job-card-list__title, a.job-card-container__link, a[href*="/jobs/view/"] strong, a[href*="/jobs/view/"], ' +
+          'h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], h2, h3, a'
+        );
         const title = titleEl?.innerText?.replace(/^new\s+/i, '')?.trim() || '';
         if (!title || isSearchHeader(title)) return;
 
-        const compEl = card.querySelector('a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, [data-company-name="true"], .job-card-container__primary-description, span.job-card-container__primary-description');
+        const compEl = card.querySelector(
+          '.job-card-container__primary-description, span.job-card-container__primary-description, .artdeco-entity-lockup__subtitle, .job-card-container__company-name, .base-search-card__subtitle, a[data-tracking-control-name*="company"], ' +
+          'a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, [data-company-name="true"]'
+        );
         const company = compEl?.innerText?.replace(/[\d.]+\s*[★*]+.*$/g, '')?.trim() || '';
 
         const snippetEl = card.querySelector('.job-snippet, [data-testid="job-snippet"], [class*="job-snippet"], ul.css-9446fg, .underShelfFooter, .job-card-list__snippet');
@@ -4183,13 +4185,24 @@ ${candidateDisplayName}`;
       // ZipRecruiter
       'article.job_result, article.job_card, [data-testid="job-card"], [data-testid="job-result"], div[class*="job_result"], div[class*="jobCard"], li.job-listing, a.job_link, a[class*="job_link"], ' +
       // LinkedIn
-      'li.jobs-search-results__list-item, div.job-card-container, div[data-job-id], .job-card-list, li.job-card-container--clickable, div.jobs-search-results-list__list-item'
-    )?.closest('div.job_seen_beacon, div[data-jk], li, div.cardOutline, article, [data-test="job-listing-item"], div.job-card-container');
+      'li.jobs-search-results__list-item, li.jobs-search-results-list__list-item, div.job-card-container, div[data-job-id], li[data-occludable-job-id], .job-card-list, li.job-card-container--clickable, div.jobs-search-results-list__list-item, div.job-card-list__entity-lockup, li.artdeco-list__item, div.base-card'
+    )?.closest('div.job_seen_beacon, div[data-jk], li, div.cardOutline, article, [data-test="job-listing-item"], div.job-card-container, li.jobs-search-results-list__list-item, li.artdeco-list__item');
 
     if (cardEl && !cardEl.classList.contains('jobsearch-ResultsList') && cardEl.id !== 'mosaic-provider-jobcards') {
-      const t = cardEl.querySelector('h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], a.job-card-list__title, [class*="job-card-list__title"], h2, h3, a')?.innerText?.replace(/^new\s+/i, '')?.trim();
-      const c = cardEl.querySelector('a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, [data-company-name="true"], .job-card-container__primary-description, span.job-card-container__primary-description')?.innerText?.trim();
-      const jk = cardEl.getAttribute('data-jk') || cardEl.getAttribute('data-id') || cardEl.getAttribute('data-jobid') || cardEl.getAttribute('data-job-id') || cardEl.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
+      const t = cardEl.querySelector(
+        'a.job-card-list__title span[aria-hidden="true"], a.job-card-container__link span[aria-hidden="true"], .artdeco-entity-lockup__title a, a.job-card-list__title, a.job-card-container__link, a[href*="/jobs/view/"] strong, a[href*="/jobs/view/"], ' +
+        'h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], h2, h3, a'
+      )?.innerText?.replace(/^new\s+/i, '')?.trim();
+      const c = cardEl.querySelector(
+        '.job-card-container__primary-description, span.job-card-container__primary-description, .artdeco-entity-lockup__subtitle, .job-card-container__company-name, .base-search-card__subtitle, a[data-tracking-control-name*="company"], ' +
+        'a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, [data-company-name="true"]'
+      )?.innerText?.trim();
+      let jk = cardEl.getAttribute('data-jk') || cardEl.getAttribute('data-id') || cardEl.getAttribute('data-jobid') || cardEl.getAttribute('data-job-id') || cardEl.getAttribute('data-occludable-job-id') || cardEl.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
+      if (!jk) {
+        const link = cardEl.querySelector('a[href*="/jobs/view/"]');
+        const match = link?.href?.match(/\/jobs\/view\/(\d+)/);
+        if (match) jk = match[1];
+      }
       const badge = cardEl.querySelector('.sjg-card-stamp');
       const score = badge ? parseInt(badge.getAttribute('data-score') || '0', 10) : 0;
       const snippet = cardEl.querySelector('.job-snippet, [data-testid="job-snippet"], [class*="job-snippet"], ul.css-9446fg, .underShelfFooter, .job-card-list__snippet')?.innerText?.trim() || '';
