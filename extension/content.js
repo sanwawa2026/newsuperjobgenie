@@ -167,11 +167,42 @@
            s === 'faqs';
   }
 
+  function cleanJobTitle(str) {
+    if (!str) return '';
+    let title = str.replace(/^new\s+/i, '').replace(/[\r\n]+/g, ' ').trim();
+    // Strip recruiter marketing adjectives / prefixes
+    title = title.replace(/^(?:we\s+are\s+looking\s+for\s+(?:an?|the)?|seeking\s+(?:an?|the)?|looking\s+for\s+(?:an?|the)?|hiring\s+(?:an?|the)?|wanted\s*:?|urgent\s*:?)\s+/i, '');
+    title = title.replace(/^(?:talented|highly\s+skilled(?:\s+and\s+motivated)?|experienced|skilled|passionate|motivated|dynamic|hands-on)\s+/i, '');
+    // Clean trailing contract/location qualifiers e.g. " - Remote", " (Hybrid)", " [Full-Time]"
+    title = title.replace(/\s*[-–—|•]\s*(?:full\s*time|part\s*time|contract|hybrid|remote|on-site|urgently\s*hiring|w2\s*only).*$/i, '');
+    title = title.trim();
+    // Normalize casing if all lowercase (e.g. "data engineer" -> "Data Engineer")
+    if (title && title === title.toLowerCase()) {
+      title = title.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+    return title;
+  }
+
   function isJunkCompany(str) {
     if (!str) return true;
     const s = str.trim().toLowerCase();
-    if (s.length < 2 || s.length > 85) return true;
+    if (s.length < 2 || s.length > 55) return true;
     if (isSearchHeader(s)) return true;
+    // Reject full sentences with punctuation, colons, or multi-lines
+    if (/[.!?]$/.test(s) || s.includes(';\n') || s.includes('\n')) return true;
+    const words = s.split(/\s+/);
+    if (words.length > 6) return true; // Company names are 1 to 5 words
+    
+    // Explicit generic placeholders
+    if (s === 'company' || s === 'the company' || s === 'employer' || s === 'target employer' || s === 'client' || s === 'confidential') {
+      return true;
+    }
+
+    // Sentence verbs & phrases that indicate JD text or job descriptions rather than an employer name
+    if (/\b(support|resolve|position|based|experience|environment|environments|responsibilities|qualifications|looking for|seeking|we are|this is|hybrid position|on-site position|remote position|candidates|interview|salary|benefits|hours per week|equal opportunity)\b/i.test(s)) {
+      return true;
+    }
+
     const junkTerms = [
       'frequently asked questions',
       'job details',
@@ -602,7 +633,7 @@
       for (const sel of titleSelectors) {
         const el = headerContainer.querySelector(sel);
         if (el && !el.closest('#jobDescriptionText, [data-testid="jobDescriptionText"], [data-test="job-description"]') && el.innerText.trim()) {
-          const clean = el.innerText.replace(/^new\s+/i, '').trim();
+          const clean = cleanJobTitle(el.innerText);
           if (!isSearchHeader(clean) && clean.length > 2 && clean.length < 120) {
             title = clean;
             break;
@@ -613,11 +644,20 @@
 
     // Trust clicked card title if header search yielded nothing
     if (!title && lastClickedCard?.title) {
-      title = lastClickedCard.title;
+      title = cleanJobTitle(lastClickedCard.title);
     }
 
     // 9. Extract Company ONLY from Header Area
     const compSelectors = [
+      // LinkedIn
+      '.job-details-jobs-unified-top-card__company-name a',
+      '.job-details-jobs-unified-top-card__company-name',
+      '.jobs-unified-top-card__company-name a',
+      '.jobs-unified-top-card__company-name',
+      'a[href*="/company/"]',
+      '.job-details-jobs-unified-top-card__primary-description a',
+      '.jobs-unified-top-card__primary-description a',
+      'a.jobs-details-top-card__company-url',
       // ZipRecruiter
       'a.hiring_company_text',
       '[data-testid="company-name"]',
@@ -649,15 +689,7 @@
       '.jobsearch-InlineCompanyRating-companyHeader',
       'a[data-cy="companyName"]',
       '.company-name',
-      '#vjs-cn',
-      // LinkedIn
-      '.job-details-jobs-unified-top-card__company-name',
-      '.jobs-unified-top-card__company-name',
-      'a.job-details-jobs-unified-top-card__company-name',
-      'a.jobs-unified-top-card__company-name',
-      '.job-details-jobs-unified-top-card__primary-description a',
-      '.jobs-unified-top-card__primary-description a',
-      'a.jobs-details-top-card__company-url'
+      '#vjs-cn'
     ];
 
     if (headerContainer) {
@@ -675,19 +707,17 @@
     }
 
     // Fallback 1: Clicked Card Company
-    if ((!company || isJunkCompany(company)) && lastClickedCard?.company) {
+    if ((!company || isJunkCompany(company)) && lastClickedCard?.company && !isJunkCompany(lastClickedCard.company)) {
       company = lastClickedCard.company;
     }
 
-    // Fallback 2: Check JD opening lines (if company introduced itself, e.g. Disney Entertainment...)
-    if ((!company || isJunkCompany(company)) && fullBodyText) {
-      const topLines = fullBodyText.split('\n').map(l => l.trim()).filter(l => l.length > 3 && l.length < 80);
-      for (const line of topLines.slice(0, 5)) {
-        if (/^full job description$/i.test(line)) continue;
-        if (/^(about|overview|summary|responsibilities|qualifications|the team)/i.test(line)) continue;
-        if (/(entertainment|technology|corporation|inc|llc|group|studios|media|systems|company|disney|google|apple|amazon|microsoft|meta|netflix|tiktok|freeform|anthropic|cambridge)/i.test(line)) {
-          company = line.replace(/[\d.]+\s*[★*]+.*$/g, '').trim();
-          break;
+    // Fallback 2: Check active/details pane a[href*="/company/"]
+    if (!company || isJunkCompany(company)) {
+      const topComp = document.querySelector('.scaffold-layout__detail a[href*="/company/"], .jobs-search__job-details a[href*="/company/"], .jobs-details a[href*="/company/"], a[href*="/company/"]');
+      if (topComp && topComp.innerText.trim()) {
+        const cleanComp = topComp.innerText.replace(/[\d.]+\s*[★*]+.*$/g, '').trim();
+        if (!isJunkCompany(cleanComp)) {
+          company = cleanComp;
         }
       }
     }
@@ -765,12 +795,12 @@
         if (!title) {
           const tEl = activeCard.querySelector('h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], a.job-card-list__title, a[class*="job-card-list__title"], h2, h1, a');
           if (tEl && tEl.innerText.trim()) {
-            const clean = tEl.innerText.replace(/^new\s+/i, '').trim();
+            const clean = cleanJobTitle(tEl.innerText);
             if (!isSearchHeader(clean) && clean.length > 2 && clean.length < 120) title = clean;
           }
         }
         if (!company) {
-          const cEl = activeCard.querySelector('a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, .job-card-container__primary-description, span.job-card-container__primary-description');
+          const cEl = activeCard.querySelector('a[href*="/company/"], .job-card-container__company-name, .job-card-container__primary-description a, .artdeco-entity-lockup__subtitle a, .artdeco-entity-lockup__subtitle, a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, .job-card-container__primary-description, span.job-card-container__primary-description');
           if (cEl && cEl.innerText.trim()) {
             const clean = cEl.innerText.replace(/[\d.]+\s*[★*]+.*$/g, '').trim();
             if (!isJunkCompany(clean)) company = clean;
@@ -788,7 +818,7 @@
         // Try document-wide h1 / h2 in LinkedIn job view
         const topH1 = document.querySelector('.jobs-search__job-details h1, .jobs-details h1, .job-view-layout h1, .jobs-unified-top-card__job-title, .job-details-jobs-unified-top-card__job-title, h1.t-24');
         if (topH1 && topH1.innerText.trim()) {
-          const cleanH1 = topH1.innerText.replace(/^new\s+/i, '').trim();
+          const cleanH1 = cleanJobTitle(topH1.innerText);
           if (!isSearchHeader(cleanH1) && cleanH1.length > 2 && cleanH1.length < 120) {
             title = cleanH1;
           }
@@ -796,11 +826,11 @@
         // If still no title, prefer lastClickedCard.title or look for standard role patterns
         if (!title || title.startsWith('Select a Job') || isSearchHeader(title)) {
           if (lastClickedCard?.title && !isSearchHeader(lastClickedCard.title)) {
-            title = lastClickedCard.title;
+            title = cleanJobTitle(lastClickedCard.title);
           } else {
             const roleMatch = fullBodyText.match(/(?:looking for|hiring|seeking)\s+(?:an?\s+)?([A-Za-z0-9\s/&,.-]{3,60}?(?:Engineer|Developer|Manager|Analyst|Scientist|Architect|Specialist|Director|Lead|Consultant|Designer))/i);
             if (roleMatch && roleMatch[1] && !isSearchHeader(roleMatch[1])) {
-              title = roleMatch[1].trim();
+              title = cleanJobTitle(roleMatch[1]);
             }
           }
         }
@@ -814,7 +844,7 @@
             company = cleanComp;
           }
         }
-        if ((!company || isJunkCompany(company)) && lastClickedCard?.company) {
+        if ((!company || isJunkCompany(company)) && lastClickedCard?.company && !isJunkCompany(lastClickedCard.company)) {
           company = lastClickedCard.company;
         }
         if (!company || isJunkCompany(company)) {
@@ -2878,10 +2908,15 @@
         .join(', ');
       const cleanUrl = cleanJobUrl(l.url, l.jk);
       const locClean = l.location ? l.location.replace(/[\n\r]+/g, ' ').split('•')[0].trim() : 'On-site / Hybrid';
+      const cleanTitle = cleanJobTitle(l.title) || l.title || 'Job Opening';
+      let cleanComp = l.company ? l.company.replace(/[\d.]+\s*[★*]+.*$/g, '').trim() : '';
+      if (isJunkCompany(cleanComp)) {
+        cleanComp = 'Target Employer';
+      }
 
       return [
-        escapeCsv(l.title),
-        escapeCsv(l.company),
+        escapeCsv(cleanTitle),
+        escapeCsv(cleanComp),
         escapeCsv(locClean),
         escapeCsv(`${l.score}% (${tierShort})`),
         escapeCsv(skillsShort || 'Core Stack'),
@@ -2928,8 +2963,12 @@
 
     leads.forEach((l, idx) => {
       const skillsStr = (l.verifiedSkills || []).slice(0, 4).map(s => s.name || s).join(', ');
-      const cleanTitle = (l.title || 'Job').replace(/\|/g, '-');
-      const cleanComp = (l.company || 'Company').replace(/\|/g, '-');
+      const cleanTitle = (cleanJobTitle(l.title) || l.title || 'Job').replace(/\|/g, '-');
+      let cleanComp = l.company ? l.company.replace(/[\d.]+\s*[★*]+.*$/g, '').trim() : '';
+      if (isJunkCompany(cleanComp)) {
+        cleanComp = 'Target Employer';
+      }
+      cleanComp = cleanComp.replace(/\|/g, '-');
       const freshStr = l.isExpired ? 'Closed' : (l.isStale ? '30+d' : 'Active');
       const linkStr = l.url ? `[Link](${l.url})` : 'Here';
       md += `| ${idx + 1} | **${l.score}%** | ${cleanTitle} | ${cleanComp} | ${freshStr} | ${skillsStr} | ${linkStr} |\n`;
@@ -3111,8 +3150,11 @@
                 <button id="sjg-bot-export-csv-btn" class="sjg-bot-btn-export" title="Export all scanned job leads to clean CSV (Excel/Sheets ready)">
                   <span>📥 Export CSV (${scannedLeadsRegistry.size || scannedCardsCount || 0})</span>
                 </button>
-                <button id="sjg-bot-copy-md-btn" class="sjg-bot-btn-export" style="background:#1e293b; border-color:#334155; color:#cbd5e1; flex:0.9;" title="Copy scanned jobs as Markdown table for Notion/Obsidian">
+                <button id="sjg-bot-copy-md-btn" class="sjg-bot-btn-export" style="background:#1e293b; border-color:#334155; color:#cbd5e1; flex:0.75;" title="Copy scanned jobs as Markdown table for Notion/Obsidian">
                   <span>📋 Copy Table (MD)</span>
+                </button>
+                <button id="sjg-bot-clear-leads-btn" class="sjg-bot-btn-export" style="background:#1e293b; border-color:#334155; color:#94a3b8; flex:0.45;" title="Clear scanned leads list for a new search">
+                  <span>🗑️ Clear</span>
                 </button>
               </div>
             </div>
@@ -3444,6 +3486,12 @@
             renderShadowUI();
           }, 2000);
         }
+      });
+
+      wrapper.querySelector('#sjg-bot-clear-leads-btn')?.addEventListener('click', () => {
+        scannedLeadsRegistry.clear();
+        scannedCardsCount = 0;
+        renderShadowUI();
       });
 
   // Resume Upload Logic - NO TRUNCATION (Up to 100,000 characters)
@@ -3947,14 +3995,17 @@ ${candidateDisplayName}`;
           'a.job-card-list__title span[aria-hidden="true"], a.job-card-container__link span[aria-hidden="true"], .artdeco-entity-lockup__title a, a.job-card-list__title, a.job-card-container__link, a[href*="/jobs/view/"] strong, a[href*="/jobs/view/"], ' +
           'h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], h2, h3, a'
         );
-        const title = titleEl?.innerText?.replace(/^new\s+/i, '')?.trim() || '';
+        const rawTitle = titleEl?.innerText?.replace(/^new\s+/i, '')?.trim() || '';
+        const title = cleanJobTitle(rawTitle);
         if (!title || isSearchHeader(title)) return;
 
         const compEl = card.querySelector(
-          '.job-card-container__primary-description, span.job-card-container__primary-description, .artdeco-entity-lockup__subtitle, .job-card-container__company-name, .base-search-card__subtitle, a[data-tracking-control-name*="company"], ' +
+          'a[href*="/company/"], .job-card-container__company-name, .job-card-container__primary-description a, .artdeco-entity-lockup__subtitle a, .artdeco-entity-lockup__subtitle, ' +
+          '.job-card-container__primary-description, span.job-card-container__primary-description, .base-search-card__subtitle, a[data-tracking-control-name*="company"], ' +
           'a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, [data-company-name="true"]'
         );
-        const company = compEl?.innerText?.replace(/[\d.]+\s*[★*]+.*$/g, '')?.trim() || '';
+        let company = compEl?.innerText?.replace(/[\d.]+\s*[★*]+.*$/g, '')?.trim() || '';
+        if (isJunkCompany(company)) company = '';
 
         const snippetEl = card.querySelector('.job-snippet, [data-testid="job-snippet"], [class*="job-snippet"], ul.css-9446fg, .underShelfFooter, .job-card-list__snippet');
         const snippet = snippetEl?.innerText?.trim() || '';
@@ -4309,14 +4360,18 @@ ${candidateDisplayName}`;
     )?.closest('div.job_seen_beacon, div[data-jk], li, div.cardOutline, article, [data-test="job-listing-item"], div.job-card-container, li.jobs-search-results-list__list-item, li.artdeco-list__item');
 
     if (cardEl && !cardEl.classList.contains('jobsearch-ResultsList') && cardEl.id !== 'mosaic-provider-jobcards') {
-      const t = cardEl.querySelector(
+      const rawT = cardEl.querySelector(
         'a.job-card-list__title span[aria-hidden="true"], a.job-card-container__link span[aria-hidden="true"], .artdeco-entity-lockup__title a, a.job-card-list__title, a.job-card-container__link, a[href*="/jobs/view/"] strong, a[href*="/jobs/view/"], ' +
         'h1.job_title, h2.job_title, [class*="job_title"], a.job_link, a[data-test="job-title"], a[data-test="job-link"], [class*="jobTitle"], a.jcs-JobTitle, h2.jobTitle span[title], h2.jobTitle, a[id^="job_"], h2, h3, a'
       )?.innerText?.replace(/^new\s+/i, '')?.trim();
-      const c = cardEl.querySelector(
-        '.job-card-container__primary-description, span.job-card-container__primary-description, .artdeco-entity-lockup__subtitle, .job-card-container__company-name, .base-search-card__subtitle, a[data-tracking-control-name*="company"], ' +
+      const t = cleanJobTitle(rawT);
+      const compEl = cardEl.querySelector(
+        'a[href*="/company/"], .job-card-container__company-name, .job-card-container__primary-description a, .artdeco-entity-lockup__subtitle a, .artdeco-entity-lockup__subtitle, ' +
+        '.job-card-container__primary-description, span.job-card-container__primary-description, .base-search-card__subtitle, a[data-tracking-control-name*="company"], ' +
         'a.hiring_company_text, [data-testid="company-name"], [data-testid="hiring-company"], [class*="hiring_company"], [class*="company_name"], [data-test="employer-short-name"], [data-test="employer-name"], [class*="employerName"], .companyName, span.css-63koeb, [data-company-name="true"]'
-      )?.innerText?.trim();
+      );
+      let c = compEl?.innerText?.replace(/[\d.]+\s*[★*]+.*$/g, '')?.trim() || '';
+      if (isJunkCompany(c)) c = '';
       let jk = cardEl.getAttribute('data-jk') || cardEl.getAttribute('data-id') || cardEl.getAttribute('data-jobid') || cardEl.getAttribute('data-job-id') || cardEl.getAttribute('data-occludable-job-id') || cardEl.querySelector('[data-jk]')?.getAttribute('data-jk') || '';
       if (!jk) {
         const link = cardEl.querySelector('a[href*="/jobs/view/"]');
@@ -4330,7 +4385,7 @@ ${candidateDisplayName}`;
       if (t && !isSearchHeader(t)) {
         lastClickedCard = { 
           title: t, 
-          company: c ? c.replace(/[\d.]+\s*[★*]+.*$/g, '').trim() : '', 
+          company: c, 
           jk: jk || '',
           score: score || 0,
           snippet: snippet,
