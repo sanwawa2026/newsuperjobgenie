@@ -23,3 +23,9 @@ Bridge the emotional gap between **losing/hating your job** (Venting) and **land
 ## Immediate Action
 - Start recording "Job Search Case Studies" based on the most upvoted "Venting" comments.
 - This creates an infinite content loop where the audience provides the *problem* (venting), you provide the *technique* (tips), and the *tool* (SuperJobGenie) executes the *solution*.
+
+## Expansion: The Taiwan Market (104 & CakeResume)
+- The Taiwan market has lower job search friction than the US, with fewer ATS hurdles.
+- **Pivot**: Create dedicated content targeting 104人力銀行 (104) and CakeResume workflows.
+- **Messaging**: Emphasize "AI-assisted application, not just automated" to better fit local expectations.
+- **Action**: Update the SuperJobGenie promo and scripts to highlight 104/CakeResume support as a key differentiator.

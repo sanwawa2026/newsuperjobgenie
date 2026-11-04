@@ -349,11 +349,14 @@
       // Glassdoor Right Details Pane
       document.querySelector('[data-test="job-details"]') ||
       document.querySelector('[data-brandviews="PAGE:job-details"]') ||
+      document.querySelector('[data-brandviews*="job-details"]') ||
       document.querySelector('[data-test="jobDetails"]') ||
       document.querySelector('#JobDetails') ||
       document.querySelector('[class*="JobDetails_jobDetailsContainer"]') ||
       document.querySelector('[class*="JobDetails_container"]') ||
+      document.querySelector('[class*="JobDetails_wrapper"]') ||
       document.querySelector('[class*="jobDetails"]') ||
+      document.querySelector('article[data-test="job-details"]') ||
       document.querySelector('div[aria-label*="Job Details"]') ||
       document.querySelector('div[aria-label*="Job details"]') ||
       // ZipRecruiter Details Pane / Main Container
@@ -379,30 +382,121 @@
       document.querySelector('.fastviewjob') ||
       document;
 
-    // Auto-click "Show more" / "Mehr anzeigen" / "顯示更多" buttons across platforms
+    // Industrial-grade Event Dispatcher & Un-clamping Engine for Glassdoor, Indeed, LinkedIn
     function simulateClick(el) {
-        const eventOptions = { bubbles: true, cancelable: true, view: window };
-        el.dispatchEvent(new MouseEvent('mousedown', eventOptions));
-        el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
-        el.dispatchEvent(new MouseEvent('click', eventOptions));
+        if (!el) return;
+        try { el.focus(); } catch (e) {}
+        try {
+            if (typeof el.click === 'function') {
+                el.click();
+            }
+        } catch (e) {}
+        try {
+            const opts = { bubbles: true, cancelable: true, composed: true, view: window };
+            el.dispatchEvent(new PointerEvent('pointerdown', opts));
+            el.dispatchEvent(new MouseEvent('mousedown', opts));
+            el.dispatchEvent(new PointerEvent('pointerup', opts));
+            el.dispatchEvent(new MouseEvent('mouseup', opts));
+            el.dispatchEvent(new MouseEvent('click', opts));
+        } catch (e) {}
     }
 
     function expandAllButtons(pane) {
-        if (!pane) return;
-        const expandButtons = pane.querySelectorAll('button, div[role="button"], span[role="button"]');
-        expandButtons.forEach(btn => {
-            const text = (btn.innerText || '').trim().toLowerCase();
-            // Include common 'show more' variations and check if visible
-            if ((text.includes('mehr anzeigen') || text.includes('show more') || text.includes('顯示更多') || text.includes('显示更多')) && btn.offsetParent !== null) {
-                simulateClick(btn);
+        // 1. Guaranteed CSS Force-Unfold (Zero-click bypass: unclamps Glassdoor truncated containers)
+        try {
+            if (!document.getElementById('sjg-unclamp-style')) {
+                const style = document.createElement('style');
+                style.id = 'sjg-unclamp-style';
+                style.textContent = `
+                    [class*="JobDetails_jobDescription"],
+                    [class*="TruncatedContent_truncated"],
+                    [class*="TruncatedContent_content"],
+                    [class*="DescStyles_desc"],
+                    [class*="jobDescriptionContent"],
+                    [data-test="jobDescriptionText"],
+                    [data-test="job-description"],
+                    [data-test="job-description-content"],
+                    #JobDescriptionContainer,
+                    .jobDescriptionContent {
+                        max-height: none !important;
+                        height: auto !important;
+                        overflow: visible !important;
+                        -webkit-line-clamp: unset !important;
+                        display: block !important;
+                        mask-image: none !important;
+                        -webkit-mask-image: none !important;
+                    }
+                    [class*="TruncatedContent_gradient"],
+                    [class*="JobDetails_showMoreGradient"],
+                    [class*="gradientOverlay"],
+                    .jobDescriptionContent__gradient {
+                        display: none !important;
+                    }
+                `;
+                (document.head || document.documentElement).appendChild(style);
             }
+        } catch (e) {}
+
+        // 2. High-precision click triggering on all candidate "Show more" triggers
+        const scopes = [pane, document].filter(Boolean);
+        const specificSelectors = [
+            'button[data-test="show-more-button"]',
+            '[data-test="job-description-show-more"]',
+            '[data-test="show-more"]',
+            '[data-test="expand-description"]',
+            '[class*="JobDetails_showMore"]',
+            '[class*="TruncatedContent_showMore"]',
+            '[class*="showMoreButton"]',
+            '[class*="ShowMoreButton"]',
+            '[class*="showMore"] button',
+            '[class*="showMore"]',
+            'button[aria-expanded="false"]',
+            'button:has([data-test*="down"])',
+            'button, div[role="button"], span[role="button"], a'
+        ];
+
+        const textMatches = [
+            'show more', 'mehr anzeigen', '顯示更多', '显示更多',
+            'read more', 'see more', 'voir plus', 'ver más',
+            'view full', 'view more', 'expand'
+        ];
+
+        const clickedSet = new Set();
+        scopes.forEach(scope => {
+            specificSelectors.forEach(sel => {
+                try {
+                    const elements = scope.querySelectorAll(sel);
+                    elements.forEach(btn => {
+                        if (clickedSet.has(btn)) return;
+                        const txt = (btn.innerText || btn.textContent || '').trim().toLowerCase();
+                        const dataTest = (btn.getAttribute('data-test') || '').toLowerCase();
+                        const className = (btn.className || '').toString();
+                        
+                        const isMatch = textMatches.some(t => txt.includes(t)) || 
+                                        dataTest.includes('show-more') ||
+                                        dataTest.includes('expand') ||
+                                        className.includes('showMore') ||
+                                        className.includes('ShowMore');
+                        
+                        if (isMatch) {
+                            const rect = btn.getBoundingClientRect();
+                            const isVisible = (rect.width > 0 && rect.height > 0) || btn.getClientRects().length > 0 || btn.offsetParent !== null;
+                            if (isVisible) {
+                                clickedSet.add(btn);
+                                simulateClick(btn);
+                            }
+                        }
+                    });
+                } catch (e) {}
+            });
         });
     }
 
     if (activePane) {
         expandAllButtons(activePane);
-        setTimeout(() => expandAllButtons(activePane), 500);
-        setTimeout(() => expandAllButtons(activePane), 1500);
+        setTimeout(() => expandAllButtons(activePane), 300);
+        setTimeout(() => expandAllButtons(activePane), 800);
+        setTimeout(() => expandAllButtons(activePane), 1800);
     }
 
     // 3. Channel 1: Native Live DOM Traversal (Right pane + Document-wide multi-candidate traversal)
@@ -444,11 +538,14 @@
       '[data-test="jobDescriptionText"]',
       '[data-test="job-description"]',
       '[data-test="job-description-content"]',
+      '[data-test="job-description-text"]',
       '[class*="JobDetails_jobDescription"]',
       '[class*="JobDetails_jobDescriptionText"]',
+      '[class*="JobDetails_jobDescriptionContainer"]',
       '[class*="DescStyles_desc"]',
       '[class*="DescStyles_descriptionContainer"]',
       '[class*="JobDetails_desc"]',
+      '[class*="TruncatedContent_content"]',
       '#JobDescriptionContainer',
       '.jobDescriptionContent',
       '[class*="jobDescription"]',
@@ -4517,21 +4614,32 @@ ${candidateDisplayName}`;
   }
   initWhenReady();
 
-  // SPA navigation events
-  window.addEventListener('popstate', () => {
+  // SPA navigation events (including pushState & replaceState interception for Glassdoor, Indeed, LinkedIn)
+  function triggerSpaRescan() {
     setTimeout(() => checkAndAutoRescan(true), 150);
     setTimeout(() => {
       checkAndAutoRescan(true);
       debouncedAutoPageScan();
     }, 600);
-  });
-  window.addEventListener('hashchange', () => {
-    setTimeout(() => checkAndAutoRescan(true), 150);
-    setTimeout(() => {
-      checkAndAutoRescan(true);
-      debouncedAutoPageScan();
-    }, 600);
-  });
+  }
+
+  try {
+    const originalPushState = history.pushState;
+    history.pushState = function() {
+      const result = originalPushState.apply(this, arguments);
+      triggerSpaRescan();
+      return result;
+    };
+    const originalReplaceState = history.replaceState;
+    history.replaceState = function() {
+      const result = originalReplaceState.apply(this, arguments);
+      triggerSpaRescan();
+      return result;
+    };
+  } catch (e) {}
+
+  window.addEventListener('popstate', triggerSpaRescan);
+  window.addEventListener('hashchange', triggerSpaRescan);
 
   // Multi-platform Job Card Click Delegation (Indeed, Glassdoor, ZipRecruiter, LinkedIn, Handshake)
   document.addEventListener('click', (e) => {
@@ -4540,7 +4648,7 @@ ${candidateDisplayName}`;
     }
 
     // Identify clicked job card across Indeed, Glassdoor, ZipRecruiter, LinkedIn, and Handshake
-    const cardEl = e.target.closest(
+    const cardCandidate = e.target.closest(
       // Handshake
       '[data-hook="jobs-card"], [data-hook="search-result"], a[href*="/stu/jobs/"], a[href*="/stu/postings/"], ' +
       // Indeed
@@ -4551,7 +4659,11 @@ ${candidateDisplayName}`;
       'article.job_result, article.job_card, [data-testid="job-card"], [data-testid="job-result"], div[class*="job_result"], div[class*="jobCard"], li.job-listing, a.job_link, a[class*="job_link"], ' +
       // LinkedIn
       'li.jobs-search-results__list-item, li.jobs-search-results-list__list-item, div.job-card-container, div[data-job-id], li[data-occludable-job-id], .job-card-list, li.job-card-container--clickable, div.jobs-search-results-list__list-item, div.job-card-list__entity-lockup, li.artdeco-list__item, div.base-card'
-    )?.closest('[data-hook="jobs-card"], [data-hook="search-result"], div.job_seen_beacon, div[data-jk], li, div.cardOutline, article, [data-test="job-listing-item"], div.job-card-container, li.jobs-search-results-list__list-item, li.artdeco-list__item');
+    );
+
+    const cardEl = cardCandidate?.closest(
+      '[data-hook="jobs-card"], [data-hook="search-result"], div.job_seen_beacon, div[data-jk], li, div.cardOutline, article, [data-test="job-listing-item"], [class*="JobsList_jobListItem"], [class*="JobCard_"], div.job-card-container, li.jobs-search-results-list__list-item, li.artdeco-list__item'
+    ) || cardCandidate;
 
     if (cardEl && !cardEl.closest('.jobs-search__job-details, .scaffold-layout__detail, .jobs-details, .jobs-description-content, #jobDescriptionText, [data-test="job-details"], .jobsearch-JobComponent, #sjg-shadow-host-root') && !cardEl.classList.contains('jobsearch-ResultsList') && cardEl.id !== 'mosaic-provider-jobcards') {
       const rawT = cardEl.querySelector(
