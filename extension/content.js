@@ -379,14 +379,16 @@
       document.querySelector('.fastviewjob') ||
       document;
 
-    // Auto-click Glassdoor "Mehr anzeigen" if found
-    if (activePane && detectPlatform() === 'Glassdoor') {
-        const buttons = activePane.querySelectorAll('button');
-        for (const btn of buttons) {
-            if (btn.innerText.includes('Mehr anzeigen')) {
+    // Auto-click "Show more" / "Mehr anzeigen" / "顯示更多" buttons across platforms
+    if (activePane) {
+        const expandButtons = activePane.querySelectorAll('button, div[role="button"], span[role="button"]');
+        expandButtons.forEach(btn => {
+            const text = (btn.innerText || '').trim().toLowerCase();
+            // Include common 'show more' variations
+            if (text.includes('mehr anzeigen') || text.includes('show more') || text.includes('顯示更多') || text.includes('显示更多')) {
                 btn.click();
             }
-        }
+        });
     }
 
     // 3. Channel 1: Native Live DOM Traversal (Right pane + Document-wide multi-candidate traversal)
