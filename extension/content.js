@@ -380,15 +380,29 @@
       document;
 
     // Auto-click "Show more" / "Mehr anzeigen" / "顯示更多" buttons across platforms
-    if (activePane) {
-        const expandButtons = activePane.querySelectorAll('button, div[role="button"], span[role="button"]');
+    function simulateClick(el) {
+        const eventOptions = { bubbles: true, cancelable: true, view: window };
+        el.dispatchEvent(new MouseEvent('mousedown', eventOptions));
+        el.dispatchEvent(new MouseEvent('mouseup', eventOptions));
+        el.dispatchEvent(new MouseEvent('click', eventOptions));
+    }
+
+    function expandAllButtons(pane) {
+        if (!pane) return;
+        const expandButtons = pane.querySelectorAll('button, div[role="button"], span[role="button"]');
         expandButtons.forEach(btn => {
             const text = (btn.innerText || '').trim().toLowerCase();
-            // Include common 'show more' variations
-            if (text.includes('mehr anzeigen') || text.includes('show more') || text.includes('顯示更多') || text.includes('显示更多')) {
-                btn.click();
+            // Include common 'show more' variations and check if visible
+            if ((text.includes('mehr anzeigen') || text.includes('show more') || text.includes('顯示更多') || text.includes('显示更多')) && btn.offsetParent !== null) {
+                simulateClick(btn);
             }
         });
+    }
+
+    if (activePane) {
+        expandAllButtons(activePane);
+        setTimeout(() => expandAllButtons(activePane), 500);
+        setTimeout(() => expandAllButtons(activePane), 1500);
     }
 
     // 3. Channel 1: Native Live DOM Traversal (Right pane + Document-wide multi-candidate traversal)
