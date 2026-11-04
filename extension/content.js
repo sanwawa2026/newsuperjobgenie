@@ -458,7 +458,7 @@
         const textMatches = [
             'show more', 'mehr anzeigen', '顯示更多', '显示更多',
             'read more', 'see more', 'voir plus', 'ver más',
-            'view full', 'view more', 'expand'
+            'view full', 'view more', 'expand', 'mehr lesen', 'alles anzeigen', 'vollständige stellenbeschreibung'
         ];
 
         const clickedSet = new Set();
