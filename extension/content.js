@@ -379,6 +379,16 @@
       document.querySelector('.fastviewjob') ||
       document;
 
+    // Auto-click Glassdoor "Mehr anzeigen" if found
+    if (activePane && detectPlatform() === 'Glassdoor') {
+        const buttons = activePane.querySelectorAll('button');
+        for (const btn of buttons) {
+            if (btn.innerText.includes('Mehr anzeigen')) {
+                btn.click();
+            }
+        }
+    }
+
     // 3. Channel 1: Native Live DOM Traversal (Right pane + Document-wide multi-candidate traversal)
     const candidateSelectors = [
       // Handshake
