@@ -416,10 +416,12 @@
                     [class*="TruncatedContent_truncated"],
                     [class*="TruncatedContent_content"],
                     [class*="DescStyles_desc"],
+                    [class*="DescStyles_descriptionContainer"],
                     [class*="jobDescriptionContent"],
                     [data-test="jobDescriptionText"],
                     [data-test="job-description"],
                     [data-test="job-description-content"],
+                    [data-test="job-description-text"],
                     #JobDescriptionContainer,
                     .jobDescriptionContent,
                     .jobs-description__content,
@@ -439,7 +441,9 @@
                     [class*="JobDetails_showMoreGradient"],
                     [class*="gradientOverlay"],
                     .jobDescriptionContent__gradient,
-                    .jobs-description__footer {
+                    .jobs-description__footer,
+                    button[data-test="expand-description"],
+                    [class*="TruncatedContent_showMore"] {
                         display: none !important;
                     }
                 `;
@@ -447,25 +451,42 @@
             }
         } catch (e) {}
 
-        // 2. High-precision click triggering ONLY inside the job description container (NEVER document-wide!)
+        // ZERO-CLICK PROHIBITION for Glassdoor and LinkedIn:
+        // CSS force-unfold handles 100% of container un-clamping without executing any synthetic clicks.
+        // This permanently eliminates qualification modal popups ("Füge deine Qualifikationen für diesen Job hinzu")
+        // and browser history/navigation bouncing.
+        const currentPlatform = detectPlatform();
+        if (currentPlatform === 'Glassdoor' || currentPlatform === 'LinkedIn' || window.location.hostname.includes('glassdoor.') || window.location.hostname.includes('linkedin.')) {
+            // Dismiss any existing qualifications modal on Glassdoor if present
+            try {
+                const qualifModal = document.querySelector('[data-test="qualification-modal"], div[role="dialog"]');
+                if (qualifModal) {
+                    const txt = (qualifModal.innerText || '').toLowerCase();
+                    if (txt.includes('qualifikationen') || txt.includes('qualifications') || txt.includes('füge deine qualifikationen')) {
+                        const closeBtn = qualifModal.querySelector('button[aria-label*="close" i], button[aria-label*="schließen" i], button[data-test="modal-close"], button.close, svg');
+                        if (closeBtn) closeBtn.click();
+                        else qualifModal.remove();
+                    }
+                }
+            } catch (e) {}
+            return;
+        }
+
+        // 2. High-precision click triggering ONLY inside the job description container (NEVER document-wide, NEVER qualifications)
         const targetContainer = (pane && pane !== document && pane !== document.body && pane !== document.documentElement)
-            ? pane
-            : document.querySelector('.jobs-description, .scaffold-layout__detail, [class*="JobDetails_jobDetailsContainer"], [data-test="job-details"], #jobDescriptionText, .jobsearch-JobComponent');
+            ? (pane.querySelector('#jobDescriptionText, [data-testid="jobDescriptionText"], [data-hook="job-description"], .jobsearch-JobComponent-description, .job_description') || pane)
+            : document.querySelector('#jobDescriptionText, [data-hook="job-description"], .jobsearch-JobComponent-description');
         
         if (!targetContainer) return;
 
         const specificSelectors = [
             'button.jobs-description__footer-button',
-            'button[aria-label*="Show more, opens a modal"]',
             'button[aria-label*="Show more"]',
             'button.jobs-box__html-show-more-button',
-            'button[data-tracking-control-name*="show_more"]',
             'button[data-test="show-more-button"]',
             'button[data-test="job-description-show-more"]',
             'button[data-test="show-more"]',
             'button[data-test="expand-description"]',
-            'button[class*="JobDetails_showMore"]',
-            'button[class*="TruncatedContent_showMore"]',
             'button[class*="showMoreButton"]',
             'button[class*="ShowMoreButton"]',
             'button[class*="showMore"]'
@@ -489,18 +510,24 @@
                         return;
                     }
 
-                    const txt = (btn.innerText || btn.textContent || '').trim().toLowerCase();
-                    const ariaLabel = (btn.getAttribute('aria-label') || '').toLowerCase();
-                    const btnClass = (btn.className || '').toString().toLowerCase();
-
-                    // Guard: Avoid clicking company profiles, apply buttons, navigation, follow, save, share, message
-                    if (/apply|follow|save|share|message|company|sign in|login|connect|network|messaging|notification/i.test(txt) ||
-                        /apply|follow|save|share|message|company|connect/i.test(ariaLabel) ||
-                        /apply|follow|save|share|message|company/i.test(btnClass)) {
+                    // Strict exclusion: Never click anything inside qualifications, header, modal, review, or salary containers
+                    if (btn.closest('[data-test*="qualif"], [class*="Qualif"], [class*="qualif"], [data-test*="skill"], [class*="Skill"], [data-test*="salary"], [class*="Salary"], [class*="modal"], [role="dialog"], header, nav, footer, [data-test*="header"]')) {
                         return;
                     }
 
+                    const txt = (btn.innerText || btn.textContent || '').trim().toLowerCase();
+                    const ariaLabel = (btn.getAttribute('aria-label') || '').toLowerCase();
+                    const btnClass = (btn.className || '').toString().toLowerCase();
                     const dataTest = (btn.getAttribute('data-test') || '').toLowerCase();
+
+                    // Guard: Avoid clicking company profiles, apply buttons, navigation, follow, save, share, message, qualifications, skills, surveys
+                    if (/apply|follow|save|share|message|company|sign in|login|connect|network|messaging|notification|qualif|skill|fähigkeiten|kenntnisse|fertig|done|close|schließen|modal|dialog|survey|review|bewertung|rating|salary|gehalt|preference|einstellung|alert/i.test(txt) ||
+                        /apply|follow|save|share|message|company|connect|qualif|skill|modal|dialog|close|salary/i.test(ariaLabel) ||
+                        /apply|follow|save|share|message|company|qualif|skill|modal|dialog|close/i.test(btnClass) ||
+                        /qualif|skill|modal|dialog|close/i.test(dataTest)) {
+                        return;
+                    }
+
                     const isMatch = textMatches.some(t => txt.includes(t)) || 
                                     dataTest.includes('show-more') ||
                                     dataTest.includes('expand') ||

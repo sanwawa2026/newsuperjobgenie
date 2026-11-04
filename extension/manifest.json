@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SuperJobGenie: AI Resume Matcher & Cover Letter",
   "short_name": "SuperJobGenie",
-  "version": "4.0.9",
+  "version": "4.1.0",
   "description": "Stop pasting job posts into ChatGPT. One click gives you an ATS match score, skill gaps, and a tailored cover letter.",
   "permissions": [
     "storage",
