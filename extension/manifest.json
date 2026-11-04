@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "SuperJobGenie - AI Career Intelligence & Deep JD Matcher",
+  "name": "SuperJobGenie: AI Resume Matcher & Cover Letter",
+  "short_name": "SuperJobGenie",
   "version": "4.0.8",
-  "description": "AI ATS resume matcher and cover letter generator for Indeed, LinkedIn, Glassdoor, 104 人力銀行, CakeResume.",
+  "description": "Stop pasting job posts into ChatGPT. One click gives you an ATS match score, skill gaps, and a tailored cover letter.",
   "permissions": [
     "storage",
     "activeTab",
