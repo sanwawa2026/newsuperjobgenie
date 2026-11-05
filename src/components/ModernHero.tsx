@@ -377,9 +377,24 @@ export const ModernHero: React.FC<ModernHeroProps> = ({
               <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border-2 border-slate-700/80 shadow-2xl flex items-center justify-center group">
                 
                 {/* 1080p Pristine Frame of the Retro Computer-Head Character */}
-                <img
-                  src="/assets/aistudio/hf_hero_frame3.jpg"
-                  alt="SuperJobGenie 复古人 主讲"
+                <video
+                  key="modern-retro-person"
+                  ref={(el) => {
+                    if (el) {
+                      el.muted = true;
+                      el.defaultMuted = true;
+                      const playPromise = el.play();
+                      if (playPromise !== undefined) {
+                        playPromise.catch(() => {});
+                      }
+                    }
+                  }}
+                  src="/assets/aistudio/retro_person_avatar_pure.mp4"
+                  poster="/assets/aistudio/retro_person_avatar_pure.jpg"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                   className="w-full h-full object-cover select-none transition-transform duration-500 group-hover:scale-105"
                 />
 

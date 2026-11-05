@@ -128,6 +128,40 @@ export const ResumeJobIngestionView: React.FC<ResumeJobIngestionViewProps> = ({
           </div>
         </div>
 
+        {/* Compact Retro Person TV Monitor on the Workstation */}
+        <div className="flex items-center gap-2.5 bg-slate-950/90 border border-slate-700/80 rounded-xl p-1.5 pr-3 shadow-inner">
+          <div className="relative w-14 h-10 rounded-lg overflow-hidden bg-black border border-slate-600 shrink-0">
+            <video
+              key="workstation-retro-person"
+              ref={(el) => {
+                if (el) {
+                  el.muted = true;
+                  el.defaultMuted = true;
+                  const playPromise = el.play();
+                  if (playPromise !== undefined) {
+                    playPromise.catch(() => {});
+                  }
+                }
+              }}
+              src="/assets/aistudio/retro_person_avatar_pure.mp4"
+              poster="/assets/aistudio/retro_person_avatar_pure.jpg"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full bg-[#00ff66] animate-ping" />
+          </div>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] font-mono font-bold text-slate-200">GOLDSTAR CRT</span>
+              <span className="text-[8px] font-mono text-[#00ff66] bg-emerald-950/80 px-1 rounded border border-emerald-500/50">ONLINE</span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono">复古人 AI 工作台监视中</span>
+          </div>
+        </div>
+
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleBuggyMode}

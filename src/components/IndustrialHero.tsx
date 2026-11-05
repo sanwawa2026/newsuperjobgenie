@@ -269,11 +269,9 @@ export const IndustrialHero: React.FC<IndustrialHeroProps> = ({
                     {/* Screen Outer Well */}
                     <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black border-2 border-[#373d42] shadow-[inset_0_0_20px_rgba(0,0,0,0.9)] flex items-center justify-center">
                       
-                      {/* High-res CRT Frame of the True Retro Computer-Head Person ("复古人") */}
+                      {/* High-res CRT Frame of the Retro Computer-Head Person */}
                       <video
-                        key="goldstar-retro-person-pure-v3"
-                        src="/assets/aistudio/retro_person_avatar_pure.mp4?v=20261101_v3"
-                        poster="/assets/aistudio/retro_person_avatar_pure.jpg"
+                        src="/assets/aistudio/retro_person_avatar_pure.mp4"
                         autoPlay
                         loop
                         muted

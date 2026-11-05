@@ -110,6 +110,61 @@ export const ShortsStudioModal: React.FC<ShortsStudioModalProps> = ({
 
   const scriptPackages: ScriptPackage[] = [
     {
+      id: 'edge_tts_data_engineer_8s',
+      badge: '⚡ Edge TTS 8s NYC Hook (High CTR 靶向爆破)',
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      title: 'Edge TTS 8s: Looking for a High Paying Data Engineer Job in New York?',
+      hookThreeSec: 'Looking for a high paying Data Engineer job in New York? Stop scrolling. ⚡',
+      targetAudience: 'New York Data Engineers / Tech Seekers (Edge TTS 真实语调，垂直高薪精准触达)',
+      duration: '8.6 Seconds',
+      voiceoverTrack: '/audio/google_tts_data_engineer_8s.mp3',
+      masterTrack: '/audio/ny_data_engineer_master_mix.mp3',
+      timeline: [
+        {
+          time: '0:00 - 0:03',
+          seconds: [0, 3],
+          stage: 'TARGET HOOK (0-3s)',
+          caption: 'DATA ENGINEER IN NYC? 🗽',
+          voiceover: 'Looking for a high paying data engineer job in New York? (Edge TTS 亲和自然语气)',
+          visual: '特写纽约高薪岗位雷达与 180K+ 薪资标签，复古显像管机器人眼神锁定。',
+          sfx: 'Subtle Radar Beep + Digital Swoosh'
+        },
+        {
+          time: '0:03 - 0:06',
+          seconds: [3, 6],
+          stage: 'PAIN POINT (3-6s)',
+          caption: 'STOP ENDLESS SCROLLING 🛑',
+          voiceover: 'Stop wasting hours scrolling through endless listings...',
+          visual: '滑动红叉闪烁，展示手动投递 50 次 0 回复的黑洞痛点。',
+          sfx: 'Warning Tick + Tape Stop'
+        },
+        {
+          time: '0:06 - 0:09',
+          seconds: [6, 9],
+          stage: 'SOLUTION (6-9s)',
+          caption: 'SUPERJOBGENIE 🚀 FREE',
+          voiceover: '...and manual applications. One-click ATS Match & Cover Letter.',
+          visual: '一键激光全量提取 8,000+ 字符，97% 匹配度与高管求职信 1 秒生成！',
+          sfx: 'Power Up Chime + Bass Drop'
+        }
+      ],
+      youtubeMetadata: {
+        title: 'Looking for High Paying Data Engineer Jobs in NY? Stop Wasting Hours! #Shorts',
+        description: 'Stop scrolling through endless job listings. SuperJobGenie parses 8,000+ char deep JDs on LinkedIn & Indeed, scoring your resume against ATS filters and generating tailored cover letters in 1 click.\n\n👉 Chrome Web Store (100% Free): https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb\n\n#DataEngineer #JobSearch #NewYorkTech #ResumeTips #ATSResume #Shorts',
+        pinnedComment: '⚡ Stop manual applying! Add SuperJobGenie to Chrome for free in 1 click: https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb',
+        tags: ['Data Engineer', 'New York Jobs', 'ATS Resume', 'Tech Careers', 'SuperJobGenie', 'Cover Letter']
+      },
+      socialPush: {
+        redditTitle: 'Looking for a high paying Data Engineer job in NY? Stop wasting hours manual applying',
+        redditPost: `If you're job hunting for Data Engineer or Software roles in NYC right now, you know the pain: 50 applications, 0 replies, ATS bots filtering out resumes in seconds.
+
+I built SuperJobGenie: a 100% free Chrome extension that captures full 8,000+ character deep job postings, runs local ATS matching, and generates executive cover letters in 1 click.
+
+Chrome Web Store (Free, zero data tracked):
+https://chromewebstore.google.com/detail/ghhibfhcclohbgfekckljkifkkpfkmne?utm_source=item-share-cb`
+      }
+    },
+    {
       id: 'ultra_loop_4s',
       badge: '🔥 100% Seamless Loop (Retention 120%+ 完播率破表)',
       badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
@@ -798,7 +853,60 @@ Completely free, no login or credit card needed for the web demo: [LINK]`
                   <div className="relative w-full h-full flex flex-col justify-between p-4">
                     {/* Background visual simulation layer based on active timeline */}
                     <div className="absolute inset-0 z-0">
-                  {selectedScriptId === 'ultra_loop_4s' ? (
+                  {selectedScriptId === 'edge_tts_data_engineer_8s' ? (
+                    currentTime < 3 ? (
+                      <div className="w-full h-full bg-gradient-to-b from-emerald-950 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center animate-bounce shadow-lg shadow-emerald-500/30">
+                          <span className="text-3xl">🗽💼</span>
+                        </div>
+                        <div className="bg-slate-950/90 border border-emerald-500/40 p-2.5 rounded-xl text-center text-xs text-emerald-200 w-full space-y-1">
+                          <div className="font-extrabold text-white flex items-center justify-center gap-1.5">
+                            <span>🎯 NYC Data Engineer 痛点抛出</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300">
+                            "Looking for a high paying data engineer job in New York?"
+                          </p>
+                        </div>
+                        <div className="text-[10px] font-mono text-emerald-300 bg-emerald-950/90 border border-emerald-500/50 px-2.5 py-0.5 rounded-full">
+                          0-3s 🗽 精准触达 · 纽约高薪刚需
+                        </div>
+                      </div>
+                    ) : currentTime < 6 ? (
+                      <div className="w-full h-full bg-gradient-to-b from-rose-950 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-rose-500/20 border-2 border-rose-400 flex items-center justify-center animate-pulse shadow-lg shadow-rose-500/30">
+                          <span className="text-3xl">🛑⏳</span>
+                        </div>
+                        <div className="bg-slate-950/90 border border-rose-500/40 p-2.5 rounded-xl text-center text-xs text-rose-200 w-full space-y-1">
+                          <div className="font-extrabold text-rose-300 flex items-center justify-center gap-1.5">
+                            <span>⚡ 停止无休止的机械刷帖投递</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300">
+                            "Stop wasting hours scrolling through endless listings..."
+                          </p>
+                        </div>
+                        <div className="text-[10px] font-mono text-rose-300 bg-rose-950/90 border border-rose-500/50 px-2 py-0.5 rounded-full">
+                          3-6s ⏳ 直击痛点 · 50份投递0回复
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-b from-cyan-950 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
+                        <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/30 animate-pulse">
+                          <span className="text-3xl">🚀✨</span>
+                        </div>
+                        <div className="bg-slate-950/90 border border-cyan-500/40 p-2.5 rounded-xl text-center text-xs text-cyan-200 w-full space-y-1">
+                          <div className="font-extrabold text-cyan-300 flex items-center justify-center gap-1.5 text-sm">
+                            <span>SUPERJOBGENIE 1-CLICK</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300">
+                            "...and manual applications. 1-Click ATS Match & Cover Letter!"
+                          </p>
+                        </div>
+                        <div className="text-[10px] font-mono text-cyan-300 bg-cyan-950/90 border border-cyan-500/50 px-2.5 py-0.5 rounded-full">
+                          6-9s 🚀 闭环转化 · 立即免费添加
+                        </div>
+                      </div>
+                    )
+                  ) : selectedScriptId === 'ultra_loop_4s' ? (
                     currentTime < 1 ? (
                       <div className="w-full h-full bg-gradient-to-b from-indigo-950 via-slate-900 to-black p-4 flex flex-col justify-center items-center text-center space-y-3">
                         <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 border-2 border-indigo-400 flex items-center justify-center animate-bounce shadow-lg shadow-indigo-500/30">

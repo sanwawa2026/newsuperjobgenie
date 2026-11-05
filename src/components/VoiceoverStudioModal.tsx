@@ -26,6 +26,17 @@ export const VoiceoverStudioModal: React.FC<VoiceoverStudioModalProps> = ({ isOp
 
   const tracks: AudioTrack[] = [
     {
+      id: 'edge_tts_8s',
+      title: '⚡ 8s Edge TTS High-Retention Hook (Data Engineer NYC)',
+      subtitle: 'Edge TTS Verified • Targeted NYC Data Engineer audience • Instant pain point hook',
+      timeRange: '0:00 - 0:09',
+      voiceOnlyFile: '/audio/google_tts_data_engineer_8s.mp3',
+      masterMixFile: '/audio/ny_data_engineer_master_mix.mp3',
+      badge: 'Edge TTS Ready',
+      badgeColor: 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40',
+      script: 'Looking for a high paying data engineer job in New York? Stop wasting hours scrolling through endless listings and manual applications.'
+    },
+    {
       id: 'short_38s',
       title: '📱 38s Vertical Short (Reels, TikTok & YouTube Shorts)',
       subtitle: 'High-retention algorithm cut • Fast hook • Pivot prioritized',

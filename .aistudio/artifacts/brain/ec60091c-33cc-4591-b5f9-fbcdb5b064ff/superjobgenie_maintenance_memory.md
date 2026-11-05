@@ -40,3 +40,12 @@ If performance degrades or new job boards are integrated, prioritize implementin
   3. **弹窗自消解**：若 Glassdoor 页面触发了该资格弹窗，插件静默自消解。
   4. 版本提升至 `4.1.0`。
 
+## 2026-11-04 · 复古人电视机与 Edge TTS 配音深度武装
+- **工作台电视机复古人修复**:
+  1. 修复了浏览器中 React `<video muted autoPlay>` DOM 属性未显式注入 `el.muted = true` 导致部分环境偶发静止拦截的问题，添加了 programmatic ref 强制就位与 autoplay promise 护航。
+  2. 在求职工作台（`ResumeJobIngestionView`）与首屏控制台（`IndustrialHero`）双重部署复古人 GoldStar CRT 电视监视器组件。
+- **Edge TTS 配音矩阵装配**:
+  1. 成功录制并合成 Edge TTS 纽约数据工程师 8s 黄金爆款 Hook 音频（原声与带 Cyberpunk BGM 混音版）。
+  2. 装配进 `VoiceoverStudioModal` 及 `ShortsStudioModal`，提供一键试听、波形同步及 MP3 下载。
+  3. 首屏电视机新增 `EDGE TTS (8S NYC)` / `GEMINI MIX (38S)` 双引擎一键切换。
+
